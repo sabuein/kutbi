@@ -1,7 +1,3 @@
--- source /home/sabuein/my/projects/kutbi/api/tables.sql
-
-USE kutbi_27may;
-
 DROP TABLE Reviews;
 DROP TABLE User_Passwords;
 DROP TABLE Users;
