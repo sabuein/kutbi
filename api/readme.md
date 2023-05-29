@@ -27,5 +27,8 @@ npm install multer
 npm install mysql
 
 ## Start the server
-npm start
+npm run start
+
+## Reset the database
+npm run dbreset
 ```
