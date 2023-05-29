@@ -1,15 +1,17 @@
-DROP TABLE Reviews;
-DROP TABLE User_Passwords;
-DROP TABLE Users;
-DROP TABLE Book_Genres;
-DROP TABLE Genres;
-DROP TABLE Book_Authors;
-DROP TABLE Books;
-DROP TABLE Publishers;
-DROP TABLE Authors;
+-- Drop all tables, if exists
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS User_Passwords;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Book_Genres;
+DROP TABLE IF EXISTS Genres;
+DROP TABLE IF EXISTS Book_Authors;
+DROP TABLE IF EXISTS Book_Images;
+DROP TABLE IF EXISTS Books;
+DROP TABLE IF EXISTS Publishers;
+DROP TABLE IF EXISTS Authors;
 
--- Create Authors table with separate columns for different social media platforms
-CREATE TABLE Authors (
+-- Create Authors table
+CREATE TABLE IF NOT EXISTS Authors (
     author_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     dob DATE,
@@ -23,13 +25,14 @@ CREATE TABLE Authors (
     instagram VARCHAR(100),
     youtube VARCHAR(100),
     website VARCHAR(100),
+    photo_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
 -- Create Publishers table
-CREATE TABLE Publishers (
+CREATE TABLE IF NOT EXISTS Publishers (
     publisher_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     bio TEXT,
@@ -42,13 +45,14 @@ CREATE TABLE Publishers (
     instagram VARCHAR(100),
     youtube VARCHAR(100),
     website VARCHAR(100),
+    photo_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
--- Create Books table with additional columns
-CREATE TABLE Books (
+-- Create Books table
+CREATE TABLE IF NOT EXISTS Books (
     book_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200),
     publication_date DATE,
@@ -64,8 +68,16 @@ CREATE TABLE Books (
     FOREIGN KEY (publisher_id) REFERENCES Publishers(publisher_id)
 );
 
+-- Create Book_Images table (Many-to-Many Mapping)
+CREATE TABLE IF NOT EXISTS Book_Images (
+    id INT PRIMARY KEY,
+    book_id INT,
+    photo_url VARCHAR(255),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
 -- Create Book_Authors table (Many-to-Many Mapping)
-CREATE TABLE Book_Authors (
+CREATE TABLE IF NOT EXISTS Book_Authors (
     book_id INT,
     author_id INT,
     FOREIGN KEY (book_id) REFERENCES Books(book_id),
@@ -74,7 +86,7 @@ CREATE TABLE Book_Authors (
 );
 
 -- Create Genres table
-CREATE TABLE Genres (
+CREATE TABLE IF NOT EXISTS Genres (
     genre_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -83,7 +95,7 @@ CREATE TABLE Genres (
 );
 
 -- Create Book_Genres table (Many-to-Many Mapping)
-CREATE TABLE Book_Genres (
+CREATE TABLE IF NOT EXISTS Book_Genres (
     book_id INT,
     genre_id INT,
     FOREIGN KEY (book_id) REFERENCES Books(book_id),
@@ -92,7 +104,7 @@ CREATE TABLE Book_Genres (
 );
 
 -- Create Users table
-CREATE TABLE Users (
+CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100),
     email VARCHAR(100),
@@ -107,13 +119,14 @@ CREATE TABLE Users (
     instagram VARCHAR(100),
     youtube VARCHAR(100),
     website VARCHAR(100),
+    photo_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
--- Create User_Passwords table to store passwords and salts
-CREATE TABLE User_Passwords (
+-- Create User_Passwords table
+CREATE TABLE IF NOT EXISTS User_Passwords (
     user_id INT,
     password_hash VARCHAR(100),
     salt VARCHAR(50),
@@ -125,7 +138,7 @@ CREATE TABLE User_Passwords (
 );
 
 -- Create Reviews table
-CREATE TABLE Reviews (
+CREATE TABLE IF NOT EXISTS Reviews (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
     book_id INT,
     user_id INT,
