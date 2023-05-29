@@ -1,13 +1,18 @@
 # kutbi
+
 A way to organise books
 
 ## Stack
-Node.js
-Express.js
-MariaDB
+
+- Node.js
+- Express.js
+- MariaDB
 
 ### Useful links
-https://www.npmjs.com/package/mysql
+
+- https://www.npmjs.com/package/mysql
+
+### Terminal:
 
 ```bash
 # Start a Node.js project
@@ -22,5 +27,5 @@ npm install multer
 npm install mysql
 
 ## Start the server
-node server.js
+npm start
 ```
