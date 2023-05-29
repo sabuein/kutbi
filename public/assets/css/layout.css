@@ -13,6 +13,7 @@ body {
     margin: 0 auto;
     width: 960px;
     max-width: 100%;
+    line-height: 2;
 }
 
 nav {
@@ -71,11 +72,11 @@ main#main-content {
 
 details {
     padding: .5rem .5rem 0;
-    cursor: pointer;
 }
 
 summary {
     padding: .5rem;
+    cursor: pointer;
 }
 
 details[open] {
@@ -88,7 +89,6 @@ summary h3 {
 
 form {
     width: 100%;
-    cursor: auto;
 }
 
 fieldset {
@@ -154,21 +154,35 @@ input#author-avatar {
     display: initial;
 }
 
-div:has(input[type="search"] + input[type="submit"]) {
+.app-search {
     margin: 1rem 0;
+    padding: 1rem;
     width: 100%;
 }
 
-input[type="search"] {
-    color: inherit;
+.app-search input {
+    padding: .25rem;
+}
+
+.app-search input[type="search"] {
+    flex: 1 1 5rem;
 }
 
 div#avatar-preview {
     text-align: center;
 }
 
+div#avatar-preview > p {
+    padding: 1rem;
+    border: thin dashed;
+}
+
 div#avatar-preview ol {
     list-style-type: none;
+}
+
+p {
+    margin: 1rem 0 0;
 }
 
 img {
