@@ -36,6 +36,7 @@
     "id": "/?source=pwa",
     "start_url": "/?source=pwa",
     "background_color": "#3367D6",
+    "display_override": ["window-control-overlay", "minimal-ui"],
     "display": "standalone",
     "scope": "/",
     "theme_color": "#3367D6",
@@ -68,13 +69,13 @@
     "description": "Weather forecast information",
     "screenshots": [
         {
-            "src": "/images/screenshot1.png",
+            "src": "./assets/images/screenshot1.png",
             "type": "image/png",
             "sizes": "540x720",
             "form_factor": "narrow"
         },
         {
-            "src": "/images/screenshot2.jpg",
+            "src": "./assets/images/screenshot2.jpg",
             "type": "image/jpg",
             "sizes": "720x540",
             "form_factor": "wide"
