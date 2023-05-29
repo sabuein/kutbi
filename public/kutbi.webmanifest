@@ -34,34 +34,25 @@
         }
     ],
     "id": "/?source=pwa",
-    "start_url": "/?source=pwa",
+    "start_url": "./?source=pwa",
+    "lang": "ar",
+    "dir": "rtl",
     "background_color": "#3367D6",
     "display_override": ["window-control-overlay", "minimal-ui"],
     "display": "standalone",
-    "scope": "/",
+    "scope": "./",
     "theme_color": "#3367D6",
+    "orientation": "landscape",
     "shortcuts": [
         {
-            "name": "How's weather today?",
+            "name": "Add Authors?",
             "short_name": "Add",
-            "description": "View weather information for today",
-            "url": "/add?source=pwa",
+            "description": "Add new author or edit one",
+            "url": "./authors.html?source=pwa",
             "icons": [
                 {
-                    "src": "/images/add.png",
-                    "sizes": "192x192"
-                }
-            ]
-        },
-        {
-            "name": "How's weather tomorrow?",
-            "short_name": "View",
-            "description": "View weather information for tomorrow",
-            "url": "/view?source=pwa",
-            "icons": [
-                {
-                    "src": "/images/tomorrow.png",
-                    "sizes": "192x192"
+                    "src": "./assets/images/add.png",
+                    "sizes": "239x256"
                 }
             ]
         }
