@@ -18,12 +18,16 @@ body {
 
 nav {
     position: fixed;
-    top: 5rem;
+    top: 1rem;
     right: 1rem;
 }
 
 nav button {
-    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 2rem;
+    width: 3rem;
+    height: 3rem;
+    cursor: pointer;
 }
 
 body > header,
@@ -110,6 +114,14 @@ fieldset[name="field"] label {
 
 fieldset[name="field"] label + :is(input, select, textarea) {
     flex: 1 0 18rem;
+}
+
+fieldset[name="field"] label + input[type="number"] {
+    flex: unset;
+}
+
+fieldset[name="field"] input[type="number"] + input[type="button"] {
+    padding: .25rem;
 }
 
 label > span {
