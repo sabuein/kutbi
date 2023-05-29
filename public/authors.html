@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>المؤلفين</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+    <base href="/public/" target="_top">
+    <link rel="manifest" href="./kutbi.webmanifest">
+    <link rel="stylesheet" type="text/css" href="./assets/css/layout.css" />
+    <script type="importmap">
+        {
+            "imports": {
+                "auth": "./assets/js/modules/auth.mjs",
+                "data": "./assets/js/modules/data.mjs",
+                "helpers": "./assets/js/modules/helpers.mjs",
+                "interface": "./assets/js/modules/interface.mjs",
+                "monitor": "./assets/js/modules/monitor.mjs",
+                "requests": "./assets/js/modules/requests.mjs"
+            }
+        }
+    </script>
+    <script type="module" src="./assets/js/app.mjs"></script>
+</head>
+<body class="flexy">
+    <div class="skipnav">
+        <a href="#maincontent">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
+    </div>
+    <header class="app-header row flexy gap-x2" role="banner">
+        <figure>
+            <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+        </figure>
+        <div>
+            <h1 role="heading" aria-level="1">كتبي</h1>
+            <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+        </div>
+    </header>
+    <nav class="flexy row">
+        <button type="button" id="menuToggle">&#x2630;</button>
+    </nav>
+    <noscript class="flexy">
+        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+    </noscript>
+    <div class="flexy row gap-x1">
+        <input type="search" id="searching" />
+        <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
+    </div>
+    <main id="main-content">
+        <form action="http://localhost:3456/authors/add" method="post" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
+            <fieldset class="flexy row gap-x1" name="field" dir="rtl">
+                <legend>
+                    <label for="form-dir">المؤلف</label>
+                    <select id="form-dir" name="selectDir" onchange="field.dir = this.value; field.dir === 'rtl' ? (selectDir.labels[0].textContent = 'المؤلف') && (authorId.labels[0].textContent = 'رقم العضوية&colon;') : (selectDir.labels[0].textContent = 'Author') && (authorId.labels[0].textContent = 'Membership number&colon;');">
+                        <option value="rtl">ع</option>
+                        <option value="ltr">EN</option>
+                    </select>
+                </legend>
+                <div class="flexy row start gap-x1">
+                    <label for="author-id">رقم العضوية&colon;</label>
+                    <input type="number" id="author-id" name="authorId" pattern="\d{4,4}" readonly value="0001" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-fname">الاسم الأول&colon; <span>(3-16) حرف</span></label>
+                    <input type="text" id="author-fname" name="fname" autocomplete="name" pattern="\w{3,16}" required value="صلاح الدين" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-lname">الاسم الأخير&colon; <span>(3-16) حرف</span></label>
+                    <input type="text" id="author-lname" name="lname" autocomplete="name" pattern="\w{3,16}" required value="أبو عين" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-dob">تاريخ الميلاد&colon;</label>
+                    <input type="date" id="author-dob" name="bday" autocomplete="bday" value="1987-01-18" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-country">اللغة&colon;</label>
+                    <select id="author-language" name="language" autocomplete="language">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-phone">رقم الهاتف&colon;</label>
+                    <input type="tel" id="author-phone" name="tel" autocomplete="tel" value="+447930120661" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-country">الدولة&colon;</label>
+                    <select id="author-country" name="country" autocomplete="country">
+                        <optgroup label="الدول العربية">
+                            <option value="ps">فلسطين المحتلة</option>
+                            <option value="jo">الأردن</option>
+                            <option value="sy">سوريا</option>
+                            <option value="lb">لبنان</option>
+                            <option value="eg">مصر</option>
+                        </optgroup>
+                        <optgroup label="أوروبا">
+                            <option value="gb" selected>المملكة المتحدة</option>
+                            <option value="fr">فرنسا</option>
+                        </optgroup>
+                        <optgroup label="أمريكا الشمالية">
+                            <option value="us">الولايات المتحدة</option>
+                            <option value="um">جزر الولايات المتحدة البعيدة الصغرى</option>
+                            <option value="ca">كندا</option>
+                            <option value="mx">المكسيك</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-email">البريد الإلكتروني&colon;</label>
+                    <input type="email" id="author-email" name="email" autocomplete="email" size="32" minlength="3" maxlength="64" value="sabuein@gmail.com" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-github">جيت هب&colon;</label>
+                    <input type="url" id="author-github" name="github" value="https://github.com/sabuein" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-twitter">تويتر&colon;</label>
+                    <input type="url" id="author-twitter" name="twitter" value="https://twitter.com/sabuein" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-facebook">فيسبوك&colon;</label>
+                    <input type="url" id="author-facebook" name="facebook" value="https://www.facebook.com/sabuein/" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-instagram">إنستغرام&colon;</label>
+                    <input type="url" id="author-instagram" name="instagram" value="https://www.instagram.com/sabuein/" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-youtube">يوتيوب&colon;</label>
+                    <input type="url" id="author-youtube" name="youtube" value="https://www.youtube.com/@sabuein" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-website">الموقع الإلكتروني&colon;</label>
+                    <input type="url" id="author-website" name="url" autocomplete="url" value="https://sabuein.github.io/" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-bio">نبذة مختصرة&colon;</label>
+                    <textarea id="author-bio" name="bio" rows="8">A human&comma; father&comma; husband&comma; digital creative and web developer&period;</textarea>
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-avatar">صورة شخصية&colon;</label>
+                    <input type="file" id="author-avatar" name="photo" autocomplete="photo" accept="image/*;capture=camera" capture="user" multiple />
+                </div>
+                <div class="flexy" id="avatar-preview">
+                    <p>لم يتم اختيار أي صورة&hellip;</p>
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-created-at">تاريخ الإضافة&colon;</label>
+                    <input type="datetime-local" id="author-created-at" name="created" value="2021-11-13T09:11" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-edited-at">تاريخ التحديث&colon;</label>
+                    <input type="datetime-local" id="author-edited-at" name="edited" value="2023-05-28T14:32" />
+                </div>
+                <div class="flexy row start gap-x1">
+                    <label for="author-deleted-at">تاريخ الحذف&colon;</label>
+                    <input type="datetime-local" id="author-deleted-at" name="deleted" value="2025-12-31T00:55" />
+                </div>
+                <div class="flexy row gap-x1">
+                    <input type="submit" id="create" value="إضافة" />
+                    <input type="submit" id="update" value="تحديث" />
+                    <input type="reset" id="reset" value="مسح" />
+                </div>
+            </fieldset>
+        </form>
+    </main>
+    <footer class="flexy row gap-x2">
+        <a href="index.html">الصفحة الرئيسية</a>
+        <a href="authors.html">المؤلفين</a>
+        <a href="#">القائمة البريدية</a>
+        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+    </footer>
+</body>
+</html>

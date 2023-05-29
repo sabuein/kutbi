@@ -1,0 +1,160 @@
+:root {
+    --color-black: #000000;
+    --color-white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0 auto;
+    width: 960px;
+    max-width: 100%;
+}
+
+nav {
+    position: fixed;
+    top: 2rem;
+    right: 1rem;
+}
+
+nav button {
+    font-size: 1rem;
+}
+
+body > header,
+body > footer {
+    margin: 2rem 0;
+}
+
+.flexy {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.row {
+    flex-direction: row;
+}
+
+.start {
+    justify-content: flex-start;
+}
+
+.gap-x1 {
+    gap: 1rem;
+}
+
+.gap-x2 {
+    gap: 2rem;
+}
+
+main#main-content {
+    width: 85%;
+}
+
+form {
+    width: 100%;
+}
+
+fieldset {
+    padding: 2rem;
+    width: 100%;
+}
+
+textarea {
+    resize: vertical;
+}
+
+fieldset[name="field"] > * {
+    flex-basis: 100%;
+}
+
+fieldset[name="field"] label {
+    flex: 0 1 10rem;
+}
+
+fieldset[name="field"] label + :is(input, select, textarea) {
+    flex: 1 0 18rem;
+}
+
+label > span {
+    font-size: small;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+}
+
+input:not([type="submit"], [type="reset"], [type="button"]) {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 5px;
+}
+
+input[type="date"],
+input[type="tel"],
+input[type="email"],
+input[type="url"],
+input[type="datetime-local"] {
+    width: initial;
+}
+
+input[type="number"]:read-only {
+    user-select: none;
+    background-color: #cccccc;
+    outline: 0;
+    cursor: not-allowed;
+}
+
+input[type="file"]:read-only {
+    cursor: pointer;
+}
+
+label:has(+ input#author-avatar) {
+    cursor: pointer;
+}
+
+input#author-avatar {
+    display: none;
+    display: initial;
+}
+
+div:has(input[type="search"] + input[type="submit"]) {
+    margin: 1rem 0;
+    width: 100%;
+}
+
+input[type="search"] {
+    color: inherit;
+}
+
+div#avatar-preview {
+    text-align: center;
+}
+
+div#avatar-preview ol {
+    list-style-type: none;
+}
+
+img {
+    width: 100%;
+    background-repeat: no-repeat;
+    border: 0;
+}
+
+.app-header figure {
+    width: 5rem;
+}
+
+@media screen and (max-width: 780px) {
+    main#main-content {
+        width: 95%;
+    }
+}

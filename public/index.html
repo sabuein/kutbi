@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>الرئيسية</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+    <base href="/public/" target="_top">
+    <link rel="manifest" href="./kutbi.webmanifest">
+    <link rel="stylesheet" type="text/css" href="./assets/css/layout.css" />
+    <script type="importmap">
+        {
+            "imports": {
+                "auth": "./assets/js/modules/auth.mjs",
+                "data": "./assets/js/modules/data.mjs",
+                "helpers": "./assets/js/modules/helpers.mjs",
+                "interface": "./assets/js/modules/interface.mjs",
+                "monitor": "./assets/js/modules/monitor.mjs",
+                "requests": "./assets/js/modules/requests.mjs"
+            }
+        }
+    </script>
+    <script type="module" src="./assets/js/app.mjs"></script>
+</head>
+<body class="flexy">
+    <div class="skipnav">
+        <a href="#maincontent">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
+    </div>
+    <header class="app-header row flexy gap-x2" role="banner">
+        <figure>
+            <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+        </figure>
+        <div>
+            <h1 role="heading" aria-level="1">كتبي</h1>
+            <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+        </div>
+    </header>
+    <nav class="flexy row">
+        <button type="button" id="menuToggle">&#x2630;</button>
+    </nav>
+    <noscript class="flexy">
+        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+    </noscript>
+    <div class="flexy row">
+        <input type="search" id="searching" />
+        <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
+    </div>
+    <main class="flexy" id="main-content">المحتوى الرئيسي</main>
+    <footer class="flexy row gap-x2">
+        <a href="index.html">الصفحة الرئيسية</a>
+        <a href="authors.html">المؤلفين</a>
+        <a href="#">القائمة البريدية</a>
+        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+    </footer> 
+</body>
+</html>
