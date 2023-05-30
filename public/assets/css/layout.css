@@ -131,6 +131,10 @@ label > span {
     font-size: small;
 }
 
+input {
+    appearance: none;
+}
+
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px white inset !important;
 }
@@ -173,13 +177,12 @@ input#author-avatar {
     margin: 1rem 0;
     padding: 1rem;
     width: 100%;
-    font-size: 1.1rem;
 }
 
 .app-search input[type="search"] {
     flex: 0 1 25rem;
     padding: .5rem;
-    font-size: inherit;
+    font-size: 1.1rem;
 }
 
 .app-search input[type="submit"] {
@@ -201,6 +204,18 @@ div#avatar-preview ol {
     list-style-type: none;
 }
 
+dialog {
+    width: unset;
+}
+
+dialog::backdrop {
+    background-color: #dddddd;
+}
+
+dialog:focus {
+    outline: .1rem solid #335cbb;
+}
+
 p {
     margin: 1rem 0 0;
 }
@@ -213,6 +228,11 @@ img {
 
 .app-header figure {
     width: 5rem;
+}
+
+a:hover,
+a:focus {
+    text-underline-offset: .25rem;
 }
 
 .app-header a,
