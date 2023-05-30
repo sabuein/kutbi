@@ -59,8 +59,8 @@ const getAll = (request, response, columnName) => {
 };
 
 const addAuthor = (request, response) => {
-  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (name) VALUES (?)`;
-  let values = [(request.query.name)];
+  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname) VALUES (?, ?)`;
+  let values = [(request.query.fname), (request.query.lname)];
   pool.query(statement, values, (error, result) => {
     if (error) throw error;
     console.log(`1 author inserted with ID: ${result.insertId}`);

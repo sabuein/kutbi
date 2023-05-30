@@ -55,8 +55,8 @@
         <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
     </div>
     <main class="app-main flexy content-start" id="main-content">
-        <details>
-            <summary><h3>إضافة / تحديث بيانات مؤلف</h3></summary>
+        <button type="button" id="addUpdateAuthorButton">إضافة / تحديث بيانات مؤلف</button>
+        <dialog id="addUpdateAuthorDialog">
             <form action="http://localhost:3456/authors/add" method="post" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
                 <fieldset class="flexy row gap-x1" name="field" dir="rtl">
                     <legend>
@@ -171,35 +171,41 @@
                         <input type="submit" id="create" value="إضافة" />
                         <input type="submit" id="update" value="تحديث" />
                         <input type="reset" id="reset" value="مسح" />
+                        <input type="submit" aria-label="close" formmethod="dialog" value="إغلاق" formnovalidate />
                     </div>
                 </fieldset>
             </form>
-        </details>
-        <div style="min-width: 55%;">
-            <p>author_id<span>&hellip;</span></p>
-            <p>fname<span>&hellip;</span></p>
-            <p>lname<span>&hellip;</span></p>
-            <p>dob<span>&hellip;</span></p>
-            <p>bio<span>&hellip;</span></p>
-            <p>country<span>&hellip;</span></p>
-            <p>phone<span>&hellip;</span></p>
-            <p>email<span>&hellip;</span></p>
-            <p>github<span>&hellip;</span></p>
-            <p>twitter<span>&hellip;</span></p>
-            <p>facebook<span>&hellip;</span></p>
-            <p>instagram<span>&hellip;</span></p>
-            <p>youtube<span>&hellip;</span></p>
-            <p>website<span>&hellip;</span></p>
-            <p>photo_url<span>&hellip;</span></p>
-            <p>created_at<span>&hellip;</span></p>
-            <p>edited_at<span>&hellip;</span></p>
-            <p>deleted_at<span>&hellip;</span></p>
-        </div>
+        </dialog>
+        <section>
+            <header>
+                <h3>المؤلفين</h3>
+            </header>
+            <article>
+                <p>author_id<span>&hellip;</span></p>
+                <p>fname<span>&hellip;</span></p>
+                <p>lname<span>&hellip;</span></p>
+                <p>dob<span>&hellip;</span></p>
+                <p>bio<span>&hellip;</span></p>
+                <p>country<span>&hellip;</span></p>
+                <p>phone<span>&hellip;</span></p>
+                <p>email<span>&hellip;</span></p>
+                <p>github<span>&hellip;</span></p>
+                <p>twitter<span>&hellip;</span></p>
+                <p>facebook<span>&hellip;</span></p>
+                <p>instagram<span>&hellip;</span></p>
+                <p>youtube<span>&hellip;</span></p>
+                <p>website<span>&hellip;</span></p>
+                <p>photo_url<span>&hellip;</span></p>
+                <p>created_at<span>&hellip;</span></p>
+                <p>edited_at<span>&hellip;</span></p>
+                <p>deleted_at<span>&hellip;</span></p>
+            </article>
+        </section>
     </main>
     <footer class="app-footer flexy row gap-x2">
         <a href=".">الرئيسية</a>
         <a href="authors.html">المؤلفين</a>
-        <a href="#">القائمة البريدية</a>
+        <a href="faq.html">الأسئلة الشائعة</a>
         <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
     </footer>
 </body>
