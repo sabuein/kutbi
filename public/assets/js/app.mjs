@@ -25,6 +25,9 @@ console.log(JSON.stringify(await xo, null, 3));
 const avatar = id("author-avatar"), preview = id("avatar-preview");
 if (avatar) avatar.addEventListener("change", () => updateImageDisplay(avatar, preview));
 
+const authorDialog = qs("dialog#addUpdateAuthorDialog"), dialogBtn = qs("button#addUpdateAuthorButton");
+if (authorDialog && dialogBtn) dialogBtn.addEventListener("click", () => authorDialog.showModal());
+
 const progressBar = qs(".reading-bar");
 if (progressBar) requestAnimationFrame(updateProgress);
 function updateProgress() {
