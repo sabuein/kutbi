@@ -13,7 +13,8 @@ DROP TABLE IF EXISTS Authors;
 -- Create Authors table
 CREATE TABLE IF NOT EXISTS Authors (
     author_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
+    fname VARCHAR(100),
+    lname VARCHAR(100),
     dob DATE,
     bio TEXT,
     country VARCHAR(100),
@@ -34,7 +35,8 @@ CREATE TABLE IF NOT EXISTS Authors (
 -- Create Publishers table
 CREATE TABLE IF NOT EXISTS Publishers (
     publisher_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
+    fname VARCHAR(100),
+    lname VARCHAR(100),
     bio TEXT,
     country VARCHAR(100),
     phone VARCHAR(20),
@@ -57,7 +59,7 @@ CREATE TABLE IF NOT EXISTS Books (
     title VARCHAR(200),
     publication_date DATE,
     publisher_id INT,
-    language VARCHAR(50),
+    lang VARCHAR(50),
     paperback BOOLEAN,
     isbn_10 VARCHAR(20),
     isbn_13 VARCHAR(20),
@@ -107,12 +109,13 @@ CREATE TABLE IF NOT EXISTS Book_Genres (
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100),
-    email VARCHAR(100),
-    name VARCHAR(100),
+    fname VARCHAR(100),
+    lname VARCHAR(100),
     dob DATE,
     bio TEXT,
     country VARCHAR(100),
     phone VARCHAR(20),
+    email VARCHAR(100),
     github VARCHAR(100),
     twitter VARCHAR(100),
     facebook VARCHAR(100),
