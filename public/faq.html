@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>الأسئلة الشائعة</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon-16x16.png">
+    <!-- <base href="/public/" target="_top"> -->
+    <link rel="manifest" href="./kutbi.webmanifest">
+    <link rel="stylesheet" type="text/css" href="./assets/css/layout.css" />
+    <script type="importmap">
+        {
+            "imports": {
+                "auth": "./assets/js/modules/auth.mjs",
+                "data": "./assets/js/modules/data.mjs",
+                "helpers": "./assets/js/modules/helpers.mjs",
+                "interface": "./assets/js/modules/interface.mjs",
+                "monitor": "./assets/js/modules/monitor.mjs",
+                "requests": "./assets/js/modules/requests.mjs"
+            }
+        }
+    </script>
+    <script type="module" src="./assets/js/app.mjs"></script>
+</head>
+<body class="flexy">
+    <header class="app-header flexy gap-x1" role="banner">
+        <div class="skipnav">
+            <a href="#maincontent">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
+        </div>
+        <a href="." class="flexy row gap-x2">
+            <figure>
+                <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+            </figure>
+            <div>
+                <h1 role="heading" aria-level="1">كتبي</h1>
+                <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+            </div>
+        </a>
+    </header>
+    <nav class="app-nav flexy row">
+        <button type="button" id="menuToggle">&#x2630;</button>
+    </nav>
+    <noscript class="flexy">
+        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+    </noscript>
+    <div class="app-search flexy row gap-x1">
+        <input type="search" id="searching" />
+        <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
+    </div>
+    <main class="app-main flexy content-start" id="main-content">
+        <section>
+            <header>
+                <h3>الأسئلة الشائعة</h3>
+            </header>
+            <details>
+                <summary><h3>إضافة / تحديث بيانات مؤلف</h3></summary>
+                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit facilis mollitia est repellendus tempora laboriosam quo minima ut nisi id? Sapiente a unde facere nostrum ullam praesentium maxime exercitationem dolor? Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta inventore suscipit, aspernatur eius quasi omnis repellendus sint numquam voluptates. Adipisci consequuntur voluptatem pariatur ea quam dolorem exercitationem quibusdam inventore accusantium!</p>
+            </details>
+        </section>
+    </main>
+    <footer class="app-footer flexy row gap-x2">
+        <a href=".">الرئيسية</a>
+        <a href="authors.html">المؤلفين</a>
+        <a href="faq.html">الأسئلة الشائعة</a>
+        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+    </footer>
+</body>
+</html>
