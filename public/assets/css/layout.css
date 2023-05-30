@@ -18,8 +18,8 @@ body {
 
 nav {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    top: .75rem;
+    right: .75rem;
 }
 
 nav button {
@@ -72,6 +72,9 @@ body > footer {
 main#main-content {
     padding: 2rem 0;
     width: 85%;
+}
+main#main-content > * {
+    width: 100%;
 }
 
 details {
@@ -170,14 +173,19 @@ input#author-avatar {
     margin: 1rem 0;
     padding: 1rem;
     width: 100%;
-}
-
-.app-search input {
-    padding: .25rem;
+    font-size: 1.1rem;
 }
 
 .app-search input[type="search"] {
-    flex: 1 1 5rem;
+    flex: 0 1 25rem;
+    padding: .5rem;
+    font-size: inherit;
+}
+
+.app-search input[type="submit"] {
+    flex: 0 1 5rem;
+    padding: .25rem;
+    border-radius: 0%;
 }
 
 div#avatar-preview {
@@ -216,6 +224,6 @@ img {
 
 @media screen and (max-width: 780px) {
     main#main-content {
-        width: 95%;
+        width: 90%;
     }
 }
