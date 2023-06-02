@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "api": "node index.js",
-    "dbreset": "sudo mariadb kutbi_27may < /home/sabuein/my/projects/kutbi/api/tables.sql",
+    "apidev": "nodemon index.js",
+    "dbreset": "sudo mariadb < /home/sabuein/my/projects/kutbi/api/tables.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -35,5 +36,8 @@
     "express": "^4.18.2",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }

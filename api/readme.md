@@ -11,6 +11,7 @@ A way to organise books
 ### Useful links
 
 - https://www.npmjs.com/package/mysql
+- https://www.npmjs.com/package/nodemon
 
 ### Terminal:
 
@@ -25,6 +26,7 @@ npm install dotenv
 npm install express
 npm install multer
 npm install mysql
+npm install nodemon --save-dev
 
 ## Start the server
 npm run start
