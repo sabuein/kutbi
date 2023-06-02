@@ -20,15 +20,52 @@ nav {
     position: fixed;
     top: .75rem;
     right: .75rem;
+    flex-direction: column-reverse;
 }
 
 nav button {
+    appearance: none;
+    background-color: #cccccc50;
     padding: 0.25rem;
-    border-radius: 2rem;
-    width: 3rem;
-    height: 3rem;
+    border-radius: 0rem;
+    border: none;
     cursor: pointer;
+    font-size: 3rem;
 }
+
+section#displayAuthors header {
+    flex: 1 0 100%;
+}
+
+article.author-card {
+    flex: 0 0 12rem;
+    text-align: center;
+    border-radius: 0.75rem;
+    border: thin solid #00000030;
+}
+
+article.author-card figure {
+    padding-top: 1rem;
+}
+
+article.author-card img {
+    border-radius: 7rem;
+    border: thin solid #00000030;
+    filter: drop-shadow(.1rem .2rem .3rem #00000050);
+    width: 8rem;
+    height: 8rem;
+}
+
+article.author-card p {
+    margin: 0;
+    padding-bottom: 1rem;
+}
+
+/*
+nav button#lightDark::before {
+    content: attr(data-sun);
+}
+*/
 
 body > header,
 body > footer {
@@ -99,8 +136,9 @@ form {
 }
 
 fieldset {
-    padding: 2rem;
+    padding: 1rem;
     width: 100%;
+    border-radius: .75rem;
 }
 
 textarea {
@@ -156,7 +194,7 @@ input[type="datetime-local"] {
 input[type="number"]:read-only {
     user-select: none;
     background-color: #cccccc;
-    outline: 0;
+    outline: none;
     cursor: not-allowed;
 }
 
@@ -204,16 +242,16 @@ div#avatar-preview ol {
     list-style-type: none;
 }
 
-dialog {
-    width: unset;
+dialog#addUpdateAuthorDialog {
+    margin: auto;
+    width: 70dvmax;
+    padding: 1rem;
+    border: none;
+    border-radius: .75rem;
 }
 
 dialog::backdrop {
     background-color: #dddddd;
-}
-
-dialog:focus {
-    outline: .1rem solid #335cbb;
 }
 
 p {
@@ -223,11 +261,17 @@ p {
 img {
     width: 100%;
     background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
     border: 0;
 }
 
 .app-header figure {
     width: 5rem;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
 }
 
 a:hover,
