@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+    <!-- <meta name="referrer" content="strict-origin-when-cross-origin" /> The default --> 
+    <!--  <meta name="referrer" content="unsafe-url" /> --> 
+    <meta name="referrer" content="no-referrer-when-downgrade" />
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/apple-touch-icon.png">
     <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
@@ -44,14 +47,15 @@
             </div>
         </a>
     </header>
-    <nav class="app-nav flexy row">
+    <nav class="app-nav flexy">
         <button type="button" id="menuToggle">&#x2630;</button>
+        <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
     </nav>
     <noscript class="flexy">
         <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
     </noscript>
     <div class="app-search flexy row gap-x1">
-        <input type="search" id="searching" />
+        <input type="search" id="searching" placeholder="ابحث عن مؤلف أو مؤلفة&hellip;" />
         <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
     </div>
     <main class="app-main flexy content-start" id="main-content">
@@ -138,7 +142,7 @@
                     </div>
                     <div class="flexy row start gap-x1">
                         <label for="author-youtube">يوتيوب&colon;</label>
-                        <input type="url" id="author-youtube" name="youtube" autocomplete="impp" placeholder="https://www.youtube.com/@sabuein" />
+                        <input type="url" id="author-youtube" name="youtube" autocomplete="impp" placeholder="https://www.youtube.com/@sabuein/" />
                     </div>
                     <div class="flexy row start gap-x1">
                         <label for="author-website">الموقع الإلكتروني&colon;</label>
@@ -176,30 +180,10 @@
                 </fieldset>
             </form>
         </dialog>
-        <section>
+        <section id="displayAuthors" class="flexy row gap-x2">
             <header>
                 <h3>المؤلفين</h3>
             </header>
-            <article>
-                <p>author_id<span>&hellip;</span></p>
-                <p>fname<span>&hellip;</span></p>
-                <p>lname<span>&hellip;</span></p>
-                <p>dob<span>&hellip;</span></p>
-                <p>bio<span>&hellip;</span></p>
-                <p>country<span>&hellip;</span></p>
-                <p>phone<span>&hellip;</span></p>
-                <p>email<span>&hellip;</span></p>
-                <p>github<span>&hellip;</span></p>
-                <p>twitter<span>&hellip;</span></p>
-                <p>facebook<span>&hellip;</span></p>
-                <p>instagram<span>&hellip;</span></p>
-                <p>youtube<span>&hellip;</span></p>
-                <p>website<span>&hellip;</span></p>
-                <p>photo_url<span>&hellip;</span></p>
-                <p>created_at<span>&hellip;</span></p>
-                <p>edited_at<span>&hellip;</span></p>
-                <p>deleted_at<span>&hellip;</span></p>
-            </article>
         </section>
     </main>
     <footer class="app-footer flexy row gap-x2">
