@@ -1,6 +1,6 @@
 "use strict";
 
-const selectAllAuthors = async () => {
+const getAllAuthors = async () => {
     try {
         const url = "http://localhost:3456/authors", myHeaders = new Headers();
         let init = {
@@ -16,4 +16,4 @@ const selectAllAuthors = async () => {
     }
 };
 
-export { selectAllAuthors };
+export { getAllAuthors };

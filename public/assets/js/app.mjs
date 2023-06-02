@@ -1,8 +1,8 @@
 "use strict";
 
 import { id, qs } from "helpers";
-import { selectAllAuthors } from "data";
-import { updateImageDisplay } from "interface";
+import { getAllAuthors } from "data";
+import { updateImageDisplay, updateAuthorDisplay } from "interface";
 
 if ("serviceWorker" in navigator) {
     // declaring scope manually
@@ -18,15 +18,18 @@ if ("serviceWorker" in navigator) {
     console.error("Service workers are not supported.");
 }
 
-const xo = selectAllAuthors();
-console.log(JSON.stringify(await xo, null, 3));
+const xo = await getAllAuthors();
+console.log(JSON.stringify(xo, null, 3));
 
 // Update the author avatar preview
 const avatar = id("author-avatar"), preview = id("avatar-preview");
 if (avatar) avatar.addEventListener("change", () => updateImageDisplay(avatar, preview));
 
-const authorDialog = qs("dialog#addUpdateAuthorDialog"), dialogBtn = qs("button#addUpdateAuthorButton");
+const authorDialog = id("addUpdateAuthorDialog"), dialogBtn = id("addUpdateAuthorButton");
 if (authorDialog && dialogBtn) dialogBtn.addEventListener("click", () => authorDialog.showModal());
+
+const authors = id("displayAuthors");
+if (authors) updateAuthorDisplay(authors);
 
 const progressBar = qs(".reading-bar");
 if (progressBar) requestAnimationFrame(updateProgress);
