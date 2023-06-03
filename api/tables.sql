@@ -1,3 +1,34 @@
+/*
+
+SHOW DATABASES;
+CREATE DATABASE kutbi_27may;
+
+MariaDB [kutbi_27may]> SHOW TABLES;
++-----------------------+
+| Tables_in_kutbi_27may |
++-----------------------+
+| Authors               |
+| Book_Authors          |
+| Book_Genres           |
+| Book_Images           |
+| Books                 |
+| Genres                |
+| Publishers            |
+| Reviews               |
+| User_Passwords        |
+| Users                 |
++-----------------------+
+
+CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'localhost';
+
+SHOW VARIABLES LIKE 'max_connections';
+SHOW STATUS WHERE `variable_name` = 'Threads_connected';
+
+*/
+
+USE kutbi_27may;
+
 -- Drop all tables, if exists
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS User_Passwords;
@@ -16,9 +47,9 @@ CREATE TABLE IF NOT EXISTS Authors (
     fname VARCHAR(100),
     lname VARCHAR(100),
     dob DATE,
-    bio TEXT,
+    lang VARCHAR(50),
+    tel VARCHAR(20),
     country VARCHAR(100),
-    phone VARCHAR(20),
     email VARCHAR(100),
     github VARCHAR(100),
     twitter VARCHAR(100),
@@ -26,7 +57,8 @@ CREATE TABLE IF NOT EXISTS Authors (
     instagram VARCHAR(100),
     youtube VARCHAR(100),
     website VARCHAR(100),
-    photo_url VARCHAR(255),
+    bio TEXT,
+    photo VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -153,3 +185,5 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (book_id) REFERENCES Books(book_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+SHOW TABLES;
