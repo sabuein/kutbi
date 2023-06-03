@@ -5,8 +5,8 @@
   "main": "index.mjs",
   "type": "module",
   "scripts": {
-    "api": "node index.js",
-    "apidev": "nodemon index.js",
+    "api": "node index.mjs",
+    "apidev": "nodemon index.mjs",
     "dbreset": "sudo mariadb < /home/sabuein/my/projects/kutbi/api/data/tables.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
