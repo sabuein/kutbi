@@ -2,11 +2,11 @@
   "name": "kutbi",
   "version": "1.0.0",
   "description": "A way to organise books",
-  "main": "index.js",
+  "main": "index.mjs",
   "type": "module",
   "scripts": {
-    "api": "node index.js",
-    "apidev": "nodemon index.js",
+    "api": "node index.mjs",
+    "apidev": "nodemon index.mjs",
     "dbreset": "sudo mariadb < /home/sabuein/my/projects/kutbi/api/tables.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -34,6 +34,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "hbs": "^4.2.0",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1"
   },

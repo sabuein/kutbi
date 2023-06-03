@@ -12,6 +12,7 @@ A way to organise books
 
 - https://www.npmjs.com/package/mysql
 - https://www.npmjs.com/package/nodemon
+- https://github.com/pillarjs/hbs
 
 ### Terminal:
 
@@ -27,6 +28,7 @@ npm install express
 npm install multer
 npm install mysql
 npm install nodemon --save-dev
+npm install hbs
 
 ## Start the server
 npm run start
