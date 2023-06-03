@@ -52,21 +52,86 @@ const getAll = (request, response, columnName) => {
   const pool = mysql.createPool(init), statement = `SELECT * FROM ${columnName}`;
   pool.query(statement, (error, result, fields) => {
     if (error) throw error;
-    console.log(result);
     response.json(result);
     pool.end();
   });
 };
 
 const addAuthor = (request, response) => {
-  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname) VALUES (?, ?)`;
-  let values = [(request.query.fname), (request.query.lname)];
+  const {
+    fname,
+    lname,
+    bday,
+    language,
+    tel,
+    country,
+    email,
+    github,
+    twitter,
+    facebook,
+    instagram,
+    youtube,
+    url,
+    bio
+  } = request.body;
+  const {
+    originalname,
+    encoding,
+    mimetype,
+    destination,
+    filename,
+    path,
+    size
+  } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
+  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, bio, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  let values = [
+    fname,
+    lname,
+    bday,
+    language,
+    tel,
+    country,
+    email,
+    github,
+    twitter,
+    facebook,
+    instagram,
+    youtube,
+    url,
+    bio,
+    `../api/${path}`
+  ];
   pool.query(statement, values, (error, result) => {
     if (error) throw error;
     console.log(`1 author inserted with ID: ${result.insertId}`);
-    response.json({ type: "author", id: result.insertId });
+    // Redirect the user back to the referring page
+    const referer = request.headers.referer;
+    console.log(request.headers);
+    if (referer) {
+      // response.send("Form submitted successfully");
+      response.redirect(referer);
+    } else {
+      response.json({
+        id: result.insertId,
+        name: `${fname} ${lname}`,
+        type: "author"
+      });
+    }
     pool.end();
   });
+};
+
+const extension = (mimetype) => {
+  try {
+    switch (mimetype) {
+      case "image/jpeg":
+        return "jpg";
+      default:
+        break;
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const addPublisher = (request, response) => {
@@ -81,7 +146,7 @@ const addPublisher = (request, response) => {
 };
 
 const addBook = (request, response) => {
-  const pool = mysql.createPool(init), statement = `INSERT INTO Books (title, publication_date, publisher_id, language, paperback, isbn_13) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const pool = mysql.createPool(init), statement = `INSERT INTO Books (title, publication_date, publisher_id, lang, paperback, isbn_13) VALUES (?, ?, ?, ?, ?, ?)`;
   const values = [
     String(request.query.title),
     request.query.publication_date,
@@ -98,34 +163,9 @@ const addBook = (request, response) => {
   });
 };
 
-export { getAll, addAuthor, addPublisher, addBook, };
+const addUser = (request, response) => {
+  console.log("TODO: User is being added...");
+  response.status(200).send("New user has been add.")
+};
 
-/*
-
-SHOW DATABASES;
-CREATE DATABASE kutbi_27may;
-USE kutbi_27may;
-SHOW TABLES;
-
-MariaDB [kutbi_27may]> show tables;
-+-----------------------+
-| Tables_in_kutbi_27may |
-+-----------------------+
-| Authors               |
-| Book_Authors          |
-| Book_Genres           |
-| Books                 |
-| Genres                |
-| Publishers            |
-| Reviews               |
-| User_Passwords        |
-| Users                 |
-+-----------------------+
-
-CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'localhost';
-
-SHOW VARIABLES LIKE 'max_connections';
-SHOW STATUS WHERE `variable_name` = 'Threads_connected';
-
-*/
+export { getAll, addAuthor, addPublisher, addBook, addUser };
