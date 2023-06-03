@@ -74,6 +74,8 @@ const addAuthor = (request, response) => {
     url,
     bio
   } = request.body;
+  
+  /*
   const {
     originalname,
     encoding,
@@ -83,7 +85,11 @@ const addAuthor = (request, response) => {
     path,
     size
   } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
+  */
+
   const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, bio, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  let image = `../api/uploads/no-photo.png`;
+  if (request.files[0]) image = `../api/${request.files[0].path}`;
   let values = [
     fname,
     lname,
@@ -99,14 +105,13 @@ const addAuthor = (request, response) => {
     youtube,
     url,
     bio,
-    `../api/${path}`
+    image
   ];
   pool.query(statement, values, (error, result) => {
     if (error) throw error;
     console.log(`1 author inserted with ID: ${result.insertId}`);
     // Redirect the user back to the referring page
     const referer = request.headers.referer;
-    console.log(request.headers);
     if (referer) {
       // response.send("Form submitted successfully");
       response.redirect(referer);
@@ -165,7 +170,7 @@ const addBook = (request, response) => {
 
 const addUser = (request, response) => {
   console.log("TODO: User is being added...");
-  response.status(200).send("New user has been add.")
+  response.status(200).send("New user has been created")
 };
 
 export { getAll, addAuthor, addPublisher, addBook, addUser };

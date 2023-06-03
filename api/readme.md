@@ -12,6 +12,7 @@ A way to organise books
 
 - https://www.npmjs.com/package/mysql
 - https://www.npmjs.com/package/nodemon
+- https://www.npmjs.com/package/jsonwebtoken
 - https://github.com/pillarjs/hbs
 
 ### Terminal:
@@ -29,6 +30,7 @@ npm install multer
 npm install mysql
 npm install nodemon --save-dev
 npm install hbs
+npm install jsonwebtoken
 
 ## Start the server
 npm run start

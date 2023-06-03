@@ -1,9 +1,12 @@
+"use strict";
+
 import { app } from "./modules/app.mjs";
 
 const port = 3456 || 3000;
 
-app.listen(port, () => {
-    console.log(`Kutbi is running on port ${port}\r\n`);
+app.listen(port, (error) => {
+    if (error) console.log(error);
+    console.log(`Kutbi is running and listening on port ${port}`);
 });
 
 /*
