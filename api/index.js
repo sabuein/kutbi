@@ -19,6 +19,4 @@ res.download("server.mjs");
 res.render("index");
 res.render("index", { name: "Salaheddin" });
 
-
-
 */
