@@ -159,6 +159,10 @@ const User = class User extends Subscriber {
         this.#email = value;
     }
 
+    get passwordHash() {
+        return this.#passwordHash;
+    }
+
     get permissions() {
         return this.#permissions;
     }
