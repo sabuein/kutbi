@@ -1,17 +1,13 @@
 "use strict";
 
-import mysql from "mysql";
 import dotenv from "dotenv";
+import mysql from "mysql";
 import { timestamp } from "./helpers.mjs";
 
 dotenv.config({ path: "./.env" });
 
 // Access the environment variables
-const dbHost = process.env.dbhost;
-const dbPort = process.env.dbport;
-const dbUser = process.env.dbuser;
-const dbPassword = process.env.dbpassword;
-const dbName = process.env.dbname;
+const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
 
 /*
 
@@ -39,12 +35,45 @@ connection.end((error) => {
 */
 
 const init = {
-  host: dbHost,
-  port: dbPort,
-  user: dbUser,
-  password: dbPassword,
-  database: dbName,
+  host: DB_HOST,
+  port: DB_PORT,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_DATABASE,
   connectionLimit: 10
+};
+
+const pool = mysql.createPool(init);
+
+// Helper function to get a connection from the pool
+const getConnectionFromPool = () => {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((error, connection) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(connection);
+    });
+  });
+};
+
+// Helper function to execute a query
+const executeQuery = (connection, query, params) => {
+  return new Promise((resolve, reject) => {
+    connection.query(query, params, (error, result) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(result);
+    });
+  });
+};
+
+// Helper function to release a connection back to the pool
+const releaseConnection = (connection) => {
+  connection.release();
 };
 
 const getAll = (request, response, columnName) => {
@@ -58,6 +87,8 @@ const getAll = (request, response, columnName) => {
 };
 
 const addAuthor = (request, response) => {
+  let photo = `../api/uploads/no-photo.png`;
+  if (request.file) photo = `../api/${request.file.path}`;
   const {
     fname,
     lname,
@@ -74,7 +105,7 @@ const addAuthor = (request, response) => {
     url,
     bio
   } = request.body;
-  
+
   /*
   const {
     originalname,
@@ -86,10 +117,7 @@ const addAuthor = (request, response) => {
     size
   } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
   */
-
   const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, bio, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  let image = `../api/uploads/no-photo.png`;
-  if (request.files[0]) image = `../api/${request.files[0].path}`;
   let values = [
     fname,
     lname,
@@ -105,24 +133,11 @@ const addAuthor = (request, response) => {
     youtube,
     url,
     bio,
-    image
+    photo
   ];
   pool.query(statement, values, (error, result) => {
     if (error) throw error;
-    console.log(`1 author inserted with ID: ${result.insertId}`);
-    // Redirect the user back to the referring page
-    const referer = request.headers.referer;
-    if (referer) {
-      // response.send("Form submitted successfully");
-      response.redirect(referer);
-    } else {
-      response.json({
-        id: result.insertId,
-        name: `${fname} ${lname}`,
-        type: "author"
-      });
-    }
-    pool.end();
+    return result && pool.end();
   });
 };
 
@@ -168,9 +183,37 @@ const addBook = (request, response) => {
   });
 };
 
+let users = [];
+
 const addUser = (request, response) => {
-  console.log("TODO: User is being added...");
-  response.status(200).send("New user has been created")
+  console.log("TODO: Add user to database..");
+  users.push(request.user);
+  console.log(users);
+  response.sendStatus(201);
 };
 
-export { getAll, addAuthor, addPublisher, addBook, addUser };
+const checkUser = async (request, response) => {
+  const user = users.find(user => user.username = request.body.username);
+  if (user === null) return response.status(400).send("Can not find user");
+  try {
+    if (await bcyrpt.compare(request.body.password, user.password)) {
+      response.send(`Ahlan wa sahlan, ${user.username}`);
+    } else {
+      response.send(`Login failed`);
+    }
+  } catch (error) {
+    response.sendStatus(500);
+  }
+};
+
+export {
+  getAll,
+  addAuthor,
+  addPublisher,
+  addBook,
+  addUser,
+  checkUser,
+  getConnectionFromPool,
+  executeQuery,
+  releaseConnection
+};

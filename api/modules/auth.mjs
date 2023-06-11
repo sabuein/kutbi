@@ -1,60 +1,120 @@
 "use strict";
 
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { User } from "../models/models.mjs";
 
 dotenv.config({ path: "./.env" });
 
 let tempTokens = [];
 
-const tokenize = (request, response, next) => {
-    const token = request.body.token;
-    if (token === null) return response.sendStatus(401);
-    if (!tempTokens.includes(token)) return response.sendStatus(403);
+const deleteToken = (request, response, next) => {
+    const { refreshToken } = request.body;
+    if (refreshToken === null) return response.sendStatus(401);
+    if (!tempTokens.includes(refreshToken)) return response.status(403).json({ error: "Forbidden. You need to sign in." });
 
-    jwt.verify(token, process.env.refresh_token_secret, (error, user) => {
-        if (error) return response.sendStatus(403);
-        request.accessToken = generateAccessToken({ username: user.username });
+    jwt.verify(refreshToken, process.env.refresh_token_secret, (error, user) => {
+        if (error) return response.status(403).json({ error: "Forbidden. You need to sign in." });
+        const exists = tempTokens.indexOf(refreshToken);
+        if (exists === -1) return response.status(400).json({ error: "Unable to find token" });
+        tempTokens.splice(exists,  1);
+        console.log("Successfully removed refresh token");
         next();
     });
 };
 
-const deleteToken = (request, response, next) => {
-    tempTokens = tempTokens.filter(token => token !== request.body.token);
-    console.log("Token deleted");
+const authorize = async (request, response, next) => {
+    if (!request.user) {
+        request.user = new User({
+            uuid: request.body.uuid,
+            username: request.body.username,
+            email: request.body.email
+        });``
+    }
+    const { uuid, username, email } = request.user;
+    const sauce = { uuid: uuid, username: username, email: email };
+    request.user.accessToken = generateAccessToken(sauce);
+    tempTokens.push(generateRefreshToken(sauce));
+    request.user.refreshToken = generateRefreshToken(sauce);
     next();
 };
 
-const authorize = (request, response, next) => {
-    const user = {
-        username: request.body.username,
-    };
-    if (!user.username) return response.status(400).send("The 'username' parameter is missing");
-    tempTokens.push(generateRefreshToken(user));
-    request.accessToken = generateAccessToken(user);
-    request.refreshToken = generateRefreshToken(user);
-    next();
+const signup = async (request, response, next) => {
+    const { username, email, password, roles, permissions } = request.body;
+    if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+        const user = new User({
+            username: username,
+            email: email,
+            salt: salt,
+            passwordHash: passwordHash,
+            roles: roles,
+            permissions: permissions
+        });
+        request.user = user;
+        await request.user.save()
+        next();
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    }
+};
+
+const authenticate = async (request, response, next) => {
+    const { username, email, password } = request.body;
+    if (!(username && password) || !(email && password)) return response.status(400).json({ error: "Missing required parameters" });
+
+    try {
+        // Find the user by their username or email
+        const user = await User.find(username, email);
+
+        if (!user) return response.status(404).json({ error: "User not found" });
+
+        // Compare the entered password with the hashed password stored in the database
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+        if (!isPasswordValid) return response.status(401).json({ error: "Invalid password" });
+        request.user = user;
+        next();
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    }
 };
 
 const authenticateToken = (request, response, next) => {
-    const header = request.headers["authorization"];
+    const header = request.headers.authorization;
     const token = header && header.split(" ")[1];
-    // No token
-    if (token === null) return response.sendStatus(401);
-    jwt.verify(token, process.env.access_token_secret, (error, user) => {
-        // Not valid
-        if (error) return response.sendStatus(403);
-        request.user = user;
-        next();
-    });
+
+    // Check if the request contains a valid authentication token
+    if (!header || token === null) {
+        console.log(`User ${request.body.username} denied access to ${request.hostname}`);
+        return response.status(401).json({ error: "Unauthorized access" });
+    }
+
+    try {
+        jwt.verify(token, process.env.access_token_secret, (error, user) => {
+            if (error) {
+                console.log(`The token has no permission to access ${request.hostname}`);
+                return response.status(403).json({ error: "No permission to access" });
+            }
+            request.user = user;
+            next();
+        });
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    }
 };
 
 const generateAccessToken = (user) => {
-    return jwt.sign(user, process.env.access_token_secret, { expiresIn: "15s" });
+    return jwt.sign({ username: user.username, password: user.passwordHash }, process.env.access_token_secret, { expiresIn: "30s" });
 };
 
 const generateRefreshToken = (user) => {
-    return jwt.sign(user, process.env.refresh_token_secret);
+    return jwt.sign({ username: user.username, password: user.passwordHash }, process.env.refresh_token_secret);
 };
 
-export { authorize, authenticateToken, tokenize, deleteToken };
+export { authorize, authenticate, authenticateToken, deleteToken, signup };
