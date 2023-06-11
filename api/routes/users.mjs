@@ -1,17 +1,13 @@
 "use strict";
 
 import express from "express";
-import multer from "multer";
-import { getAll, addUser } from "../modules/data.mjs";
+import { getAll, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
-import { authorize, authenticateToken, tokenize, deleteToken } from "../modules/auth.mjs";
-
+import { authorize, authenticate, authenticateToken, deleteToken, signup } from "../modules/auth.mjs";
+import { roles, checkPermission } from "../modules/roles.mjs";
 // userPasswords
 
 const users = express.Router();
-
-// Set up the multer middleware for handling file uploads
-const upload = multer({ dest: "uploads/users/" });
 
 users.param("id", idLogger);
 
@@ -34,47 +30,56 @@ const tempPosts = [
     }
 ];
 
+// Browse, Read, Edit, Add, Copy, Delete
+
 users.route("/")
-    .get(authenticateToken, async (req, res) => {
-        const user = await req.user;
-        res.json(tempPosts.filter(post => post.username === user.username));
+    .get(authenticateToken, (req, res) => {
+        // If the token is valid, the user is authenticated
+        // Allow users to access the protected resource
+        console.log(`User ${req.user.username} granted access to ${req.hostname}`);
+        return res.json(tempPosts.filter(post => post.username === req.user.username));
     })
-    .post(upload.array("photo", 9), (req, res) => {
-        const uploadedFiles = req.files;
-        addUser(req, res);
+    .post(signup, authorize, async (req, res) => {
+        if (!req.user) return res.json({ error: "This user already exists, please login using these details or reset the password" });
+        return res.status(201).json(req.user.toString());
     });
 
 users.route("/login")
-    .post(authorize, (req, res) => {
-        // Authentication
-        console.log("TODO: Authentication");
-        // Authorization
-        res.json({
-            accessToken: req.accessToken,
-            refreshToken: req.refreshToken
-        });
+    .post(authenticate, authorize, (req, res) => {
+        return res.status(200).json(req.user.toString());
     });
 
 users.route("/logout")
     .delete(deleteToken, async (req, res) => {
         console.log("TODO: Delete token from database");
-        res.sendStatus(204);
+        return res.status(204).json({ message: "Successfully deleted refresh token" });
+    });
+
+users.route("/signup")
+    .post((req, res) => {
+        console.log("Redirect /users/signup to /users");
+        return res.redirect(301, "/users");
     });
 
 users.route("/token")
-    .post(tokenize, (req, res) => {
-        res.json({ token: req.accessToken });
+    .post(deleteToken, authorize, async (req, res) => {
+        return res.json(req.user.toString());
     });
 
 users.route("/:id")
-    .get(authenticateToken, (req, res) => {
-        res.json({ id: req.params.id });
+    .get(authenticateToken, checkPermission(roles.ADMIN, "read"), (req, res) => {
+        return res.json({ id: req.params.id });
     })
-    .put(authenticateToken, (req, res) => {        
-        res.status(200).send(`User with ID #${req.params.id} has been updated`);
+    .put(authenticateToken, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
+        return res.status(200).send(`User with ID #${req.params.id} has been updated`);
     })
-    .delete(authenticateToken, (req, res) => {
-        res.status(200).send(`User with ID #${req.params.id} has been deleted`);
+    .delete(authenticateToken, checkPermission(roles.ADMIN, "delete"), (req, res) => {
+        return res.status(200).send(`User with ID #${req.params.id} has been deleted`);
+    });
+
+users.route("/dashboard")
+    .post(authenticate, authorize, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "read, update"), (req, res) => {
+        return res.json(req.user.toString());
     });
 
 export { users };
