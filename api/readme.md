@@ -31,6 +31,7 @@ npm install mysql
 npm install nodemon --save-dev
 npm install hbs
 npm install jsonwebtoken
+npm install bcrypt
 
 ## Start the server
 npm run start
