@@ -4,11 +4,10 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection,
-} from "../modules/data.mjs";
+    Human
+} from "./register.mjs";
 
-import { Human } from "./human.mjs";
-
-const Subscriber = class extends Human {
+export default class Subscriber extends Human {
 
     #createdAt = null;
     #updatedAt = null;
@@ -50,5 +49,3 @@ const Subscriber = class extends Human {
         });
     }
 };
-
-export { Subscriber };

@@ -4,11 +4,10 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection,
-} from "../modules/data.mjs";
+    Subscriber
+} from "./register.mjs";
 
-import { Subscriber } from "./subscriber.mjs";
-
-const User = class User extends Subscriber {
+export default class User extends Subscriber {
 
     #uuid = null;
     #username = null;
@@ -189,6 +188,16 @@ const User = class User extends Subscriber {
         this.#refreshToken = value;
     }
 
+    limited() {
+        return ({
+            uuid: this.#uuid,
+            username: this.#username,
+            email: this.#email,
+            roles: this.#roles,
+            permissions: this.#permissions
+        });
+    }
+
     toString() {
         const details = {
             uuid: this.#uuid,
@@ -211,5 +220,3 @@ const User = class User extends Subscriber {
         });
     }
 };
-
-export { User };

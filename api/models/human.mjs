@@ -3,10 +3,10 @@
 import {
     getConnectionFromPool,
     executeQuery,
-    releaseConnection,
-} from "../modules/data.mjs";
-  
-const Human = class {
+    releaseConnection
+} from "./register.mjs";
+
+export default class Human {
 
     #firstName = null;
     #lastName = null;
@@ -100,7 +100,7 @@ const Human = class {
         const info = {
             firstName: this.#firstName,
             lastName: this.#lastName,
-            name: `${this.#firstName} ${this.#lastName}`,
+            name: (this.#firstName && this.#lastName) ? `${this.#firstName} ${this.#lastName}` : null,
             dob: this.#dob,
             gender: this.#gender,
             occupation: this.#occupation,
@@ -112,5 +112,3 @@ const Human = class {
         });
     }
 };
-
-export { Human };

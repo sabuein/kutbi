@@ -1,5 +1,27 @@
+"use strict";
+
+import {
+    getConnectionFromPool,
+    executeQuery,
+    releaseConnection
+} from "./register.mjs";
+
+const Post = class {
+
+    static total = 0;
+
+    static get total() {
+        return Post.total.toString();
+    }
+
+    constructor() {
+        Post.total++;
+        // Additional properties can be added here
+    }
+};
+
 // GET /admin/posts/?formats=html,mobiledoc
-{
+const x = {
     "posts": [
         {
             "slug": "welcome-short",
@@ -186,4 +208,6 @@
             }
         }
     ]
-}
+};
+
+export { Post };
