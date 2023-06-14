@@ -16,4 +16,16 @@ const getAllAuthors = async () => {
     }
 };
 
+const getCSRF = () => {
+    fetch("http://localhost:3456/tokens/csrf")
+        .then(response => response.json())
+        .then(data => {
+            const csrfToken = data.csrfToken;
+            // Use the received CSRF token in your form
+        })
+        .catch(error => {
+            console.error("Error retrieving CSRF token:", error);
+        });
+};
+
 export { getAllAuthors };

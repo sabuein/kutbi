@@ -3,14 +3,12 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import csrf from "csurf";
 import { User } from "../models/register.mjs";
 
 dotenv.config({ path: "./.env" });
 
 // Authentication and authorization
 // Validate and authenticate tokens
-// Generate CSRF (Cross-Site Request Forgery) tokens
 
 let tempTokens = [];
 

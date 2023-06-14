@@ -5,6 +5,7 @@ import { getAll, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
 import { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
+
 // userPasswords
 
 const users = express.Router();

@@ -6,7 +6,7 @@ import cors from "cors";
 import csrf from "csurf";
 import bodyParser from "body-parser";
 import { mainLogger } from "./helpers.mjs";
-import { authors, books, dashboard, users } from "./routes.mjs";
+import { authors, books, dashboard, tokens, users } from "./routes.mjs";
 
 const app = express();
 
@@ -17,7 +17,7 @@ hbs.registerPartials("/views/partials", function (err) {
 });
 
 app.use(cors({ origin: ["http://localhost:5500", "http://127.0.0.1:5500"] }));
-app.use(csrf({ cookie: true }));
+app.use(csrf({ cookie: { sameSite: "lax" } }));
 app.use(mainLogger);
 
 /*
@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/authors", authors);
 app.use("/books", books);
 app.use("/dashboard", dashboard);
+app.use("/tokens", tokens);
 app.use("/users", users);
 
 export { app };
