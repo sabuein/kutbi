@@ -19,8 +19,7 @@ const rolePermissions = {
 
 const checkPermission = (roles, permissions) => {
     return function (request, response, next) {
-        const userRoles = request.user.roles;
-        const userPermissions = request.user.permissions;
+        const { userRoles, userPermissions } = request.user;
         if (roles.some(role => userRoles.includes(role)) && permissions.some(permission => userPermissions.includes(permission))) {
             // User has at least one of the specified roles and at least one of the specified permissions
             next();

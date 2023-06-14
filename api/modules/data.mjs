@@ -51,7 +51,7 @@ const getConnectionFromPool = () => {
     pool.getConnection((error, connection) => {
       if (error) {
         reject(error);
-        return;
+        return null;
       }
       resolve(connection);
     });
@@ -64,7 +64,7 @@ const executeQuery = (connection, query, params) => {
     connection.query(query, params, (error, result) => {
       if (error) {
         reject(error);
-        return;
+        return null;
       }
       resolve(result);
     });

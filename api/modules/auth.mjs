@@ -3,9 +3,12 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "../models/models.mjs";
+import { User } from "../models/register.mjs";
 
 dotenv.config({ path: "./.env" });
+
+// Authentication and authorization
+// Validate and authenticate tokens
 
 let tempTokens = [];
 
@@ -24,26 +27,38 @@ const deleteToken = (request, response, next) => {
     });
 };
 
-const authorize = async (request, response, next) => {
-    if (!request.user) {
-        request.user = new User({
-            uuid: request.body.uuid,
-            username: request.body.username,
-            email: request.body.email
-        });``
+const authCookie = async (request, response, next) => {
+    const accessToken = request.cookies.accessToken;
+    try {
+        jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
+            if (error) {
+                console.log(`The token has no permission to access ${request.hostname}`);
+                return response.status(403).json({ error: "No permission to access" });
+            }
+            request.user = user;
+            next();
+        });
+    } catch (error) {
+        console.error(error);
+        response.clearCookie("accessToken");
+        response.status(500).json({ error: "Server error" });
     }
-    const { uuid, username, email } = request.user;
+    /*
     const sauce = { uuid: uuid, username: username, email: email };
     request.user.accessToken = generateAccessToken(sauce);
     tempTokens.push(generateRefreshToken(sauce));
     request.user.refreshToken = generateRefreshToken(sauce);
     next();
+    */
 };
 
 const signup = async (request, response, next) => {
     const { username, email, password, roles, permissions } = request.body;
     if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
+        // Find the user by their username or email
+        const existingUser = await User.find(username, email);
+        if (existingUser) return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
         const user = new User({
@@ -54,8 +69,8 @@ const signup = async (request, response, next) => {
             roles: roles,
             permissions: permissions
         });
-        request.user = user;
-        await request.user.save()
+        await user.save();
+        request.user = user.limited();
         next();
     } catch (error) {
         console.error(error);
@@ -109,12 +124,32 @@ const authenticateToken = (request, response, next) => {
     }
 };
 
-const generateAccessToken = (user) => {
-    return jwt.sign({ username: user.username, password: user.passwordHash }, process.env.access_token_secret, { expiresIn: "30s" });
+const generateAccessToken = (request, response, next) => {
+    const accessToken = jwt.sign(request.user, process.env.access_token_secret, { expiresIn: "1h" });
+    request.user.accessToken = accessToken;
+    response.cookie("accessToken", accessToken, {
+        httpOnly: false,
+        secure: true,
+        maxAge: 3600000, // One hour in milliseconds
+        signed: false
+    });
+    response.set("Authorization", `Bearer ${accessToken}`);
+    // response.set("Cache-Control", ``);
+    // response.set("Content-Security-Policy", ``);
+    next();
 };
 
-const generateRefreshToken = (user) => {
-    return jwt.sign({ username: user.username, password: user.passwordHash }, process.env.refresh_token_secret);
+const generateRefreshToken = (request, response, next) => {
+    const refreshToken = jwt.sign(request.user, process.env.refresh_token_secret);
+    request.user.refreshToken = refreshToken;
+    tempTokens.push(refreshToken);
+    response.cookie("refreshToken", refreshToken, {
+        httpOnly: false,
+        secure: true,
+        maxAge: 2629800000, // One month in milliseconds
+        signed: false
+    });
+    next();
 };
 
-export { authorize, authenticate, authenticateToken, deleteToken, signup };
+export { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken };
