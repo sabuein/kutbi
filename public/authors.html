@@ -69,6 +69,8 @@
                             <option value="rtl" selected>ع</option>
                             <option value="ltr">EN</option>
                         </select>
+                        <!-- Include the CSRF token as a hidden input field -->
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
                     </legend>
                     <div class="flexy row start gap-x1">
                         <label for="author-id">رقم العضوية&colon;</label>

@@ -32,6 +32,7 @@ npm install nodemon --save-dev
 npm install hbs
 npm install jsonwebtoken
 npm install bcrypt
+npm install csurf
 
 ## Start the server
 npm run start

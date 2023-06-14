@@ -1,4 +1,6 @@
 <form>
+    <!-- Include the CSRF token as a hidden input field -->
+    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
     <p>
         <label for="soundFile">What does your voice sound like?:</label>
         <input type="file" id="soundFile" capture="user" accept="audio/*" />
