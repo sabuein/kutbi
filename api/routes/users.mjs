@@ -3,7 +3,7 @@
 import express from "express";
 import { getAll, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
-import { authorize, authenticate, authenticateToken, deleteToken, signup } from "../modules/auth.mjs";
+import { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
 // userPasswords
 
@@ -39,13 +39,13 @@ users.route("/")
         console.log(`User ${req.user.username} granted access to ${req.hostname}`);
         return res.json(tempPosts.filter(post => post.username === req.user.username));
     })
-    .post(signup, authorize, async (req, res) => {
+    .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
         if (!req.user) return res.json({ error: "This user already exists, please login using these details or reset the password" });
-        return res.status(201).json(req.user.toString());
+        return res.status(201).json(req.user);
     });
 
 users.route("/login")
-    .post(authenticate, authorize, (req, res) => {
+    .post(authenticate, (req, res) => {
         return res.status(200).json(req.user.toString());
     });
 
@@ -62,7 +62,7 @@ users.route("/signup")
     });
 
 users.route("/token")
-    .post(deleteToken, authorize, async (req, res) => {
+    .post(deleteToken, async (req, res) => {
         return res.json(req.user.toString());
     });
 
@@ -78,7 +78,7 @@ users.route("/:id")
     });
 
 users.route("/dashboard")
-    .post(authenticate, authorize, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "read, update"), (req, res) => {
+    .post(authenticate, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "read, update"), (req, res) => {
         return res.json(req.user.toString());
     });
 
