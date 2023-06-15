@@ -33,6 +33,7 @@ npm install hbs
 npm install jsonwebtoken
 npm install bcrypt
 npm install csurf
+npm install cookie-parser
 
 ## Start the server
 npm run start

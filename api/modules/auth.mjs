@@ -29,6 +29,7 @@ const deleteToken = (request, response, next) => {
 
 const authCookie = async (request, response, next) => {
     const accessToken = request.cookies.accessToken;
+    if (accessToken === "undefined") return response.status(400).json({ error: "Unable to find token" });
     try {
         jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
             if (error) {

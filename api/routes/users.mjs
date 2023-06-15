@@ -46,7 +46,7 @@ users.route("/")
     });
 
 users.route("/login")
-    .post(authenticate, (req, res) => {
+    .post(authCookie, (req, res) => {
         return res.status(200).json(req.user.toString());
     });
 

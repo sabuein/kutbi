@@ -10,12 +10,13 @@ const createSecretKey = () => {
 };
 
 const mainLogger = (request, response, next) => {
-    request.requestTime = new Date().toString();
-    console.log(`Endpoint: ${request.url}`);
-    console.log(`Referer: ${request.get("Referrer")}`);
-    console.log(`Time: ${request.requestTime}`);
-    // const completeUrl = req.protocol + "://" + req.hostname + req.originalUrl;
-    // console.log(`Complete URL: ${completeUrl}`);
+    request.details = {
+        ip: `${request.socket.remoteAddress}`,
+        time: `${new Date().toString()}`,
+        referer: `${request.get("Referrer")}`,
+        endpoint: `${request.protocol}://${request.hostname}${request.originalUrl}`,
+    };
+    console.log(request.details);
     next();
 };
 
