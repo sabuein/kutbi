@@ -11,10 +11,10 @@ const createSecretKey = () => {
 
 const mainLogger = (request, response, next) => {
     request.details = {
-        ip: `${request.socket.remoteAddress}`,
-        time: `${new Date().toString()}`,
-        referer: `${request.get("Referrer")}`,
         endpoint: `${request.protocol}://${request.hostname}${request.originalUrl}`,
+        ip: request.header("x-forwarded-for") || request.socket.remoteAddress,
+        time: new Date().toString(),
+        referer: request.get("referrer") || "none"
     };
     console.log(request.details);
     next();

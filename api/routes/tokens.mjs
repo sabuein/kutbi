@@ -15,12 +15,15 @@ tokens
     .get(parseCookie, checkCSRF, (request, response) => {
         const token = request.csrfToken();
         console.log(`New CSRF token has been created.`);
+        /*
+        response.clearCookie("_csrf");
         response.cookie("_csrf", token, {
             httpOnly: false,
             secure: true,
             maxAge: 3600000, // One hour in milliseconds
             signed: false
         });
+        */
         return response.status(201).json({ csrfToken: token });
     });
 
