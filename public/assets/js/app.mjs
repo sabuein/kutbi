@@ -2,13 +2,22 @@
 
 import { id, qs } from "helpers";
 import { getAllAuthors } from "data";
+import { parseGetSubmit, handlePostSubmit } from "requests";
 import { updateImageDisplay, updateAuthorDisplay } from "interface";
+
+// const submission = "http://127.0.0.1:5500/public/subscribe.html?email=Sarah.McFarlane%40vubiquity.co.uk&confirmEmail=sabuein%40gmail.com&preferences=authors&preferences=books&preferences=publishers&preferences=reviews&preferences=all&frequency=monthly&format=text&solution=99999#main-content";
+
+document.addEventListener("DOMContentLoaded", () => {
+    const subscribeForm = id("subscribeForm");
+    if (subscribeForm) parseGetSubmit(subscribeForm);
+});
 
 if ("serviceWorker" in navigator) {
     // declaring scope manually
     navigator.serviceWorker.register("/public/serviceWorker.js", { scope: "./" }).then(
         (registration) => {
             console.log("Service worker registration succeeded:", registration);
+            //doMagic();
         },
         (error) => {
             console.error(`Service worker registration failed: ${error}`);
