@@ -53,15 +53,51 @@ const authCookie = async (request, response, next) => {
     */
 };
 
+const signin = async (request, response, next) => {
+    try {
+        const { username, email, password } = request.body;
+        if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
+        const isPasswordValid = bcrypt.compare(password, user.passwordHash);
+        const passwordHash = await bcrypt.hash(password, salt);
+        const user = new User({
+            username: username,
+            email: email,
+            salt: salt,
+            passwordHash: passwordHash,
+            roles: roles,
+            permissions: permissions
+        });
+        await user.create();
+        request.user = user.records();
+        next();
+        
+        if (!isPasswordValid) return response.status(401).json({ error: "Invalid password" });
+        request.user = user;
+        next();
+    } catch (error) {
+        console.error(error);
+        response.clearCookie("accessToken");
+        response.status(500).json({ error: "Server error" });
+    }
+    /*
+    const sauce = { uuid: uuid, username: username, email: email };
+    request.user.accessToken = generateAccessToken(sauce);
+    tempTokens.push(generateRefreshToken(sauce));
+    request.user.refreshToken = generateRefreshToken(sauce);
+    next();
+    */
+};
+
 const signup = async (request, response, next) => {
     const { username, email, password, roles, permissions } = request.body;
-    console.log("Request body:");
-    console.log(`\r\n${request.body}\r\n`);
     if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
         // Find the user by their username or email
         const existingUser = await User.find(username, email);
-        if (existingUser) return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
+        if (existingUser) {
+            console.log(`A user that already exists tried to signup`);
+            return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
+        }
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
         const user = new User({
@@ -72,8 +108,8 @@ const signup = async (request, response, next) => {
             roles: roles,
             permissions: permissions
         });
-        await user.save();
-        request.user = user.limited();
+        await user.create();
+        request.user = user.records();
         next();
     } catch (error) {
         console.error(error);
@@ -155,4 +191,4 @@ const generateRefreshToken = (request, response, next) => {
     next();
 };
 
-export { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken };
+export { authCookie, authenticate, authenticateToken, deleteToken, signin, signup, generateAccessToken, generateRefreshToken };
