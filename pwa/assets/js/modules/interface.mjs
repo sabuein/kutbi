@@ -111,8 +111,9 @@ const updateAuthorDisplay = async (output) => {
         // console.log(authors);
         // console.log(authorsArray);
 
-        authors.reverse().forEach(author => {
+        authors.reverse().forEach((author, index) => {
             const article = document.createElement("article"),
+                authorId = document.createElement("span"),
                 figure = document.createElement("figure"),
                 figcaption = document.createElement("figcaption"),
                 img = document.createElement("img"),
@@ -127,6 +128,8 @@ const updateAuthorDisplay = async (output) => {
                 website = document.createElement("a");
             
             // Setting up the elements
+            authorId.textContent = author.id;
+            authorId.style.display = "none";
             figcaption.textContent = `${author.fname} ${author.lname}`;
             img.title = `${author.fname} ${author.lname}`;
             img.alt = `الصورة الشخصية`;
@@ -145,10 +148,13 @@ const updateAuthorDisplay = async (output) => {
             div.classList.add("flexy", "row", "gap-x1");
             figure.appendChild(img);
             figure.appendChild(figcaption);
+            article.appendChild(authorId);
             article.appendChild(figure);
             article.appendChild(div);
             article.appendChild(p);
             article.classList.add("author-card", "flexy");
+            article.dataset.index = index;
+            article.dataset.authorId = author.id;
             output.appendChild(article);
         });
     } catch (error) {

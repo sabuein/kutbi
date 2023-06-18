@@ -59,7 +59,7 @@ const handleFormSubmit = (form) => {
             const data = await response.json();
             if (data.status === "403") window.location.assign("login.html");
             else (console.log(JSON.stringify(data, null, 2)));
-
+            form.reset();
         }, false);
     } catch (error) {
         console.error(error);
