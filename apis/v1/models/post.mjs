@@ -10,13 +10,13 @@ const Post = class {
 
     static total = 0;
 
-    static get total() {
-        return Post.total.toString();
-    }
-
     constructor() {
         Post.total++;
         // Additional properties can be added here
+    }
+
+    static get total() {
+        return Post.total.toString();
     }
 };
 

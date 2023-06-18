@@ -15,15 +15,15 @@ export default class Member extends User {
 
     static total = 0;
 
-    static get total() {
-        return Member.total.toString();
-    }
-
     constructor() {
         super();
         this.#postsCount = 0;
         Member.total++;
         // Additional properties can be added here
+    }
+
+    static get total() {
+        return Member.total.toString();
     }
 
     get postCount() {

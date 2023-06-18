@@ -18,13 +18,13 @@ export default class Human {
 
     static total = 0;
 
-    static get total() {
-        return Human.total.toString();
-    }
-
     constructor() {
         Human.total++;
         // Additional properties can be added here
+    }
+
+    static get total() {
+        return Human.total.toString();
     }
 
     get firstName() {
@@ -47,7 +47,7 @@ export default class Human {
     }
 
     get name() {
-        return(`${this.#firstName} ${this.#lastName}`);
+        return(`${this.#firstName} ${this.#lastName}` || null);
     }
 
     get dob() {
@@ -100,7 +100,7 @@ export default class Human {
         const info = {
             firstName: this.#firstName,
             lastName: this.#lastName,
-            name: (this.#firstName && this.#lastName) ? `${this.#firstName} ${this.#lastName}` : null,
+            name: this.name(),
             dob: this.#dob,
             gender: this.#gender,
             occupation: this.#occupation,
