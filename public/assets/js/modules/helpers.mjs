@@ -21,8 +21,8 @@ const createObject = (array) => {
             }
         });
         return removeEmptyStringProperties(result);
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
+        console.error(error);
         throw Error(`We got a problem at createObject() function. Please help!`);
     }
 };
@@ -64,13 +64,21 @@ const urlToJSON = (url) => {
 
         // Just to double check
         return (!typeof result === "object") ? JSON.parse(result) : result;
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
+        console.error(error);
         throw Error(`We got a problem at urlToJSON() function. Please help!`);
     }
 };
 
 // Pretty JSON (as a text string) with spacing level of 2
 const prettyJSON = (obj) => JSON.stringify(obj, null, 2);
+
+const assert = (value, message) => {
+    if (!value) throw (message || `${value} is false`);
+};
+
+const assertEqual = (value1, value2, message) => {
+    if (value1 !== value2) throw (message || `${value1} does not equal ${value2}`);
+};
 
 export { id, qs, urlWithQuery, urlToJSON };

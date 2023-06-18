@@ -2,30 +2,34 @@
 
 const getAllAuthors = async () => {
     try {
-        const url = "http://localhost:3456/authors", myHeaders = new Headers();
-        let init = {
+        const headersInit = {
+            "accept": "application/json",
+            "user-agent": "kutbi client (https://www.kutbi.com)",
+            "content-type": "application/json; charset=utf-8"
+        };
+        const url = "http://localhost:3558/authors";
+        const init = {
             method: "get",
-            headers: myHeaders,
+            headers: headersInit,
             mode: "cors",
             cache: "default"
         };
         const response = await fetch(url, init);
         return await response.json();
     } catch (error) {
-        console.log(`Error: ${error}`);
+        console.error(error);
+        throw Error(`We got a problem at getAllAuthors() function. Please help!`);
     }
 };
 
-const getCSRF = () => {
-    fetch("http://localhost:3456/tokens/csrf")
-        .then(response => response.json())
-        .then(data => {
-            const csrfToken = data.csrfToken;
-            // Use the received CSRF token in your form
-        })
-        .catch(error => {
-            console.error("Error retrieving CSRF token:", error);
-        });
+const clearStorage = () => {
+    try {
+        window.localStorage.clear();
+        window.location.assign(window.location);
+    } catch (error) {
+        console.error(error);
+        throw Error(`We got a problem at clearStorage() function. Please help!`);
+    }
 };
 
 export { getAllAuthors };

@@ -8,53 +8,63 @@ const parseGetSubmit = (form) => {
     if (form.method !== "get") throw TypeError(`Please check form(#${form.id} method`);
     try {
         form.addEventListener("submit", (event) => {
-            console.log("Hi there...");
             event.preventDefault();
+            event.stopImmediatePropagation();
+            console.log("Hi there...");
             console.log(`An intercepted HTTP GET submission by form(#${form.id}) is being parsed as JSON within the console and returned as a JavaScript object...`);
             const url = urlWithQuery(form);
             return urlToJSON(url);
-        });
-    } catch (e) {
-        console.error(e);
+        }, false);
+    } catch (error) {
+        console.error(error);
         throw Error(`We got a problem at catchGetForm() function. Please help!`);
     }
 };
 
-const handlePostSubmit = (form, endpoint) => {
+const handleFormSubmit = (form) => {
     try {
-        const formData = new FormData(form);
-        console.dir(formData);
-        
-        const fakeData = {
-            key1: "value1",
-            key2: "value2",
-            // Add more key-value pairs as needed
-        };
+        form.addEventListener("submit", async (event) => {
+            if (!event.isTrusted) throw Error(`The form submission is not trusted`);
+            else (event.preventDefault() && event.stopImmediatePropagation());
 
-        const requestOptions = {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(fakeData)
-        };
+            const requestBody = {};
+            const formData = new FormData(event.target);
+            formData.forEach((value, key) => requestBody[key] = value);
+            requestBody.permissions = [
+                "viewFreeContent",
+                "viewPremiumContent",
+                "createContent",
+                "updateContent",
+                "deleteContent",
+                "manageApp"
+            ];
+            requestBody.roles = ["administrator"];
+            console.log(JSON.stringify({ requestBody: requestBody }, null, 2));
 
-        fetch(endpoint, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response
-                console.log(`data type: ${typeof data}`);
-                console.log(`response: ${data}`);
-            })
-            .catch(error => {
-                console.error(error);
-                throw Error(`We got a problem at handlePostSubmit() function. Please help!`);
+            let headersInit = {
+                "accept": "application/json",
+                "user-agent": "kutbi client (https://www.kutbi.com)",
+                "content-type": "application/json; charset=utf-8"
+            };
+            const requestHeaders = new Headers(headersInit);
+
+            const response = await fetch(form.action, {
+                method: form.method,
+                headers: requestHeaders,
+                mode: "cors",
+                cache: "default",
+                body: JSON.stringify(requestBody)
             });
 
+            const data = await response.json();
+            if (data.status === "403") window.location.assign("login.html");
+            else (console.log(JSON.stringify(data, null, 2)));
+
+        }, false);
     } catch (error) {
         console.error(error);
-        throw Error(`We got a problem at handlePostSubmit() function. Please help!`);
+        throw Error(`We got a problem at handleFormSubmit() function. Please help!`);
     }
 }
 
-export { parseGetSubmit, handlePostSubmit };
+export { parseGetSubmit, handleFormSubmit };

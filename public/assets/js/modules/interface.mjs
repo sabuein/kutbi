@@ -36,6 +36,7 @@ const updateImageDisplay = (input, output) => {
         }
     } catch (error) {
         console.error(error);
+        throw Error(`We got a problem at updateImageDisplay() function. Please help!`);
     }
 }
 
@@ -57,6 +58,7 @@ const validImageType = (file) => {
         return imageTypes.includes(file.type);
     } catch (error) {
         console.error(error);
+        throw Error(`We got a problem at validImageType() function. Please help!`);
     }
 };
 
@@ -72,6 +74,7 @@ const returnFileSize = (bytes) => {
         }
     } catch (error) {
         console.error(error);
+        throw Error(`We got a problem at returnFileSize() function. Please help!`);
     }
 };
 
@@ -101,7 +104,13 @@ let sample = [
 
 const updateAuthorDisplay = async (output) => {
     try {
+        // const authorsArray = [];
         const authors = await getAllAuthors();
+        // for (let author in authors) authorsArray.push(authors[author]);
+        
+        // console.log(authors);
+        // console.log(authorsArray);
+
         authors.reverse().forEach(author => {
             const article = document.createElement("article"),
                 figure = document.createElement("figure"),
@@ -121,7 +130,7 @@ const updateAuthorDisplay = async (output) => {
             figcaption.textContent = `${author.fname} ${author.lname}`;
             img.title = `${author.fname} ${author.lname}`;
             img.alt = `الصورة الشخصية`;
-            img.src = author.photo;
+            img.src = author.photoUrl;
             p.textContent = author.bio;
             email.href = `mailto:${author.email}`;
             email.target = "_blank";
@@ -144,6 +153,7 @@ const updateAuthorDisplay = async (output) => {
         });
     } catch (error) {
         console.error(error);
+        throw Error(`We got a problem at updateAuthorDisplay() function. Please help!`);
     }
 };
 
