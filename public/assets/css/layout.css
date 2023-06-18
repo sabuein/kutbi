@@ -169,7 +169,7 @@ label > span {
     font-size: small;
 }
 
-input {
+input:not([type="checkbox"], [type="radio"]) {
     appearance: none;
 }
 
