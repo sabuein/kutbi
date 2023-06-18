@@ -3,7 +3,7 @@
 import express from "express";
 import { getAllUsers, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
-import { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
+import { authCookie, authenticate, authenticateToken, deleteToken, signin, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
 
 // userPasswords
@@ -41,13 +41,12 @@ users.route("/")
         return res.json(tempPosts.filter(post => post.username === req.user.username));
     })
     .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
-        if (!req.user) return res.json({ error: "This user already exists, please login using these details or reset the password" });
-        return res.status(201).json(req.user);
+        if (req.user) return res.status(201).json(req.user);
     });
 
 users.route("/login")
-    .post(authCookie, (req, res) => {
-        return res.status(200).json(req.user.toString());
+    .post(signin, (req, res) => {
+        if (req.user) return res.status(200).json(req.user.limited());
     });
 
 users.route("/logout")
@@ -58,8 +57,7 @@ users.route("/logout")
 
 users.route("/signup")
     .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
-        if (!req.user) return res.json({ error: "This user already exists, please login using these details or reset the password" });
-        return res.status(201).json(req.user);
+        if (req.user) return res.status(201).json(req.user);
     });
     /*.post((req, res) => {
         console.log("Redirect /users/signup to /users");
