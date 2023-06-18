@@ -21,7 +21,7 @@ authors
         if (req.author && referrer) {
             res.status(201).redirect(referrer); // Created
         } else if (req.author) {
-            res.json({
+            res.status(201).json({
                 status: 201,
                 id: result.insertId,
                 record: "author",
