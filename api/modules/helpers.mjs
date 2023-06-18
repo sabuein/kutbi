@@ -1,22 +1,48 @@
 "use strict";
 
-const createSecretKey = () => {
-    // require("crypto").randomBytes(64).toString("hex");
-    let output = "";
-    for (let i = 0; i < 128; ++i) {
-        output += (Math.floor(Math.random() * 16)).toString(16);
+const Logger = class Logger {
+
+    static #total = 0;
+
+    #index;
+    #method;
+    #endpoint;
+    #ip;
+    #time;
+    #referrer;
+    
+    constructor (request) {
+        this.#index = ++Logger.#total;
+        this.#method = request.method;
+        this.#endpoint = `${request.protocol}://${request.hostname}${request.originalUrl}`;
+        this.#ip = request.socket.remoteAddress || request.header("x-forwarded-for");
+        this.#time = new Date().toString();
+        this.#referrer = request.get("referrer") || "none";
     }
-    return output;
+
+    print() {
+        return {
+            index: this.#index,
+            method: this.#method,
+            endpoint: this.#endpoint,
+            ip: this.#ip,
+            time: this.#time,
+            referrer: this.#referrer
+        };
+    }
+
+    toString() {
+        return `index: ${this.#index},\r\nmethod: ${this.#method},\r\nendpoint: ${this.#endpoint},\r\nip: ${this.#ip},\r\ntime: ${this.#time},\r\nreferrer: ${this.#referrer}\r\n`;
+    }
 };
 
+const requests = [];
+
 const mainLogger = (request, response, next) => {
-    request.details = {
-        endpoint: `${request.protocol}://${request.hostname}${request.originalUrl}`,
-        ip: request.header("x-forwarded-for") || request.socket.remoteAddress,
-        time: new Date().toString(),
-        referer: request.get("referrer") || "none"
-    };
-    console.log(request.details);
+    const log = new Logger(request);
+    requests.push(log.print());
+    request.details = log.print();
+    console.log(log.toString());
     next();
 };
 

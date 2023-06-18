@@ -1,7 +1,7 @@
 "use strict";
 
 import express from "express";
-import { getAll, addUser, checkUser } from "../modules/data.mjs";
+import { getAllUsers, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
 import { authCookie, authenticate, authenticateToken, deleteToken, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
@@ -57,10 +57,14 @@ users.route("/logout")
     });
 
 users.route("/signup")
-    .post((req, res) => {
+    .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
+        if (!req.user) return res.json({ error: "This user already exists, please login using these details or reset the password" });
+        return res.status(201).json(req.user);
+    });
+    /*.post((req, res) => {
         console.log("Redirect /users/signup to /users");
         return res.redirect(301, "/users");
-    });
+    });*/
 
 users.route("/token")
     .post(deleteToken, async (req, res) => {

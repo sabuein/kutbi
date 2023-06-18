@@ -2,11 +2,11 @@
 
 import { app } from "./modules/app.mjs";
 
-const port = 3456 || 3000;
+const port = 3558 || 3000;
 
 app.listen(port, (error) => {
     if (error) console.log(error);
-    console.log(`Kutbi is running and listening on port ${port}`);
+    console.log(`Kutbi is running and listening on port ${port}\r\n`);
 });
 
 /*

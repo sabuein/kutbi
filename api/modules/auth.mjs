@@ -55,6 +55,8 @@ const authCookie = async (request, response, next) => {
 
 const signup = async (request, response, next) => {
     const { username, email, password, roles, permissions } = request.body;
+    console.log("Request body:");
+    console.log(request.body);
     if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
         // Find the user by their username or email

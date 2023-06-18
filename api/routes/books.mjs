@@ -2,7 +2,7 @@
 
 import express from "express";
 import multer from "multer";
-import { getAll, addBook } from "../modules/data.mjs";
+import { getAllBooks, addBook } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
 
 // bookAuthors
@@ -17,7 +17,9 @@ const upload = multer({ dest: "uploads/books/" });
 books.param("id", idLogger);
 
 books.route("/")
-    .get((req, res) => { getAll(req, res, "Books"); })
+    .get(getAllBooks, (req, res) => {
+        res.status(200).json({ message: "inshallah" });
+    })
     .post(upload.array("photo", 9), (req, res) => {
         const uploadedFiles = req.files;
         addBook(req, res);

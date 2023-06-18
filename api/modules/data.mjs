@@ -76,24 +76,30 @@ const releaseConnection = (connection) => {
   connection.release();
 };
 
-const getAll = (request, response, columnName) => {
-  // INSERT, UPDATE, DELETE, etc. 
-  const pool = mysql.createPool(init), statement = `SELECT * FROM ${columnName}`;
-  pool.query(statement, (error, result, fields) => {
-    if (error) throw error;
-    response.json(result);
-    pool.end();
-  });
+const getAllAuthors = async (request, response, next) => {
+  try {
+    const pool = mysql.createPool(init), statement = `SELECT * FROM Authors`;
+    pool.query(statement, (error, result, fields) => {
+      if (error) throw error;
+      request.authors = result;
+      pool.end();
+      next();
+    });
+  } catch (error) {
+    console.error(error);
+    throw Error(`We got a problem at getAll() function. Please help!`);
+  } finally {
+    // Nothing for now!
+  }
 };
 
-const addAuthor = (request, response) => {
-  let photo = `../api/uploads/no-photo.png`;
-  if (request.file) photo = `../api/${request.file.path}`;
+const addAuthor = (request, response, next) => {
   const {
     fname,
     lname,
-    bday,
-    language,
+    bio,
+    dob,
+    lang,
     tel,
     country,
     email,
@@ -102,10 +108,9 @@ const addAuthor = (request, response) => {
     facebook,
     instagram,
     youtube,
-    url,
-    bio
+    website
   } = request.body;
-
+  const photoUrl = request.file ? `../api/${request.file.path}` : `../api/uploads/no-photo.png`;
   /*
   const {
     originalname,
@@ -117,28 +122,30 @@ const addAuthor = (request, response) => {
     size
   } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
   */
-  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, bio, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  let values = [
-    fname,
-    lname,
-    bday,
-    language,
-    tel,
-    country,
-    email,
-    github,
-    twitter,
-    facebook,
-    instagram,
-    youtube,
-    url,
-    bio,
-    photo
+  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, bio, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, photoUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [
+    fname || null,
+    lname || null,
+    bio || null,
+    dob || null,
+    lang || null,
+    tel || null,
+    country || null,
+    email || null,
+    github || null,
+    twitter || null,
+    facebook || null,
+    instagram || null,
+    youtube || null,
+    website || null,
+    photoUrl
   ];
   pool.query(statement, values, (error, result) => {
     if (error) throw error;
-    return result && pool.end();
+    response.author = result;
+    pool.end();
   });
+  next();
 };
 
 const extension = (mimetype) => {
@@ -165,6 +172,17 @@ const addPublisher = (request, response) => {
   });
 };
 
+const getAllBooks = (request, response, next) => {
+  try {
+    console.log({ "todo": "getAllBooks" });
+  } catch (error) {
+    console.error(error);
+    throw Error(`We got a problem at getAllBooks() function. Please help!`);
+  } finally {
+    next();
+  }
+};
+
 const addBook = (request, response) => {
   const pool = mysql.createPool(init), statement = `INSERT INTO Books (title, publication_date, publisher_id, lang, paperback, isbn_13) VALUES (?, ?, ?, ?, ?, ?)`;
   const values = [
@@ -184,6 +202,17 @@ const addBook = (request, response) => {
 };
 
 let users = [];
+
+const getAllUsers = (request, response, next) => {
+  try {
+    console.log({ "todo": "getAllUsers" });
+  } catch (error) {
+    console.error(error);
+    throw Error(`We got a problem at getAllBooks() function. Please help!`);
+  } finally {
+    next();
+  }
+};
 
 const addUser = (request, response) => {
   console.log("TODO: Add user to database..");
@@ -206,13 +235,39 @@ const checkUser = async (request, response) => {
   }
 };
 
+const getAllOperations = (request, response, next) => {
+  try {
+    console.log({ "todo": "getAllOperations" });
+  } catch (error) {
+    console.error(error);
+    throw Error(`We got a problem at getAllBooks() function. Please help!`);
+  } finally {
+    next();
+  }
+};
+
+const addOperation = (request, response, next) => {
+  try {
+    console.log({ "todo": "addOperation" });
+  } catch (error) {
+    console.error(error);
+    throw Error(`We got a problem at getAllBooks() function. Please help!`);
+  } finally {
+    next();
+  }
+};
+
 export {
-  getAll,
+  getAllAuthors,
   addAuthor,
   addPublisher,
+  getAllBooks,
   addBook,
+  getAllUsers,
   addUser,
   checkUser,
+  getAllOperations,
+  addOperation,
   getConnectionFromPool,
   executeQuery,
   releaseConnection

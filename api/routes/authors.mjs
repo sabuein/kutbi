@@ -2,7 +2,7 @@
 
 import express from "express";
 import multer from "multer";
-import { getAll, addAuthor } from "../modules/data.mjs";
+import { getAllAuthors, addAuthor } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
 
 const authors = express.Router();
@@ -14,20 +14,18 @@ authors.param("id", idLogger);
 
 authors
     .route("/")
-    .get((req, res) => {
-        getAll(req, res, "Authors");
-    })
-    .post(upload.single("photo"), (req, res) => {
-        const result = addAuthor(req, res);
+    .get(getAllAuthors, (req, res) => res.status(200).json((JSON.parse(JSON.stringify(req.authors)))))
+    .post(upload.single("photo"), addAuthor, (req, res) => {
         // Redirect the user back to the referring page
         const referer = req.headers.referer;
-        if (result && referer) {
+        if (req.author && referer) {
             res.status(201).redirect(referer); // Created
-        } else if (result) {
+        } else if (req.author) {
             res.json({
                 status: 201,
                 id: result.insertId,
                 record: "author",
+                details: req.author
             });
         }
     });

@@ -12,7 +12,7 @@ const app = express();
 app.set("view engine", "hbs");
 
 hbs.registerPartials("/views/partials", function (err) {
-    console.log(`TODO: Fix error with hbs`);
+    console.log(`TODO: Fix error with hbs\r\n`);
 });
 
 app.use(mainLogger);
