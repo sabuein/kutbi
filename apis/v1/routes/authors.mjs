@@ -16,10 +16,10 @@ authors
     .route("/")
     .get(getAllAuthors, (req, res) => res.status(200).json((JSON.parse(JSON.stringify(req.authors)))))
     .post(upload.single("photo"), addAuthor, (req, res) => {
-        // Redirect the user back to the referring page
-        const referer = req.headers.referer;
-        if (req.author && referer) {
-            res.status(201).redirect(referer); // Created
+        // Redirect the user back to the referrering page
+        const referrer = req.details.referrer;
+        if (req.author && referrer) {
+            res.status(201).redirect(referrer); // Created
         } else if (req.author) {
             res.json({
                 status: 201,

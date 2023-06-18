@@ -110,7 +110,7 @@ const addAuthor = (request, response, next) => {
     youtube,
     website
   } = request.body;
-  const photoUrl = request.file ? `../api/${request.file.path}` : `../api/uploads/no-photo.png`;
+  const photoUrl = request.file ? `../apis/v1/${request.file.path}` : `../apis/v1/uploads/no-photo.png`;
   /*
   const {
     originalname,
