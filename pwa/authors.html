@@ -35,7 +35,7 @@
 <body class="flexy">
     <header class="app-header flexy gap-x1" role="banner">
         <div class="skipnav">
-            <a href="#maincontent">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
+            <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
         </div>
         <a href="." class="flexy row gap-x2">
             <figure>
@@ -72,10 +72,9 @@
                         <!-- Include the CSRF token as a hidden input field -->
                         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
                     </legend>
-                    <div class="flexy row start gap-x1">
-                        <label for="author-id">رقم العضوية&colon;</label>
-                        <input type="number" id="author-id" name="authorId" pattern="\d{4,4}" />
-                        <input type="button" id="get-author-by-id" value="جلب" />
+                    <div class="flexy row start gap-x1" aria-hidden="true">
+                        <input type="hidden" id="author-id" name="authorId" pattern="\d{4,4}" title="رقم العضوية" />
+                        <input type="hidden" id="get-author-by-id" value="جلب" />
                     </div>
                     <div class="flexy row start gap-x1">
                         <label for="author-fname">الاسم الأول&colon; <span>(3-16) حرف</span></label>
