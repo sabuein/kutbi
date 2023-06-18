@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <title>التسجيل</title>
+    <title>الاشتراك والتسجيل</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="HandheldFriendly" content="True" />
@@ -52,13 +52,54 @@
         <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
     </noscript>
     <main class="app-main flexy align-start" id="main-content">
-        <h3>أهلاً وسهلاً في برنامج كتبي</h3>
-        <p>أهلاً وسهلاً بكم في الصفحة الرئيسية من مشروع كتبي. هذا المشروع الذي أحاول من خلاله بناء نظام يساعدني ولعله يساعد أحد آخر في الإبقاء على بيانات المكتبة الشخصية متوفرة وسهلة ومعروضة بشكل جميل.</p>
+        <section>
+            <h3>Create new account</h3>
+            <p>The account type you are creating is different depending on what you want to do.</p>
+            <h4>Subscriber account</h4>
+            <p>You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
+            <h4>User account</h4>
+            <p>You are signing up to be able to post jobs & events adverts. Once you have created an account you will be able to post adverts for free subject to meeting the website policy. Please note that a separate account with a different email address will be needed if you want to also be able to get job/event search emails.</p>
+        </section>
+        <form action="" method="get" id="subscribeForm">
+            <!-- Include the CSRF token as a hidden input field -->
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            <fieldset>
+                <legend>Your details</legend>
+                <label for="subEmail">Email address<span title="The email address is not made public. It will only be used if you need to be contacted about your account or for opted-in notifications.">&sext;</span></label>
+                <input type="email" name="email" id="subEmail" required />
+                <label for="subEmailAgain">Confirm e-mail address<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
+                <input type="email" name="confirmEmail" id="subEmailAgain" required />
+            </fieldset>
+            <fieldset class="flexy">
+                <legend>Email Preferences<span title="What type of alerts do you want to receive?">&sext;</span></legend>
+                <label for="authorsBox"><input type="checkbox" name="preferences" id="authorsBox" value="authors">Authors</label>
+                <label for="booksBox"><input type="checkbox" name="preferences" id="booksBox" value="books">Books</label>
+                <label for="publishersBox"><input type="checkbox" name="preferences" id="publishersBox" value="publishers">Publishers</label>
+                <label for="reviewsBox"><input type="checkbox" name="preferences" id="reviewsBox" value="reviews">Reviews</label>
+                <label for="allBox"><input type="checkbox" name="preferences" id="allBox" value="all">ALL</label>
+                <label for="alertsFrequency">
+                    <select name="frequency" id="alertsFrequency">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="never">&dash;Never&dash;</option>
+                    </select>Alerts Frequency<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
+                <label for="format"><input type="checkbox" name="format" id="format" value="text" />Receive emails in plain text format</label>
+            </fieldset>
+            <fieldset>
+                <legend>Captcha</legend>
+                <label for="solution">Maths question<input type="text" id="problem" readonly value="1 + 1 =" /><input type="number" name="solution" id="solution" required /><span title="Solve this simple math problem and enter the result. E.g. for 1+3, enter 4.">&sext;</span></label>
+            </fieldset>
+            <p>You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
+            <input type="submit" value="Create new account" />
+            <input type="reset" value="Reset">
+        </form>
     </main>
     <footer class="app-footer flexy row gap-x2">
         <a href=".">الرئيسية</a>
-        <a href="subscribe.html">الاشتراك</a>
-        <a href="register.html">التسجيل</a>
+        <a href="login.html">الدخول</a>
+        <a href="register.html">الاشتراك والتسجيل</a>
         <a href="authors.html">المؤلفين</a>
         <a href="faq.html">الأسئلة الشائعة</a>
         <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
