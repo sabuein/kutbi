@@ -2,7 +2,7 @@
 
 import { app } from "./modules/app.mjs";
 
-const port = 3558 || 3000;
+const port = 3557 || 3000;
 
 app.listen(port, (error) => {
     if (error) console.log(error);

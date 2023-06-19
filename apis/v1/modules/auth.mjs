@@ -54,29 +54,28 @@ const authCookie = async (request, response, next) => {
 };
 
 const signin = async (request, response, next) => {
+    const { username, email, password, roles, permissions } = request.body;
+    if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
-        const { username, email, password } = request.body;
-        if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
-        const isPasswordValid = bcrypt.compare(password, user.passwordHash);
-        const passwordHash = await bcrypt.hash(password, salt);
-        const user = new User({
-            username: username,
-            email: email,
-            salt: salt,
-            passwordHash: passwordHash,
-            roles: roles,
-            permissions: permissions
-        });
-        await user.create();
-        request.user = user.records();
-        next();
-        
+        // Find the user by their username or email
+        const existingAccount = await User.find(username, email);
+        if (!existingAccount) return response.status(403).json({ error: "The account does not exist" });
+
+        const isPasswordValid = bcrypt.compare(password, existingAccount.passwordHash);
         if (!isPasswordValid) return response.status(401).json({ error: "Invalid password" });
-        request.user = user;
+        
+        const user = await User.populate(existingAccount.uuid);
+        user.accessToken = generateAccessToken(user.records);
+        user.refreshToken = generateRefreshToken(user.records);
+        tempTokens.push(user.refreshToken);
+        request.user = user.records();
+        request.user.accessToken = user.accessToken;
+        request.user.refreshToken = user.refreshToken;
         next();
     } catch (error) {
         console.error(error);
         response.clearCookie("accessToken");
+        response.clearCookie("refreshToken");
         response.status(500).json({ error: "Server error" });
     }
     /*
@@ -95,7 +94,7 @@ const signup = async (request, response, next) => {
         // Find the user by their username or email
         const existingUser = await User.find(username, email);
         if (existingUser) {
-            console.log(`A user that already exists tried to signup`);
+            console.log(`A user that already exists tried to signup!\r\n`);
             return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         }
         const salt = await bcrypt.genSalt(10);
@@ -109,10 +108,18 @@ const signup = async (request, response, next) => {
             permissions: permissions
         });
         await user.create();
-        request.user = user.records();
+        user.accessToken = generateAccessToken(user.records);
+        user.refreshToken = generateRefreshToken(user.records);
+        tempTokens.push(user.refreshToken);
+        /*request.user = user.records();
+        request.user.accessToken = user.accessToken;
+        request.user.refreshToken = user.refreshToken;*/
+        request.user = user.toString();
         next();
     } catch (error) {
         console.error(error);
+        response.clearCookie("accessToken");
+        response.clearCookie("refreshToken");
         response.status(500).json({ error: "Server error" });
     }
 };
@@ -163,32 +170,8 @@ const authenticateToken = (request, response, next) => {
     }
 };
 
-const generateAccessToken = (request, response, next) => {
-    const accessToken = jwt.sign(request.user, process.env.access_token_secret, { expiresIn: "1h" });
-    request.user.accessToken = accessToken;
-    response.cookie("accessToken", accessToken, {
-        httpOnly: false,
-        secure: true,
-        maxAge: 3600000, // One hour in milliseconds
-        signed: false
-    });
-    response.set("Authorization", `Bearer ${accessToken}`);
-    // response.set("Cache-Control", ``);
-    // response.set("Content-Security-Policy", ``);
-    next();
-};
+const generateAccessToken = (userRecords) => jwt.sign({ userRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
 
-const generateRefreshToken = (request, response, next) => {
-    const refreshToken = jwt.sign(request.user, process.env.refresh_token_secret);
-    request.user.refreshToken = refreshToken;
-    tempTokens.push(refreshToken);
-    response.cookie("refreshToken", refreshToken, {
-        httpOnly: false,
-        secure: true,
-        maxAge: 2629800000, // One month in milliseconds
-        signed: false
-    });
-    next();
-};
+const generateRefreshToken = (userRecords) => jwt.sign({ userRecords }, process.env.refresh_token_secret);
 
-export { authCookie, authenticate, authenticateToken, deleteToken, signin, signup, generateAccessToken, generateRefreshToken };
+export { authCookie, authenticate, authenticateToken, deleteToken, signin, signup };

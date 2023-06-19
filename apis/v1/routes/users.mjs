@@ -3,7 +3,7 @@
 import express from "express";
 import { getAllUsers, addUser, checkUser } from "../modules/data.mjs";
 import { idLogger } from "../modules/helpers.mjs";
-import { authCookie, authenticate, authenticateToken, deleteToken, signin, signup, generateAccessToken, generateRefreshToken } from "../modules/auth.mjs";
+import { authCookie, authenticate, authenticateToken, deleteToken, signin, signup } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
 
 // userPasswords
@@ -32,6 +32,7 @@ const tempPosts = [
 ];
 
 // Browse, Read, Edit, Add, Copy, Delete
+const subscriptionTypes = ["user"];
 
 users.route("/")
     .get(authenticateToken, (req, res) => {
@@ -40,13 +41,47 @@ users.route("/")
         console.log(`User ${req.user.username} granted access to ${req.hostname}`);
         return res.json(tempPosts.filter(post => post.username === req.user.username));
     })
-    .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
-        if (req.user) return res.status(201).json(req.user);
+    .post(signup, async (req, res) => {
+        const user = req.user;
+        if (!subscriptionTypes.includes(user.subscriptionType)) return res.status(500).json({ error: "Server error" });
+        res.cookie("accessToken", user.accessToken, {
+            httpOnly: false,
+            secure: true,
+            maxAge: 3600000, // One hour in milliseconds
+            signed: false
+        });
+        res.cookie("refreshToken", user.refreshToken, {
+            httpOnly: false,
+            secure: true,
+            maxAge: 2629800000, // One month in milliseconds
+            signed: false
+        });
+        res.set("Authorization", `Bearer ${user.accessToken}`);
+        // response.set("Cache-Control", ``);
+        // response.set("Content-Security-Policy", ``);
+        return res.status(201).json(user);
     });
 
 users.route("/login")
     .post(signin, (req, res) => {
-        if (req.user) return res.status(200).json(req.user.limited());
+        const user = req.user;
+        if (!subscriptionTypes.includes(user.subscriptionType)) return res.status(500).json({ error: "Server error" });
+        res.cookie("accessToken", user.accessToken, {
+            httpOnly: false,
+            secure: true,
+            maxAge: 3600000, // One hour in milliseconds
+            signed: false
+        });
+        res.cookie("refreshToken", user.refreshToken, {
+            httpOnly: false,
+            secure: true,
+            maxAge: 2629800000, // One month in milliseconds
+            signed: false
+        });
+        res.set("Authorization", `Bearer ${user.accessToken}`);
+        // response.set("Cache-Control", ``);
+        // response.set("Content-Security-Policy", ``);
+        return res.status(200).json(user);
     });
 
 users.route("/logout")
@@ -56,8 +91,9 @@ users.route("/logout")
     });
 
 users.route("/signup")
-    .post(signup, generateAccessToken, generateRefreshToken, async (req, res) => {
-        if (req.user) return res.status(201).json(req.user);
+    .post((req, res) => {
+        console.log("Redirect /users/signup to /users");
+        res.redirect(301, "/users");
     });
     /*.post((req, res) => {
         console.log("Redirect /users/signup to /users");

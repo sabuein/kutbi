@@ -142,7 +142,7 @@ export default class Subscriber extends Human {
             const uuidQuery = `SELECT uuid FROM Users WHERE id = ?`;
             const uuidResult = await executeQuery(connection, uuidQuery, [id]);
             this.#uuid = uuidResult[0].uuid;
-            console.log(`User created successfully with UUID: ${this.#uuid}`);
+            console.log(`User created successfully with UUID: ${this.#uuid}\r\n`);
             return this.#uuid;
         } catch (e) {
             console.error(`${e.name}: ${e.message}`);
@@ -262,10 +262,21 @@ export default class Subscriber extends Human {
 
     records() {
         return ({
+            ...super.records(),
             uuid: this.#uuid,
             username: this.#username,
             email: this.#email
         });
+    }
+
+    #getNonNullAttributes() {
+        const attributes = [];
+        for (let attribute in this) {
+            if (this.hasOwnProperty(attribute) && this[attribute] !== null) {
+                attributes.push({ attribute: this[attribute] });
+            }
+        }
+        return attributes;
     }
     
     toString() {
@@ -286,9 +297,11 @@ export default class Subscriber extends Human {
             accessibility: this.#accessibility,
             status: this.#status
         };
+
         return ({
             ...super.toString(),
-            ...subscription
+            ...subscription,
+            ...this.#getNonNullAttributes
         });
     }
 };

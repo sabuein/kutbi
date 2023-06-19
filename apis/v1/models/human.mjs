@@ -8,8 +8,10 @@ import {
 
 export default class Human {
 
+    #subscriptionType = this.constructor.name.toLowerCase();
     #firstName = null;
     #lastName = null;
+    #name = null;
     #dob = null;
     #gender = null;
     #occupation = null;
@@ -47,7 +49,11 @@ export default class Human {
     }
 
     get name() {
-        return(`${this.#firstName} ${this.#lastName}` || null);
+        return this.#name;
+    }
+
+    set name(value) {
+        this.#name = value;
     }
 
     get dob() {
@@ -96,11 +102,14 @@ export default class Human {
         for (const value of values) if (this.#interests.indexOf(value) == -1) this.#interests.push(value);
     }
 
+    records() { return ({ subscriptionType: this.#subscriptionType }); }
+
     toString() {
         const info = {
+            subscriptionType: this.#subscriptionType,
             firstName: this.#firstName,
             lastName: this.#lastName,
-            name: this.name(),
+            name: this.name,
             dob: this.#dob,
             gender: this.#gender,
             occupation: this.#occupation,
