@@ -16,7 +16,8 @@ const upload = multer({ dest: "uploads/books/" });
 
 books.param("id", idLogger);
 
-books.route("/")
+books
+    .route("/")
     .get(getAllBooks, (req, res) => {
         res.status(200).json({ message: "inshallah" });
     })
@@ -25,7 +26,8 @@ books.route("/")
         addBook(req, res);
     });
 
-books.route("/:id")
+books
+    .route("/:id")
     .get((req, res) => {
         res.json({ id: req.params.id });
     })

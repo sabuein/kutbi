@@ -11,7 +11,8 @@ const upload = multer({ dest: "uploads/operations/" });
 
 dashboard.param("id", idLogger);
 
-dashboard.route("/")
+dashboard
+    .route("/")
     .get(getAllOperations, (req, res) => {
         res.status(200).json({ message: "inshallah" });
     })

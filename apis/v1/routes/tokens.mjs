@@ -3,11 +3,18 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import csrf from "csurf";
+import { clearAuthCookies } from "../modules/auth.mjs";
 
 const tokens = express.Router();
 
 const parseCookie = cookieParser();
 const checkCSRF = csrf({ cookie: true });
+
+tokens
+    .route("/")
+    .post(clearAuthCookies, async (req, res) => {
+        return res.json(req.user.toString());
+    });
 
 // Generate CSRF (Cross-Site Request Forgery) tokens
 tokens
@@ -26,15 +33,5 @@ tokens
         */
         return response.status(201).json({ csrfToken: token });
     });
-
-// Some helpers...
-const createSecretKey = () => {
-    // require("crypto").randomBytes(64).toString("hex");
-    let output = "";
-    for (let i = 0; i < 128; ++i) {
-        output += (Math.floor(Math.random() * 16)).toString(16);
-    }
-    return output;
-};
 
 export { tokens };
