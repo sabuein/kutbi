@@ -158,18 +158,22 @@ CREATE TABLE IF NOT EXISTS BookGenres (
     PRIMARY KEY (bookId, genreId)
 );
 
+    
 -- Create Users table
 CREATE TABLE IF NOT EXISTS Users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     uuid VARCHAR(36) NOT NULL DEFAULT LOWER(SYS_GUID()),
     username VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    fname VARCHAR(100),
-    lname VARCHAR(100),
-    dob DATE,
+    subscriptionType VARCHAR(32) CHECK (subscriptionType = 'user'),
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
+    fullName VARCHAR(255),
     bio TEXT,
+    dob DATE,
+    lang VARCHAR(50),
+    tel VARCHAR(20),
     country VARCHAR(100),
-    phone VARCHAR(20),
+    email VARCHAR(100),
     github VARCHAR(100),
     twitter VARCHAR(100),
     facebook VARCHAR(100),
@@ -177,9 +181,17 @@ CREATE TABLE IF NOT EXISTS Users (
     youtube VARCHAR(100),
     website VARCHAR(100),
     photoUrl VARCHAR(255),
+    coverImage VARCHAR(255),
+    personalUrl VARCHAR(100),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP
+    deletedAt TIMESTAMP,
+    lastSeen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    accessibility BIT(1) DEFAULT 0,
+    activeStatus BIT(1) DEFAULT 0,
+    newRecord BIT(1) DEFAULT 0,
+    commentNotifications BIT(1) DEFAULT 1,
+    mentionNotifications BIT(1) DEFAULT 1
 );
 
 -- Create UserPasswords table
