@@ -8,15 +8,18 @@ import {
 
 const Post = class {
 
-    static total = 0;
+    #uuid = null;
 
-    constructor() {
-        Post.total++;
-        // Additional properties can be added here
-    }
+    static _total = 0;
 
     static get total() {
-        return Post.total.toString();
+        return Post._total.toString();
+    }
+
+    constructor(details) {
+        Post._total++;
+        this.#uuid = details.uuid;
+        // Additional properties can be added here
     }
 };
 

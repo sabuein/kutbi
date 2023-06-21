@@ -4,9 +4,9 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection
-} from "./register.mjs";
+} from "./classes.mjs";
 
-export default class Human {
+export default class Visitor {
 
     #subscriptionType = null;
     #firstName = null;
@@ -18,16 +18,28 @@ export default class Human {
     #location = null;
     #interests = [];
 
-    static total = 0;
+    static _total = 0;
 
-    constructor() {
-        Human.total++;
+    static get total() {
+        return Visitor._total.toString();
+    }
+    
+    constructor(details) {
+        Visitor._total++;
         this.#subscriptionType = this.constructor.name.toLowerCase();
+        this.#firstName = details.firstName || null;
+        this.#lastName = details.lastName || null;
+        this.#fullName = details.fullName || null;
+        this.#dob = details.dob || null;
+        this.#gender = details.gender || null;
+        this.#occupation = details.occupation || null;
+        this.#location = details.location || null;
+        this.#interests = details.interests || [];
         // Additional properties can be added here
     }
 
     static get total() {
-        return Human.total.toString();
+        return Visitor._total.toString();
     }
 
     get type() {
@@ -44,8 +56,8 @@ export default class Human {
     }
 
     set firstName(value) {
-        if (value.length < 0 || value.length > 100) throw new RangeError("First name length is invalid");
-        if (typeof value !== "string") throw new TypeError("First name type is invalid");
+        /*if (value.length < 0 || value.length > 100) throw new RangeError("First name length is invalid");
+        if (typeof value !== "string") throw new TypeError("First name type is invalid");*/
         this.#firstName = value;
     }
 
@@ -54,7 +66,7 @@ export default class Human {
     }
 
     set lastName(value) {
-        if (value.length < 0 || value.length > 100) throw new RangeError("Last name is invalid");
+        /*if (value.length < 0 || value.length > 100) throw new RangeError("Last name is invalid");*/
         this.#lastName = value;
     }
 
@@ -112,10 +124,12 @@ export default class Human {
         for (const value of values) if (this.#interests.indexOf(value) == -1) this.#interests.push(value);
     }
 
-    records() { return ({ type: this.type.toLowerCase() }); }
-    
+    raw() { return ({ type: this.type }); }
+
+    records() { return this.toString(); }
+
     toString() {
-        const info = {
+        const visitorship = {
             type: this.type,
             firstName: this.firstName,
             lastName: this.lastName,
@@ -127,7 +141,7 @@ export default class Human {
             interests: this.interests
         };
         return ({
-            ...info
+            ...visitorship
         });
     }
 };

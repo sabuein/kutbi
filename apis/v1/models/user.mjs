@@ -1,30 +1,27 @@
 "use strict";
 
-import {
-    getConnectionFromPool,
-    executeQuery,
-    releaseConnection,
-    Subscriber
-} from "./register.mjs";
+import { Subscriber } from "./classes.mjs";
 
 export default class User extends Subscriber {
 
     #commentNotifications = null;
     #mentionNotifications = null;
 
-    static total = 0;
-
-    constructor(data) {
-        User.total++;
-        super(data);
-        // Additional properties can be added here
-    }
+    static _total = 0;
 
     static get total() {
-        return User.total.toString();
+        return User._total.toString();
+    }
+
+    constructor(details) {
+        User._total++;
+        super(details);
+        this.#commentNotifications = details.commentNotifications;
+        this.#mentionNotifications = details.mentionNotifications;
+        // Additional properties can be added here
     }
     
-    static findQuery() {
+    static _findQuery() {
         return `
         SELECT u.uuid "guid", u.username, u.email, s.salt, s.passwordHash
         FROM Users u
@@ -32,10 +29,10 @@ export default class User extends Subscriber {
         WHERE u.username = ? OR u.email = ?
         `;
     }
-
-    static populateQuery() {
+  
+    static _populateQuery() {
         return `
-        SELECT u.*, u.uuid "guid", u.subscriptionType "type", r.roles, p.permissions
+        SELECT u.subscriptionType "type", u.uuid "guid", u.username, u.firstName, u.lastName, u.fullName, u.bio, u.dob, u.lang, u.tel, u.country, u.email, u.github, u.twitter, u.facebook, u.instagram, u.youtube, u.website, u.photoUrl, u.coverImage, u.personalUrl, u.createdAt, u.updatedAt, u.lastSeen, u.accessibility, u.activeStatus, u.newRecord, u.commentNotifications, u.mentionNotifications, r.roles, p.permissions
         FROM Users u
         LEFT JOIN UserPasswords s ON u.id = s.userId
         LEFT JOIN UserRoles r ON u.id = r.userId
@@ -45,24 +42,40 @@ export default class User extends Subscriber {
     }
 
     _accountQuery() { return `INSERT INTO Users (username, subscriptionType, email) VALUES (?, ?, ?)`; }
-    passQuery() { return `INSERT INTO UserPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`; }
-    rolesQuery() { return `INSERT INTO UserRoles (userId, roles) VALUES (?, ?)`; }
-    permQuery() { return `INSERT INTO UserPermissions (userId, permissions) VALUES (?, ?)`; }
-    guidQuery() { return `SELECT uuid "guid" FROM Users WHERE id = ?`; }
-    existingQuery() { return `SELECT uuid "guid" FROM Users WHERE username = ? OR email = ?`; }
+    _passQuery() { return `INSERT INTO UserPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`; }
+    _rolesQuery() { return `INSERT INTO UserRoles (userId, roles) VALUES (?, ?)`; }
+    _permQuery() { return `INSERT INTO UserPermissions (userId, permissions) VALUES (?, ?)`; }
+    _guidQuery() { return `SELECT uuid "guid" FROM Users WHERE id = ?`; }
+    _existingQuery() { return `SELECT uuid "guid" FROM Users WHERE username = ? OR email = ?`; }
     
     async publish() {
         console.log({ "todo": "User publish();" });
     }
 
+    get commentNotifications() {
+        return this.#mentionNotifications;
+    }
+
+    set commentNotifications(value) {
+        this.#mentionNotifications = value;
+    }
+
+    get mentionNotifications() {
+        return this.#mentionNotifications;
+    }
+
+    set mentionNotifications(value) {
+        this.#mentionNotifications = value;
+    }
+
     toString() {
-        const details = {
-            commentNotifications: this.#commentNotifications,
-            mentionNotifications: this.#mentionNotifications
+        const usership = {
+            commentNotifications: this.commentNotifications,
+            mentionNotifications: this.mentionNotifications
         };
         return ({
             ...super.toString(),
-            ...details
+            ...usership
         });
     }
 };

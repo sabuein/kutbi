@@ -4,22 +4,28 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection,
-    Human
-} from "./register.mjs";
+    Visitor
+} from "./classes.mjs";
 
-export default class Subscriber extends Human {
+export default class Subscriber extends Visitor {
 
     #guid = null;
     #username = null;
     #email = null;
     #salt = null;
     #passwordHash = null;
-    #permissions = [];
     #roles = [];
+    #permissions = [];
     #accessToken = null;
     #refreshToken = null;
     #photoUrl = null;
     #coverImage = null;
+    #github = null;
+    #twitter = null;
+    #facebook = null;
+    #instagram = null;
+    #youtube = null;
+    #website = null;
     #personalUrl = null;
     #createdAt = null;
     #updatedAt = null;
@@ -29,30 +35,43 @@ export default class Subscriber extends Human {
     #activeStatus = null;
     #newRecord = null;
 
-    static total = 0;
-
-    constructor(data) {
-        Subscriber.total++;
-        super();
-        this.#guid = data.guid || null,
-        this.#username = data.username || null;
-        this.#email = data.email || null;
-        this.#salt = data.salt || null;
-        this.#passwordHash = data.passwordHash || null;
-        this.#permissions = data.permissions || [];
-        this.#roles = data.roles || [],
-        this.#accessToken = data.accessToken || null;
-        this.#refreshToken = data.refreshToken || null;
-        this.#photoUrl = data.photoUrl || null;
-        this.#personalUrl = data.personalUrl || null;
-        this.#newRecord = data.newRecord || null;
-    }
+    static _total = 0;
 
     static get total() {
-        return Subscriber.total.toString();
+        return Subscriber._total.toString();
+    }
+
+    constructor(details) {
+        Subscriber._total++;
+        super(details);
+        this.#guid = details.guid || null,
+        this.#username = details.username || null;
+        this.#email = details.email || null;
+        this.#salt = details.salt || null;
+        this.#passwordHash = details.passwordHash || null;
+        this.#roles = details.roles || [],
+        this.#permissions = details.permissions || [];
+        this.#accessToken = details.accessToken || null;
+        this.#refreshToken = details.refreshToken || null;
+        this.#photoUrl = details.photoUrl || null;
+        this.#coverImage = details.coverImage || null;
+        this.#github = details.github || null;
+        this.#twitter = details.twitter || null;
+        this.#facebook = details.facebook || null;
+        this.#instagram = details.instagram || null;
+        this.#youtube = details.youtube || null;
+        this.#website = details.website || null;
+        this.#personalUrl = details.personalUrl || null;
+        this.#createdAt = details.createdAt || null;
+        this.#updatedAt = details.updatedAt || null;
+        this.#deletedAt = details.deletedAt || null;
+        this.#lastSeen = details.lastSeen || null;
+        this.#accessibility = details.accessibility || null;
+        this.#activeStatus = details.activeStatus || null;
+        this.#newRecord = details.newRecord || null;
     }
         
-    static findQuery() {
+    static _findQuery() {
         return `
         SELECT sub.suid "guid", sub.username, sub.email, s.salt, s.passwordHash
         FROM Subscribers sub
@@ -61,11 +80,11 @@ export default class Subscriber extends Human {
         `;
     }
 
-    static async find(username = "", email = "") {
+    static async _find(username = "", email = "") {
         const connection = await getConnectionFromPool();
 
         try {
-            const result = await executeQuery(connection, this.findQuery(), [username, email]);
+            const result = await executeQuery(connection, this._findQuery(), [username, email]);
             if (result.length === 0) return null;
             return ({ guid: result[0].guid, passwordHash: result[0].passwordHash });
         } catch (error) {
@@ -87,19 +106,22 @@ export default class Subscriber extends Human {
         `;
     }
 
-    static async populate(guid) {
+    static async _populate(guid) {
         const connection = await getConnectionFromPool();
 
         try {
-            const result = await executeQuery(connection, this.populateQuery(), [guid]);
+            const result = await executeQuery(connection, this._populateQuery(), [guid]);
             if (result.length === 0) return null;
             const data = result[0], roles = [], permissions = [];
             for (const row of result) {
                 if (row.roles && roles[0] !== row.roles) roles.push(row.roles);
                 if (row.permissions) permissions.push(row.permissions);
             }
+            console.log("Here at _populate();");
+            console.log(data);
             data.roles = roles;
             data.permissions = permissions;
+
             return new this(data);
         } catch (error) {
             console.error(error);
@@ -110,18 +132,18 @@ export default class Subscriber extends Human {
     }
 
     _accountQuery() { return `INSERT INTO Subscribers (username, email) VALUES (?, ?)`; }
-    passQuery() { return `INSERT INTO SubscriberPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`; }
-    rolesQuery() { return `INSERT INTO SubscriberRoles (userId, roles) VALUES (?, ?)`; }
-    permQuery() { return `INSERT INTO SubscriberPermissions (userId, permissions) VALUES (?, ?)`; }
-    guidQuery() { return `SELECT suid "guid" FROM Subscribers WHERE id = ?`; }
-    existingQuery() { return `SELECT uuid "guid" FROM Subscribers WHERE username = ? OR email = ?`; }
+    _passQuery() { return `INSERT INTO SubscriberPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`; }
+    _rolesQuery() { return `INSERT INTO SubscriberRoles (userId, roles) VALUES (?, ?)`; }
+    _permQuery() { return `INSERT INTO SubscriberPermissions (userId, permissions) VALUES (?, ?)`; }
+    _guidQuery() { return `SELECT suid "guid" FROM Subscribers WHERE id = ?`; }
+    _existingQuery() { return `SELECT uuid "guid" FROM Subscribers WHERE username = ? OR email = ?`; }
 
-    async create() {
+    async #create() {
         const connection = await getConnectionFromPool();
 
         try {
             // Check if the an account already exists
-            const existingResult = await executeQuery(connection, this.existingQuery(), [this.#username, this.#email]);
+            const existingResult = await executeQuery(connection, this._existingQuery(), [this.#username, this.#email]);
 
             if (existingResult.length > 0) {
                 console.log(`${this.constructor.name} already exists.\r\n`);
@@ -133,22 +155,22 @@ export default class Subscriber extends Human {
             const id = accountResult.insertId;
 
             // Insert the user credentials into the UserPasswords table
-            await executeQuery(connection, this.passQuery(), [id, this.#salt, this.#passwordHash]);
+            await executeQuery(connection, this._passQuery(), [id, this.#salt, this.#passwordHash]);
 
             // Insert the user roles into the UserRoles table
-            this.#roles.forEach(async role => await executeQuery(connection, this.rolesQuery(), [id, role]));
+            this.#roles.forEach(async role => await executeQuery(connection, this._rolesQuery(), [id, role]));
 
             // Insert the user permissions into the UserPermissions table
-            this.#permissions.forEach(async permission => await executeQuery(connection, this.permQuery(), [id, permission]));
+            this.#permissions.forEach(async permission => await executeQuery(connection, this._permQuery(), [id, permission]));
 
             // Rretrieving guid
-            const guidResult = await executeQuery(connection, this.guidQuery(), [id]);
+            const guidResult = await executeQuery(connection, this._guidQuery(), [id]);
             this.#guid = guidResult[0].guid;
 
             console.log(this.toString(), "\r\n");
             console.log(`Details: A new Kutbi account of type ${this.type} (#${this.guid}) has successfully registered and logged in.\r\n`);
-            
-            return this.#guid;
+            this.constructor._total++;
+            return this.guid;
         } catch (error) {
             console.error(error);
             throw Error(`Details: We couldn't create a Kutbi account of type ${this.type} (#${this.guid}).\r\n`);
@@ -157,7 +179,7 @@ export default class Subscriber extends Human {
         }
     }
 
-    async update() {
+    async #update() {
         console.log({ "todo": "Subscriber update();" });
         try {
 
@@ -168,11 +190,15 @@ export default class Subscriber extends Human {
     }
 
     async save() {
-        return this.newRecord ? await this.create() : await this.update();
+        return this.newRecord ? await this.#create() : await this.#update();
     }
 
     async activate() {
         console.log({ "todo": "Subscriber activate();" });
+    }
+
+    async disable() {
+        console.log({ "todo": "Subscriber disable();" });
     }
 
     async suspend() {
@@ -185,6 +211,10 @@ export default class Subscriber extends Human {
 
     async unsubscribe() {
         console.log({ "todo": "Subscriber unsubscribe();" });
+    }
+
+    async follow() {
+        console.log({ "todo": "Subscriber follow();" });
     }
 
     async block() {
@@ -234,7 +264,7 @@ export default class Subscriber extends Human {
     }
 
     set accessToken(value) {
-        if (value.length < 0 || value.length < 5) throw new RangeError("Access token is invalid");
+        // if (value.length < 0 || value.length < 5) throw new RangeError("Access token is invalid");
         this.#accessToken = value;
     }
 
@@ -243,7 +273,7 @@ export default class Subscriber extends Human {
     }
 
     set refreshToken(value) {
-        if (value.length < 0 || value.length < 5) throw new RangeError("Refresh token is invalid");
+        // if (value.length < 0 || value.length < 5) throw new RangeError("Refresh token is invalid");
         this.#refreshToken = value;
     }
 
@@ -252,6 +282,9 @@ export default class Subscriber extends Human {
     }
 
     set createdAt(value) {
+        console.log("Hello from createdAt();");
+        console.log(value);
+        console.log(typeof value);
         if (value.length < 0 || value.length > 100) throw new RangeError("createdAt length is invalid");
         if (typeof value !== "string") throw new TypeError("createdAt type is invalid");
         this.#createdAt = value;
@@ -285,12 +318,22 @@ export default class Subscriber extends Human {
         this.#deletedAt = value;
     }
 
-    records() {
+    get lastSeen() {
+        return this.#lastSeen;
+    }
+
+    set lastSeen(value) {
+        if (value.length < 0 || value.length > 100) throw new RangeError("lastSeen length is invalid");
+        if (typeof value !== "string") throw new TypeError("lastSeen type is invalid");
+        this.#lastSeen = value;
+    }
+
+    raw() {
         return ({
-            ...super.records(),
-            guid: this.#guid,
-            username: this.#username,
-            email: this.#email
+            ...super.raw(),
+            guid: this.guid,
+            username: this.username,
+            email: this.email
         });
     }
 
@@ -305,7 +348,7 @@ export default class Subscriber extends Human {
     }
 
     toString() {
-        const subscription = {
+        const subscribership = {
             guid: this.guid,
             username: this.username,
             email: this.email,
@@ -325,8 +368,7 @@ export default class Subscriber extends Human {
 
         return ({
             ...super.toString(),
-            ...subscription,
-            ...this.#getNonNullAttributes()
+            ...subscribership
         });
     }
 };

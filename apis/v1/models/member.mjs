@@ -1,11 +1,6 @@
 "use strict";
 
-import {
-    getConnectionFromPool,
-    executeQuery,
-    releaseConnection,
-    User
-} from "./register.mjs";
+import { User } from "./classes.mjs";
 
 export default class Member extends User {
 
@@ -13,17 +8,17 @@ export default class Member extends User {
 
     #postsCount = null;
 
-    static total = 0;
-
-    constructor() {
-        super();
-        this.#postsCount = 0;
-        Member.total++;
-        // Additional properties can be added here
-    }
+    static _total = 0;
 
     static get total() {
-        return Member.total.toString();
+        return Visitor._total.toString();
+    }
+
+    constructor(details) {
+        Member._total++;
+        super(details);
+        this.#postsCount = 0;
+        // Additional properties can be added here
     }
 
     get postCount() {
@@ -36,10 +31,10 @@ export default class Member extends User {
     }
 
     toString() {
-        const count = { posts: this.#postsCount };
+        const membership = { postsCount: this.postsCount };
         return ({
             ...super.toString(),
-            ...count
+            ...membership
         });
     }
 };
