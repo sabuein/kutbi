@@ -8,69 +8,32 @@ import { User } from "../models/register.mjs";
 dotenv.config({ path: "./.env" });
 
 // Authentication and authorization
-// Validate and authenticate tokens
 
-let tempTokens = [];
-
-const deleteToken = (request, response, next) => {
-    const { refreshToken } = request.body;
-    if (refreshToken === null) return response.sendStatus(401);
-    if (!tempTokens.includes(refreshToken)) return response.status(403).json({ error: "Forbidden. You need to sign in." });
-
-    jwt.verify(refreshToken, process.env.refresh_token_secret, (error, user) => {
-        if (error) return response.status(403).json({ error: "Forbidden. You need to sign in." });
-        const exists = tempTokens.indexOf(refreshToken);
-        if (exists === -1) return response.status(400).json({ error: "Unable to find token" });
-        tempTokens.splice(exists,  1);
-        console.log("Successfully removed refresh token");
-        next();
-    });
-};
-
-const authCookie = async (request, response, next) => {
-    const accessToken = request.cookies.accessToken;
-    if (accessToken === "undefined") return response.status(400).json({ error: "Unable to find token" });
+const login = async (request, response, next) => {
     try {
-        jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
-            if (error) {
-                console.log(`The token has no permission to access ${request.hostname}`);
-                return response.status(403).json({ error: "No permission to access" });
-            }
-            request.user = user;
-            next();
-        });
-    } catch (error) {
-        console.error(error);
-        response.clearCookie("accessToken");
-        response.status(500).json({ error: "Server error" });
-    }
-    /*
-    const sauce = { uuid: uuid, username: username, email: email };
-    request.user.accessToken = generateAccessToken(sauce);
-    tempTokens.push(generateRefreshToken(sauce));
-    request.user.refreshToken = generateRefreshToken(sauce);
-    next();
-    */
-};
-
-const signin = async (request, response, next) => {
-    const { username, email, password, roles, permissions } = request.body;
-    if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
-    try {
+        const { username, email, password } = request.body;
+        if (!username || !email || !password) {
+            const value = { username: username, email: email, error: "Missing required parameters" };
+            console.log(value, "\r\n");
+            return response.status(400).json(value);
+        }
         // Find the user by their username or email
         const existingAccount = await User.find(username, email);
-        if (!existingAccount) return response.status(403).json({ error: "The account does not exist" });
-
-        const isPasswordValid = bcrypt.compare(password, existingAccount.passwordHash);
-        if (!isPasswordValid) return response.status(401).json({ error: "Invalid password" });
-        
-        const user = await User.populate(existingAccount.uuid);
-        user.accessToken = generateAccessToken(user.records);
-        user.refreshToken = generateRefreshToken(user.records);
-        tempTokens.push(user.refreshToken);
-        request.user = user.records();
-        request.user.accessToken = user.accessToken;
-        request.user.refreshToken = user.refreshToken;
+        if (!existingAccount) {
+            const value = { username: username, email: email, error: "A Kutbi account for these details does not exist" };
+            console.log(value, "\r\n");
+            return response.status(403).json({ error: "We couldn't find your Kutbi account" });
+        }
+        if (await bcrypt.compare(password, existingAccount.passwordHash) !== true) {
+            const value = { username: username, email: email, error: "Invalid password" };
+            console.log(value, "\r\n");
+            return response.status(401).json(value);
+        }
+        const account = await User.populate(existingAccount.guid);
+        account.accessToken = generateAccessToken(account.records);
+        account.refreshToken = generateRefreshToken(account.records);
+        tempTokens.push(account.refreshToken);
+        request.account = account.toString();
         next();
     } catch (error) {
         console.error(error);
@@ -78,43 +41,49 @@ const signin = async (request, response, next) => {
         response.clearCookie("refreshToken");
         response.status(500).json({ error: "Server error" });
     }
-    /*
-    const sauce = { uuid: uuid, username: username, email: email };
-    request.user.accessToken = generateAccessToken(sauce);
-    tempTokens.push(generateRefreshToken(sauce));
-    request.user.refreshToken = generateRefreshToken(sauce);
-    next();
-    */
 };
 
-const signup = async (request, response, next) => {
+const recover = async (request, response, next) => {
+    const { phoneNumber, recoveryEmail, fullName } = request.body;
+    if ((!phoneNumber || !recoveryEmail) && !fullName) return response.status(400).json({ error: "Missing required parameters" });
+    try {
+        // Review a list of usernames that match your account
+        const matchingUsernames = []
+        next();
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    } finally {
+        console.log("TODO: recover();")
+    }
+};
+
+const register = async (request, response, next) => {
     const { username, email, password, roles, permissions } = request.body;
     if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
-        // Find the user by their username or email
-        const existingUser = await User.find(username, email);
-        if (existingUser) {
-            console.log(`A user that already exists tried to signup!\r\n`);
+        // Find the account by their username or email
+        const existingAccount = await User.find(username, email);
+        if (existingAccount) {
+            console.log(`Details: An account that already exists tried to signup!\r\n`);
             return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         }
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
-        const user = new User({
+        const account = new User({
             username: username,
             email: email,
             salt: salt,
             passwordHash: passwordHash,
             roles: roles,
-            permissions: permissions
+            permissions: permissions,
+            newRecord: true
         });
-        await user.create();
-        user.accessToken = generateAccessToken(user.records);
-        user.refreshToken = generateRefreshToken(user.records);
-        tempTokens.push(user.refreshToken);
-        /*request.user = user.records();
-        request.user.accessToken = user.accessToken;
-        request.user.refreshToken = user.refreshToken;*/
-        request.user = user.toString();
+        account.accessToken = generateAccessToken(account.records);
+        account.refreshToken = generateRefreshToken(account.records);
+        tempTokens.push(account.refreshToken);
+        await account.save();
+        request.account = account.toString();
         next();
     } catch (error) {
         console.error(error);
@@ -124,28 +93,11 @@ const signup = async (request, response, next) => {
     }
 };
 
-const authenticate = async (request, response, next) => {
-    const { username, email, password } = request.body;
-    if (!(username && password) || !(email && password)) return response.status(400).json({ error: "Missing required parameters" });
+// Validate and authenticate tokens
 
-    try {
-        // Find the user by their username or email
-        const user = await User.find(username, email);
+let tempTokens = [];
 
-        if (!user) return response.status(404).json({ error: "User not found" });
-
-        // Compare the entered password with the hashed password stored in the database
-        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isPasswordValid) return response.status(401).json({ error: "Invalid password" });
-        request.user = user;
-        next();
-    } catch (error) {
-        console.error(error);
-        response.status(500).json({ error: "Server error" });
-    }
-};
-
-const authenticateToken = (request, response, next) => {
+const validateAuthHeader = (request, response, next) => {
     const header = request.headers.authorization;
     const token = header && header.split(" ")[1];
 
@@ -170,8 +122,62 @@ const authenticateToken = (request, response, next) => {
     }
 };
 
-const generateAccessToken = (userRecords) => jwt.sign({ userRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
+const validateAuthCookie = async (request, response, next) => {
+    const accessToken = request.cookies.accessToken;
+    if (accessToken === "undefined") return response.status(400).json({ error: "Unable to find token" });
+    try {
+        jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
+            if (error) {
+                console.log(`The provided token has no permission to access ${request.hostname}`);
+                return response.status(403).json({ error: "No permission to access" });
+            }
+            request.user = user;
+            next();
+        });
+    } catch (error) {
+        console.error(error);
+        response.clearCookie("accessToken");
+        response.status(500).json({ error: "Server error" });
+    }
+    /*
+    const sauce = { uuid: uuid, username: username, email: email };
+    request.user.accessToken = generateAccessToken(sauce);
+    tempTokens.push(generateRefreshToken(sauce));
+    request.user.refreshToken = generateRefreshToken(sauce);
+    next();
+    */
+};
 
-const generateRefreshToken = (userRecords) => jwt.sign({ userRecords }, process.env.refresh_token_secret);
+const clearAuthTokens = (request, response, next) => {
+    const { refreshToken } = request.body;
+    if (refreshToken === null) return response.sendStatus(401);
+    if (!tempTokens.includes(refreshToken)) return response.status(403).json({ error: "Forbidden. You need to sign in." });
 
-export { authCookie, authenticate, authenticateToken, deleteToken, signin, signup };
+    jwt.verify(refreshToken, process.env.refresh_token_secret, (error, user) => {
+        if (error) return response.status(403).json({ error: "Forbidden. You need to sign in." });
+        const exists = tempTokens.indexOf(refreshToken);
+        if (exists === -1) return response.status(400).json({ error: "Unable to find token" });
+        tempTokens.splice(exists,  1);
+        console.log("Details: Successfully removed authentication tokens.");
+        next();
+    });
+};
+
+const clearAuthCookies = async (request, response, next) => {
+    try {
+        response.clearCookie("accessToken");
+        response.clearCookie("refreshToken");
+        next();
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    } finally {
+        console.log("clearCookies();")
+    }
+};
+
+const generateAccessToken = (accountRecords) => jwt.sign({ accountRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
+
+const generateRefreshToken = (accountRecords) => jwt.sign({ accountRecords }, process.env.refresh_token_secret);
+
+export { login, recover, register, validateAuthHeader, validateAuthCookie, clearAuthTokens, clearAuthCookies };

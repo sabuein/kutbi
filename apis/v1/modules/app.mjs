@@ -5,7 +5,7 @@ import hbs from "hbs";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { mainLogger } from "./helpers.mjs";
-import { authors, books, dashboard, tokens, users } from "./routes.mjs";
+import { accounts, authors, books, dashboard, tokens, users } from "./routes.mjs";
 
 const app = express();
 
@@ -29,6 +29,7 @@ try {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
 
+    app.use("/accounts", accounts);
     app.use("/authors", authors);
     app.use("/books", books);
     app.use("/dashboard", dashboard);
