@@ -176,8 +176,49 @@ const clearAuthCookies = async (request, response, next) => {
     }
 };
 
+const stats = {
+    setupAuthCounter: 0,
+};
+
+const setupAuth = async (request, response, next) => {
+    try {
+        const account = request.account;
+        setHeaders(response, { accessToken: account.accessToken, refreshToken: account.refreshToken });
+        setCookies(response, { accessToken: account.accessToken, refreshToken: account.refreshToken });
+        next();
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    } finally {
+        stats.setupAuthCounter++;
+        console.log(`setupAuth: ${stats.setupAuthCounter}\r\n`);
+    }
+};
+
 const generateAccessToken = (accountRecords) => jwt.sign({ accountRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
 
 const generateRefreshToken = (accountRecords) => jwt.sign({ accountRecords }, process.env.refresh_token_secret);
 
-export { login, recover, register, validateAuthHeader, validateAuthCookie, clearAuthTokens, clearAuthCookies };
+const setCookies = (response, account) => {
+    response.cookie("accessToken", account.accessToken, {
+        httpOnly: false,
+        secure: true,
+        maxAge: 3600000, // One hour in milliseconds
+        signed: false
+    });
+
+    response.cookie("refreshToken", account.refreshToken, {
+        httpOnly: false,
+        secure: true,
+        maxAge: 2629800000, // One month in milliseconds
+        signed: false
+    });
+};
+
+const setHeaders = (response, account) => {
+    response.set("Authorization", `Bearer ${account.accessToken}`);
+    // response.set("Cache-Control", ``);
+    // response.set("Content-Security-Policy", ``);
+};
+
+export { login, recover, register, setupAuth, validateAuthHeader, validateAuthCookie, clearAuthTokens, clearAuthCookies };
