@@ -40,7 +40,14 @@ const init = {
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_DATABASE,
-  connectionLimit: 10
+  connectionLimit: 10,
+  multipleStatements: true,
+  typeCast: function (field, next) {
+    if (field.type === "VAR_STRING") {
+      return field.string();
+    }
+    return next();
+  }
 };
 
 const pool = mysql.createPool(init);

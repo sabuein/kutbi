@@ -3,7 +3,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "../models/register.mjs";
+import { User } from "../models/classes.mjs";
 
 dotenv.config({ path: "./.env" });
 
@@ -18,7 +18,7 @@ const login = async (request, response, next) => {
             return response.status(400).json(value);
         }
         // Find the user by their username or email
-        const existingAccount = await User.find(username, email);
+        const existingAccount = await User._find(username, email);
         if (!existingAccount) {
             const value = { username: username, email: email, error: "A Kutbi account for these details does not exist" };
             console.log(value, "\r\n");
@@ -29,11 +29,18 @@ const login = async (request, response, next) => {
             console.log(value, "\r\n");
             return response.status(401).json(value);
         }
-        const account = await User.populate(existingAccount.guid);
-        account.accessToken = generateAccessToken(account.records);
-        account.refreshToken = generateRefreshToken(account.records);
+        const account = await User._populate(existingAccount.guid);
+
+        console.log("Hellooooo");
+        console.log(account);
+        console.log(account.raw());
+        console.log(account.accessToken);
+        console.log(account.refreshToken);
+
+        account.accessToken = generateAccessToken(account.raw());
+        account.refreshToken = generateRefreshToken(account.raw());
         tempTokens.push(account.refreshToken);
-        request.account = account.toString();
+        request.account = account.records();
         next();
     } catch (error) {
         console.error(error);
@@ -63,7 +70,7 @@ const register = async (request, response, next) => {
     if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
     try {
         // Find the account by their username or email
-        const existingAccount = await User.find(username, email);
+        const existingAccount = await User._find(username, email);
         if (existingAccount) {
             console.log(`Details: An account that already exists tried to signup!\r\n`);
             return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
@@ -79,11 +86,13 @@ const register = async (request, response, next) => {
             permissions: permissions,
             newRecord: true
         });
-        account.accessToken = generateAccessToken(account.records);
-        account.refreshToken = generateRefreshToken(account.records);
+        Object.assign(account, {
+            accessToken: generateAccessToken(account.raw()),
+            refreshToken: generateRefreshToken(account.raw()),
+        });
         tempTokens.push(account.refreshToken);
         await account.save();
-        request.account = account.toString();
+        request.account = account.records();
         next();
     } catch (error) {
         console.error(error);
@@ -216,7 +225,10 @@ const setCookies = (response, account) => {
 };
 
 const setHeaders = (response, account) => {
-    response.set("Authorization", `Bearer ${account.accessToken}`);
+    // response.set("Authorization", `Bearer ${account.accessToken}`);
+    response.set("access-control-allow-origin", "http://localhost:*, http://127.0.0.1:*");
+    response.set("access-control-request-method", "post, get, put, delete, options");
+    response.set("access-control-request-headers", "authorization");
     // response.set("Cache-Control", ``);
     // response.set("Content-Security-Policy", ``);
 };
