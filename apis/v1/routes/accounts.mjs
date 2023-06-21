@@ -7,7 +7,7 @@ import { roles, checkPermission } from "../modules/roles.mjs";
 const accounts = express.Router();
 
 // Browse, Read, Edit, Add, Copy, Delete
-const types = ["subscriber", "user"];
+const accountTypes = ["subscriber", "user"];
 
 accounts
     .route("/")
@@ -19,14 +19,14 @@ accounts
 accounts
     .route("/signup")
     .post(register, setupAuth, async (req, res) => {
-        if (!types.includes(req.account.type)) return res.status(500).json({ error: "Server error" });
+        if (!accountTypes.includes(req.account.type)) return res.status(500).json({ error: "Server error" });
         return res.status(201).json(req.account);
     });
 
 accounts
     .route("/signin")
     .post(login, setupAuth, (req, res) => {
-        if (!types.includes(req.account.type)) return res.status(500).json({ error: "We couldn't locate your Kutbi account" });
+        if (!accountTypes.includes(req.account.type)) return res.status(500).json({ error: "We couldn't locate your Kutbi account" });
         console.log(`Details: A Kutbi account of type ${req.account.type} (#${req.account.guid}) have successfully retrieved and logged in.\r\n`);
         return res.status(200).json(req.account);
     });

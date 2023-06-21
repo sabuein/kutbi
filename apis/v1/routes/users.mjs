@@ -30,8 +30,6 @@ const tempPosts = [
     }
 ];
 
-// Browse, Read, Edit, Add, Copy, Delete
-
 users
     .route("/")
     .get(validateAuthHeader, validateAuthCookie, (req, res) => {
@@ -41,16 +39,20 @@ users
         return res.json(tempPosts.filter(post => post.username === req.user.username));
     });
 
+// Browse, Read, Edit, Add, Copy, Delete
 users
-    .route("/:id")
+    .route("/:guid")
     .get(validateAuthHeader, validateAuthCookie, checkPermission(roles.ADMIN, "read"), (req, res) => {
-        return res.json({ id: req.params.id });
+        return res.json({ guid: req.params.guid });
     })
     .put(validateAuthHeader, validateAuthCookie, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
-        return res.status(200).send(`User with ID #${req.params.id} has been updated`);
+        return res.status(200).send(`User with ID #${req.params.guid} has been updated`);
+    })
+    .post(validateAuthHeader, validateAuthCookie, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
+        return res.status(200).send(`User with ID #${req.params.guid} has been updated`);
     })
     .delete(validateAuthHeader, validateAuthCookie, checkPermission(roles.ADMIN, "delete"), (req, res) => {
-        return res.status(200).send(`User with ID #${req.params.id} has been deleted`);
+        return res.status(200).send(`User with ID #${req.params.guid} has been deleted`);
     });
 
 users
