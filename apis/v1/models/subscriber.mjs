@@ -9,7 +9,7 @@ import {
 
 export default class Subscriber extends Human {
 
-    #uuid = null;
+    #guid = null;
     #username = null;
     #email = null;
     #salt = null;
@@ -20,20 +20,21 @@ export default class Subscriber extends Human {
     #refreshToken = null;
     #photoUrl = null;
     #coverImage = null;
-    #url = null;
+    #personalUrl = null;
     #createdAt = null;
     #updatedAt = null;
     #deletedAt = null;
     #lastSeen = null;
     #accessibility = null;
-    #status = null;
-    
+    #activeStatus = null;
+    #newRecord = null;
+
     static total = 0;
 
     constructor(data) {
         Subscriber.total++;
         super();
-        this.#uuid = data.uuid || null,
+        this.#guid = data.guid || null,
         this.#username = data.username || null;
         this.#email = data.email || null;
         this.#salt = data.salt || null;
@@ -43,136 +44,164 @@ export default class Subscriber extends Human {
         this.#accessToken = data.accessToken || null;
         this.#refreshToken = data.refreshToken || null;
         this.#photoUrl = data.photoUrl || null;
-        this.#coverImage = data.coverImage || null;
-        this.#accessibility = null;
-        this.#status = null;
-        // Additional properties can be added here
-        this.#url = null;
-        this.#createdAt = null;
-        this.#lastSeen = null;
+        this.#personalUrl = data.personalUrl || null;
+        this.#newRecord = data.newRecord || null;
     }
 
     static get total() {
         return Subscriber.total.toString();
+    }
+        
+    static findQuery() {
+        return `
+        SELECT sub.suid "guid", sub.username, sub.email, s.salt, s.passwordHash
+        FROM Subscribers sub
+        LEFT JOIN SubscribersPasswords s ON sub.id = s.subId
+        WHERE sub.username = ? OR sub.email = ?
+        `;
     }
 
     static async find(username = "", email = "") {
         const connection = await getConnectionFromPool();
 
         try {
-            const query = `
-            SELECT u.uuid, u.username, u.email, s.salt, s.passwordHash, r.roles, p.permissions
-            FROM Users u
-            LEFT JOIN UserPasswords s ON u.id = s.userId
-            LEFT JOIN UserRoles r ON u.id = r.userId
-            LEFT JOIN UserPermissions p ON u.id = p.userId
-            WHERE u.username = ? OR u.email = ?
-            `;
-
-            const result = await executeQuery(connection, query, [username, email]);
-
+            const result = await executeQuery(connection, this.findQuery(), [username, email]);
             if (result.length === 0) return null;
-
-            const userData = result[0], userRoles = [], userPermissions = [];
-            
-            for (const row of result) {
-                if (row.roles && userRoles[0] !== row.roles) userRoles.push(row.roles);
-                if (row.permissions) userPermissions.push(row.permissions);
-            }
-            
-            return new User({
-                uuid: userData.uuid,
-                username: userData.username,
-                email: userData.email,
-                salt: userData.salt,
-                passwordHash: userData.passwordHash,
-                roles: userRoles,
-                permissions: userPermissions
-            });
-        } catch (e) {
-            console.error(`${e.name}: ${e.message}`);
-            return null;
+            return ({ guid: result[0].guid, passwordHash: result[0].passwordHash });
+        } catch (error) {
+            console.error(error);
+            throw Error(`Details: We couldn't find your Kutbi account`);
         } finally {
             releaseConnection(connection);
         }
     }
+
+    static populateQuery() {
+        return `
+        SELECT sub.*, sub.suid "guid" r.roles, p.permissions
+        FROM Subscribers sub
+        LEFT JOIN SubscribersPasswords s ON sub.id = s.subId
+        LEFT JOIN SubscribersRoles r ON sub.id = r.subId
+        LEFT JOIN SubscribersPermissions p ON sub.id = p.subId
+        WHERE sub.suid = ?
+        `;
+    }
+
+    static async populate(guid) {
+        const connection = await getConnectionFromPool();
+
+        try {
+            const result = await executeQuery(connection, this.populateQuery(), [guid]);
+            if (result.length === 0) return null;
+            const data = result[0], roles = [], permissions = [];
+            for (const row of result) {
+                if (row.roles && roles[0] !== row.roles) roles.push(row.roles);
+                if (row.permissions) permissions.push(row.permissions);
+            }
+            data.roles = roles;
+            data.permissions = permissions;
+            return new this(data);
+        } catch (error) {
+            console.error(error);
+            throw new Error(`Details: We couldn't populate a Kutbi account with guid = ${guid}).\r\n`);
+        } finally {
+            releaseConnection(connection);
+        }
+    }
+
+    _accountQuery() { return `INSERT INTO Subscribers (username, email) VALUES (?, ?)`; }
+    passQuery() { return `INSERT INTO SubscriberPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`; }
+    rolesQuery() { return `INSERT INTO SubscriberRoles (userId, roles) VALUES (?, ?)`; }
+    permQuery() { return `INSERT INTO SubscriberPermissions (userId, permissions) VALUES (?, ?)`; }
+    guidQuery() { return `SELECT suid "guid" FROM Subscribers WHERE id = ?`; }
+    existingQuery() { return `SELECT uuid "guid" FROM Subscribers WHERE username = ? OR email = ?`; }
 
     async create() {
         const connection = await getConnectionFromPool();
 
         try {
-            // Check if the user already exists
-            const existingUserQuery = `SELECT uuid FROM Users WHERE username = ? OR email = ?`;
-            const existingUserResult = await executeQuery(connection, existingUserQuery, [this.#username, this.#email]);
+            // Check if the an account already exists
+            const existingResult = await executeQuery(connection, this.existingQuery(), [this.#username, this.#email]);
 
-            if (existingUserResult.length > 0) {
-                console.log(`User already exists`);
+            if (existingResult.length > 0) {
+                console.log(`${this.constructor.name} already exists.\r\n`);
                 return null;
             }
 
-            // Insert the user into the Users table, then retrieve the inserted id
-            const userQuery = `INSERT INTO Users (username, email) VALUES (?, ?)`;
-            const userResult = await executeQuery(connection, userQuery, [
-                this.#username,
-                this.#email
-            ]);
-            const id = userResult.insertId;
+            // Insert the account into the respective table, then retrieve the inserted id
+            const accountResult = await executeQuery(connection, this._accountQuery(), [this.#username, this.type, this.#email]);
+            const id = accountResult.insertId;
 
             // Insert the user credentials into the UserPasswords table
-            const passQuery = `INSERT INTO UserPasswords (userId, salt, passwordHash) VALUES (?, ?, ?)`;
-            await executeQuery(connection, passQuery, [
-                id,
-                this.#salt,
-                this.#passwordHash,
-            ]);
+            await executeQuery(connection, this.passQuery(), [id, this.#salt, this.#passwordHash]);
 
             // Insert the user roles into the UserRoles table
-            this.#roles.forEach(async role => {
-                const rolesQuery = `INSERT INTO UserRoles (userId, roles) VALUES (?, ?)`;
-                await executeQuery(connection, rolesQuery, [id, role]);
-            });
+            this.#roles.forEach(async role => await executeQuery(connection, this.rolesQuery(), [id, role]));
 
             // Insert the user permissions into the UserPermissions table
-            this.#permissions.forEach(async permission => {
-                const permQuery = `INSERT INTO UserPermissions (userId, permissions) VALUES (?, ?)`;
-                await executeQuery(connection, permQuery, [id, permission]);
-            });
+            this.#permissions.forEach(async permission => await executeQuery(connection, this.permQuery(), [id, permission]));
 
-            // Rretrieving uuid
-            const uuidQuery = `SELECT uuid FROM Users WHERE id = ?`;
-            const uuidResult = await executeQuery(connection, uuidQuery, [id]);
-            this.#uuid = uuidResult[0].uuid;
-            console.log(`User created successfully with UUID: ${this.#uuid}\r\n`);
-            return this.#uuid;
-        } catch (e) {
-            console.error(`${e.name}: ${e.message}`);
+            // Rretrieving guid
+            const guidResult = await executeQuery(connection, this.guidQuery(), [id]);
+            this.#guid = guidResult[0].guid;
+
+            console.log(this.toString(), "\r\n");
+            console.log(`Details: A new Kutbi account of type ${this.type} (#${this.guid}) has successfully registered and logged in.\r\n`);
+            
+            return this.#guid;
+        } catch (error) {
+            console.error(error);
+            throw Error(`Details: We couldn't create a Kutbi account of type ${this.type} (#${this.guid}).\r\n`);
         } finally {
             releaseConnection(connection);
         }
     }
 
+    async update() {
+        console.log({ "todo": "Subscriber update();" });
+        try {
+
+        } catch (error) {
+            console.error(error);
+            throw Error(`Details: We couldn't update your Kutbi account of type ${this.type} (#${this.guid}).\r\n`);
+        }
+    }
+
+    async save() {
+        return this.newRecord ? await this.create() : await this.update();
+    }
+
     async activate() {
-        console.log({"todo": "Subscriber activate();" });
+        console.log({ "todo": "Subscriber activate();" });
     }
 
     async suspend() {
-        console.log({"todo": "Subscriber suspend();" });
+        console.log({ "todo": "Subscriber suspend();" });
     }
 
     async subscribe() {
-        console.log({"todo": "Subscriber subscribe();" });
+        console.log({ "todo": "Subscriber subscribe();" });
     }
 
     async unsubscribe() {
-        console.log({"todo": "Subscriber unsubscribe();" });
+        console.log({ "todo": "Subscriber unsubscribe();" });
     }
 
     async block() {
-        console.log({"todo": "Subscriber block();" });
+        console.log({ "todo": "Subscriber block();" });
     }
 
-    get uuid() {
-        return this.#uuid;
+    get newRecord() {
+        return this.#newRecord;
+    }
+
+    set newRecord(value) {
+        if (typeof value !== "boolean") throw new TypeError("newRecord type is invalid");
+        this.#newRecord = value;
+    }
+
+    get guid() {
+        return this.#guid;
     }
 
     get username() {
@@ -228,10 +257,6 @@ export default class Subscriber extends Human {
         this.#createdAt = value;
     }
 
-    async update() {
-        console.log({"todo": "Subscriber update();" });
-    }
-
     get updatedAt() {
         return this.#updatedAt;
     }
@@ -243,11 +268,11 @@ export default class Subscriber extends Human {
     }
 
     async destroy() {
-        console.log({"todo": "Subscriber destroy();" });
+        console.log({ "todo": "Subscriber destroy();" });
     }
 
     async delete() {
-        console.log({"todo": "Subscriber delete();" });
+        console.log({ "todo": "Subscriber delete();" });
     }
 
     get deletedAt() {
@@ -263,7 +288,7 @@ export default class Subscriber extends Human {
     records() {
         return ({
             ...super.records(),
-            uuid: this.#uuid,
+            guid: this.#guid,
             username: this.#username,
             email: this.#email
         });
@@ -278,30 +303,30 @@ export default class Subscriber extends Human {
         }
         return attributes;
     }
-    
+
     toString() {
         const subscription = {
-            uuid: this.#uuid,
-            username: this.#username,
-            email: this.#email,
-            permissions: this.#permissions,
-            roles: this.#roles,
-            accessToken: this.#accessToken,
-            refreshToken: this.#refreshToken,
-            photoUrl: this.#photoUrl,
-            coverImage: this.#coverImage,
-            url: this.#url,
-            createdAt: this.#createdAt,
-            updatedAt: this.#updatedAt,
-            lastSeen: this.#lastSeen,
-            accessibility: this.#accessibility,
-            status: this.#status
+            guid: this.guid,
+            username: this.username,
+            email: this.email,
+            permissions: this.permissions,
+            roles: this.roles,
+            accessToken: this.accessToken,
+            refreshToken: this.refreshToken,
+            photoUrl: this.photoUrl,
+            coverImage: this.coverImage,
+            personalUrl: this.personalUrl,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+            lastSeen: this.lastSeen,
+            accessibility: this.accessibility,
+            activeStatus: this.activeStatus
         };
 
         return ({
             ...super.toString(),
             ...subscription,
-            ...this.#getNonNullAttributes
+            ...this.#getNonNullAttributes()
         });
     }
 };

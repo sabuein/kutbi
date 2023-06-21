@@ -8,10 +8,10 @@ import {
 
 export default class Human {
 
-    #subscriptionType = this.constructor.name.toLowerCase();
+    #subscriptionType = null;
     #firstName = null;
     #lastName = null;
-    #name = null;
+    #fullName = null;
     #dob = null;
     #gender = null;
     #occupation = null;
@@ -22,11 +22,21 @@ export default class Human {
 
     constructor() {
         Human.total++;
+        this.#subscriptionType = this.constructor.name.toLowerCase();
         // Additional properties can be added here
     }
 
     static get total() {
         return Human.total.toString();
+    }
+
+    get type() {
+        return this.#subscriptionType;
+    }
+
+    set type(value) {
+        if (this.constructor.name.toLowerCase() !== value) throw new TypeError("Account type is invalid");
+        this.#subscriptionType = value;
     }
 
     get firstName() {
@@ -40,7 +50,7 @@ export default class Human {
     }
 
     get lastName() {
-        return this.#firstName;
+        return this.#lastName;
     }
 
     set lastName(value) {
@@ -48,12 +58,12 @@ export default class Human {
         this.#lastName = value;
     }
 
-    get name() {
-        return this.#name;
+    get fullName() {
+        return this.#fullName;
     }
 
-    set name(value) {
-        this.#name = value;
+    set fullName(value) {
+        this.#fullName = value;
     }
 
     get dob() {
@@ -84,7 +94,7 @@ export default class Human {
     }
 
     get location() {
-        return this.#firstName;
+        return this.#location;
     }
 
     set location(value) {
@@ -102,19 +112,19 @@ export default class Human {
         for (const value of values) if (this.#interests.indexOf(value) == -1) this.#interests.push(value);
     }
 
-    records() { return ({ subscriptionType: this.#subscriptionType }); }
-
+    records() { return ({ type: this.type.toLowerCase() }); }
+    
     toString() {
         const info = {
-            subscriptionType: this.#subscriptionType,
-            firstName: this.#firstName,
-            lastName: this.#lastName,
-            name: this.name,
-            dob: this.#dob,
-            gender: this.#gender,
-            occupation: this.#occupation,
-            location: this.#location,
-            interests: this.#interests
+            type: this.type,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            fullName: this.fullName,
+            dob: this.dob,
+            gender: this.gender,
+            occupation: this.occupation,
+            location: this.location,
+            interests: this.interests
         };
         return ({
             ...info
