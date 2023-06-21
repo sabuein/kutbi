@@ -170,7 +170,11 @@ CREATE TABLE IF NOT EXISTS Users (
     fullName VARCHAR(255),
     bio TEXT,
     dob DATE,
-    lang VARCHAR(50),
+    gender VARCHAR(127),
+    occupation VARCHAR(127),
+    userLocation VARCHAR(255),
+    interests TEXT,
+    lang VARCHAR(127),
     tel VARCHAR(20),
     country VARCHAR(100),
     email VARCHAR(100),
@@ -187,11 +191,11 @@ CREATE TABLE IF NOT EXISTS Users (
     updatedAt TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deletedAt TIMESTAMP,
     lastSeen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    accessibility BIT(1) DEFAULT 0,
-    activeStatus BIT(1) DEFAULT 0,
-    newRecord BIT(1) DEFAULT 0,
-    commentNotifications BIT(1) DEFAULT 1,
-    mentionNotifications BIT(1) DEFAULT 1
+    accessibility TINYINT(1) DEFAULT 0,
+    activeStatus TINYINT(1) DEFAULT 0,
+    newRecord TINYINT(1) DEFAULT 0,
+    commentNotifications TINYINT(1) DEFAULT 1,
+    mentionNotifications TINYINT(1) DEFAULT 1
 );
 
 -- Create UserPasswords table
