@@ -4,26 +4,26 @@ import { Subscriber } from "./classes.mjs";
 
 export default class User extends Subscriber {
 
+    #activity = [];
     #commentNotifications = null;
     #mentionNotifications = null;
 
     static _total = 0;
 
     static get total() {
-        return User._total.toString();
+        return User._total.toString();;
     }
 
     constructor(details) {
-        User._total++;
         super(details);
-        this.#commentNotifications = details.commentNotifications;
-        this.#mentionNotifications = details.mentionNotifications;
-        // Additional properties can be added here
+        User._total++;
+        this.#commentNotifications = details.commentNotifications || null;
+        this.#mentionNotifications = details.mentionNotifications || null;
     }
     
     static _findQuery() {
         return `
-        SELECT u.uuid "guid", u.username, u.email, s.salt, s.passwordHash
+        SELECT u.subscriptionType "type", u.uuid "guid", u.username, u.email, s.salt, s.passwordHash
         FROM Users u
         LEFT JOIN UserPasswords s ON u.id = s.userId
         WHERE u.username = ? OR u.email = ?
@@ -50,6 +50,14 @@ export default class User extends Subscriber {
     
     async publish() {
         console.log({ "todo": "User publish();" });
+    }
+
+    get activity() {
+        return this.#activity;
+    }
+
+    set activity(log) {
+        this.#activity.push(log);
     }
 
     get commentNotifications() {

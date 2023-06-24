@@ -21,7 +21,7 @@ export default class Visitor {
     static _total = 0;
 
     static get total() {
-        return Visitor._total.toString();
+        return this.constructor._total;
     }
     
     constructor(details) {

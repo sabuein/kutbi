@@ -38,12 +38,12 @@ export default class Subscriber extends Visitor {
     static _total = 0;
 
     static get total() {
-        return Subscriber._total.toString();
+        return Subscriber._total.toString();;
     }
 
     constructor(details) {
-        Subscriber._total++;
         super(details);
+        Subscriber._total++;
         this.#guid = details.guid || null,
         this.#username = details.username || null;
         this.#email = details.email || null;
@@ -73,7 +73,7 @@ export default class Subscriber extends Visitor {
         
     static _findQuery() {
         return `
-        SELECT sub.suid "guid", sub.username, sub.email, s.salt, s.passwordHash
+        SELECT u.subscriptionType "type", sub.suid "guid", sub.username, sub.email, s.salt, s.passwordHash
         FROM Subscribers sub
         LEFT JOIN SubscribersPasswords s ON sub.id = s.subId
         WHERE sub.username = ? OR sub.email = ?
@@ -86,7 +86,7 @@ export default class Subscriber extends Visitor {
         try {
             const result = await executeQuery(connection, this._findQuery(), [username, email]);
             if (result.length === 0) return null;
-            return ({ guid: result[0].guid, passwordHash: result[0].passwordHash });
+            return ({ guid: result[0].guid, passwordHash: result[0].passwordHash, type: result[0].type });
         } catch (error) {
             console.error(error);
             throw Error(`Details: We couldn't find your Kutbi account`);
@@ -117,11 +117,7 @@ export default class Subscriber extends Visitor {
                 if (row.roles && roles[0] !== row.roles) roles.push(row.roles);
                 if (row.permissions) permissions.push(row.permissions);
             }
-            console.log("Here at _populate();");
-            console.log(data);
-            data.roles = roles;
-            data.permissions = permissions;
-
+            data.roles = roles, data.permissions = permissions;
             return new this(data);
         } catch (error) {
             console.error(error);
@@ -167,10 +163,8 @@ export default class Subscriber extends Visitor {
             const guidResult = await executeQuery(connection, this._guidQuery(), [id]);
             this.#guid = guidResult[0].guid;
 
-            console.log(this.toString(), "\r\n");
-            console.log(`Details: A new Kutbi account of type ${this.type} (#${this.guid}) has successfully registered and logged in.\r\n`);
             this.constructor._total++;
-            return this.guid;
+            return this;
         } catch (error) {
             console.error(error);
             throw Error(`Details: We couldn't create a Kutbi account of type ${this.type} (#${this.guid}).\r\n`);
