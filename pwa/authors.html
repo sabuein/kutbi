@@ -21,11 +21,13 @@
     <script type="importmap">
         {
             "imports": {
+                "apis": "./assets/js/modules/apis.mjs",
                 "auth": "./assets/js/modules/auth.mjs",
                 "data": "./assets/js/modules/data.mjs",
                 "helpers": "./assets/js/modules/helpers.mjs",
                 "interface": "./assets/js/modules/interface.mjs",
                 "monitor": "./assets/js/modules/monitor.mjs",
+                "objects": "./assets/js/modules/objects.mjs",
                 "requests": "./assets/js/modules/requests.mjs"
             }
         }
@@ -61,7 +63,7 @@
     <main class="app-main flexy content-start" id="main-content">
         <button type="button" id="addUpdateAuthorButton">إضافة / تحديث بيانات مؤلف</button>
         <dialog id="addUpdateAuthorDialog">
-            <form action="http://localhost:3558/authors" method="post" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
+            <form action="http://localhost:3557/authors" method="POST" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
                 <fieldset class="flexy row gap-x1" name="field" dir="rtl">
                     <legend>
                         <label for="form-dir">المؤلف</label>

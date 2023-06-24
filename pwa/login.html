@@ -18,11 +18,13 @@
     <script type="importmap">
         {
             "imports": {
+                "apis": "./assets/js/modules/apis.mjs",
                 "auth": "./assets/js/modules/auth.mjs",
                 "data": "./assets/js/modules/data.mjs",
                 "helpers": "./assets/js/modules/helpers.mjs",
                 "interface": "./assets/js/modules/interface.mjs",
                 "monitor": "./assets/js/modules/monitor.mjs",
+                "objects": "./assets/js/modules/objects.mjs",
                 "requests": "./assets/js/modules/requests.mjs"
             }
         }
@@ -45,8 +47,9 @@
         </a>
     </header>
     <nav class="app-nav flexy">
-        <button type="button" id="menuToggle">&#x2630;</button>
-        <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+        <button type="button" id="menuToggle" title="Menu">&#x2630;</button>
+        <button type="button" id="lightDark" title="Theme" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+        <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
     </nav>
     <noscript class="flexy">
         <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
@@ -55,17 +58,17 @@
         <header>
             <h3>Login to your account</h3>
         </header>
-        <form action="http://localhost:3558/users/signup" method="post" id="loginForm">
+        <form action="http://localhost:3557/accounts/signin" method="POST" id="loginForm">
             <!-- Include the CSRF token as a hidden input field -->
-            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
             <fieldset class="flexy">
                 <legend>Your details</legend>
-                <label for="loginUser">Username<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" /><!-- required --></label>
-                <label for="loginEmail">Email<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="loginEmail" autocomplete="email" /><!-- required --></label>
-                <label for="loginPass">Password<span title="Please type your account password">&sext;</span><input type="password" name="password" id="loginPass" autocomplete="new-password" /><!-- required --></label>
+                <label for="loginUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" value="salaheddin" /><!-- required --></label>
+                <label for="loginEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="loginEmail" autocomplete="email" value="sabuein@gmail.com" size="32" maxlength="64" /><!-- required --></label>
+                <label for="loginPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="loginPass" autocomplete="current-password" value="password" size="32" maxlength="64" /><!-- required --></label>
             </fieldset>
             <input type="submit" value="Submit" />
-            <input type="reset" value="Reset">
+            <input type="reset" value="Reset" />
         </form>
     </main>
     <footer class="app-footer flexy row gap-x2">
