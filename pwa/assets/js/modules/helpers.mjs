@@ -73,6 +73,9 @@ const urlToJSON = (url) => {
 // Pretty JSON (as a text string) with spacing level of 2
 const prettyJSON = (obj) => JSON.stringify(obj, null, 2);
 
+const encode = (string) => btoa(string);
+const decode = (string) => atob(string);
+
 const assert = (value, message) => {
     if (!value) throw (message || `${value} is false`);
 };
@@ -81,4 +84,11 @@ const assertEqual = (value1, value2, message) => {
     if (value1 !== value2) throw (message || `${value1} does not equal ${value2}`);
 };
 
-export { id, qs, urlWithQuery, urlToJSON };
+export {
+    id,
+    qs,
+    urlWithQuery,
+    urlToJSON,
+    encode,
+    decode
+};

@@ -4,32 +4,74 @@ import { id, qs } from "helpers";
 import { getAllAuthors } from "data";
 import { parseGetSubmit, handleFormSubmit } from "requests";
 import { updateImageDisplay, updateAuthorDisplay } from "interface";
+import { Account, loadAccount } from "objects";
+
+// import { position } from "apis";
 
 // const submission = "http://127.0.0.1:5500/public/subscribe.html?email=Sarah.McFarlane%40vubiquity.co.uk&confirmEmail=sabuein%40gmail.com&preferences=authors&preferences=books&preferences=publishers&preferences=reviews&preferences=all&frequency=monthly&format=text&solution=99999#main-content";
 
-document.addEventListener("DOMContentLoaded", () => {
-    const subscribeForm = id("subscribeForm"), loginForm = id("loginForm");
+document.addEventListener("DOMContentLoaded", async () => {
+    registerServiceWorker();
+    const user = await loadAccount();
+    try {
+        if (user === "Anonymous") throw Error("@kutbi:~$ Hello, Anonymous. You need to sign in.");
+        if (user && user.account) console.log(`@kutbi:~$ Welcome back, ${user.account.username}.`);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        if (user) console.log(JSON.stringify(user, null, 2));
+    }
+    
+    
+    const resetStorage = id("resetStorage");
+    if (resetStorage) {
+        try {
+            resetStorage.addEventListener("click", (event) => {
+                // Some constraints
+                if (!event.isTrusted) throw Error(`The form submission is not trusted.`);
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                window.localStorage.clear();
+                window.sessionStorage.clear();
+                window.location.reload();
+                console.log("Site data cleared.");
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const subscribeForm = id("subscribeForm");
+    const loginForm = id("loginForm");
+    const updateMe = id("updateBtn");
+    const showHere = id("updateTxt");
+
+    if (subscribeForm) console.log(subscribeForm);
+
     if (subscribeForm) parseGetSubmit(subscribeForm);
-    if (loginForm) handleFormSubmit(loginForm);
+    if (loginForm) loginForm.addEventListener("submit", await handleFormSubmit, false);
+
+    // if (updateMe) updateMe.addEventListener("click", updateButton(e, showHere), false);
 
     // http://localhost:3558/tokens/csrf
     // http://localhost:3558/users/signup
+
+    /*let x = new position();
+    console.log(x.watch());
+    console.log(x.current());*/
 });
 
-if ("serviceWorker" in navigator) {
-    // declaring scope manually
-    navigator.serviceWorker.register("/pwa/serviceWorker.js", { scope: "./" }).then(
-        (registration) => {
-            console.log("Service worker registration succeeded:", registration);
-            //doMagic();
-        },
-        (error) => {
-            console.error(`Service worker registration failed: ${error}`);
-        }
-    );
-} else {
-    console.error("Service workers are not supported.");
-}
+const registerServiceWorker = async () => {
+    try {
+        if (!"serviceWorker" in navigator) throw Error("@kutbi:~$ Service workers are not supported.");
+        await navigator.serviceWorker.register("/pwa/serviceWorker.js", { scope: "./" });
+        const worker = await navigator.serviceWorker.ready;
+        console.log(`@kutbi:~$ Service worker registration succeeded and it has been ${worker.active.state}.`);
+    } catch (error) {
+        console.error(error);
+        console.log(`@kutbi:~$ Service worker registration failed.`);
+    }
+};
 
 // const xo = await getAllAuthors();
 // console.log(JSON.stringify(xo, null, 3));
@@ -46,6 +88,7 @@ if (authors) updateAuthorDisplay(authors);
 
 const progressBar = qs(".reading-bar");
 if (progressBar) requestAnimationFrame(updateProgress);
+
 function updateProgress() {
     try {
         const totalHeight = document.body.clientHeight;

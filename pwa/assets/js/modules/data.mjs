@@ -2,33 +2,33 @@
 
 const getAllAuthors = async () => {
     try {
-        const headersInit = {
-            "accept": "application/json",
-            "user-agent": "kutbi client (https://www.kutbi.com)",
-            "content-type": "application/json; charset=utf-8"
-        };
-        const url = "http://localhost:3558/authors";
+        const headers = new Headers();
+        headers.set("Accept", "application/json; charset=utf-8");
+        headers.set("Content-Type", "text/plain; charset=utf-8");
+        headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
+
+        const url = "http://localhost:3557/authors";
+
         const init = {
-            method: "get",
-            headers: headersInit,
+            method: "GET",
+            headers: headers,
             mode: "cors",
             cache: "default"
         };
-        const response = await fetch(url, init);
-        return await response.json();
+        
+        const raw = await fetch(url, init);
+
+        console.log(raw);
+        
+        if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
+
+        const content = await raw.json();
+
+        return content;
+
     } catch (error) {
         console.error(error);
         throw Error(`We got a problem at getAllAuthors() function. Please help!`);
-    }
-};
-
-const clearStorage = () => {
-    try {
-        window.localStorage.clear();
-        window.location.assign(window.location);
-    } catch (error) {
-        console.error(error);
-        throw Error(`We got a problem at clearStorage() function. Please help!`);
     }
 };
 

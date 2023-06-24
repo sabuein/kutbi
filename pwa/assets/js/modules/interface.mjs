@@ -1,6 +1,6 @@
 "use strict";
 
-import { getAllAuthors } from "data";
+import { getAllAuthors } from "./data.mjs";
 
 const updateImageDisplay = (input, output) => {
     try {
@@ -163,4 +163,10 @@ const updateAuthorDisplay = async (output) => {
     }
 };
 
-export { updateImageDisplay, updateAuthorDisplay, };
+/*const updateButton = (e, paragraph) => {
+    (e.target.value === "Start machine")
+    ? (e.target.value = "Stop machine") && (paragraph.textContent = "The machine has started!")
+    : (e.target.value = "Start machine") && (paragraph.textContent = "The machine is stopped.");
+};*/
+
+export { updateImageDisplay, updateAuthorDisplay };

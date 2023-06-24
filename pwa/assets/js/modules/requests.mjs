@@ -1,11 +1,12 @@
 "use strict";
 
-import { urlWithQuery, urlToJSON } from "./helpers.mjs";
+import { local, session } from "./apis.mjs";
+import { urlWithQuery, urlToJSON, encode, decode } from "./helpers.mjs";
 
 // GET, POST, PUT, DELETE, etc.
 
 const parseGetSubmit = (form) => {
-    if (form.method !== "get") throw TypeError(`Please check form(#${form.id} method`);
+    if (form.method !== "GET") throw TypeError(`Please check form(#${form.id} method`);
     try {
         form.addEventListener("submit", (event) => {
             event.preventDefault();
@@ -21,50 +22,78 @@ const parseGetSubmit = (form) => {
     }
 };
 
-const handleFormSubmit = (form) => {
+const handleFormSubmit = async (event) => {
     try {
-        form.addEventListener("submit", async (event) => {
-            if (!event.isTrusted) throw Error(`The form submission is not trusted`);
-            else (event.preventDefault() && event.stopImmediatePropagation());
+        // Some constraints
+        if (!event.isTrusted) throw Error(`The form submission is not trusted.`);
+        event.preventDefault();
+        event.stopImmediatePropagation();
 
-            const requestBody = {};
-            const formData = new FormData(event.target);
-            formData.forEach((value, key) => requestBody[key] = value);
-            requestBody.permissions = [
-                "viewFreeContent",
-                "viewPremiumContent",
-                "createContent",
-                "updateContent",
-                "deleteContent",
-                "manageApp"
-            ];
-            requestBody.roles = ["administrator"];
-            console.log(JSON.stringify({ requestBody: requestBody }, null, 2));
+        const requestBody = {};
+        const formData = new FormData(event.target);
+        formData.forEach((value, key) => requestBody[key] = value);
+        event.target.reset();
 
-            let headersInit = {
-                "accept": "application/json",
-                "user-agent": "kutbi client (https://www.kutbi.com)",
-                "content-type": "application/json; charset=utf-8"
-            };
-            const requestHeaders = new Headers(headersInit);
+        const headers = new Headers();
+        headers.set("Accept", "application/json; charset=utf-8");
+        headers.set("Content-Type", "text/plain; charset=utf-8");
+        headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
+        // headers.set("Authorization", `Bearer ${your_bearer_token}`);
+        headers.set("Cookie", document.cookie); // Include cookies
+        // headers.forEach((value, key) => console.log(`${key}: ${value}`));
+        
+        const payload = JSON.stringify({
+            "account": encode(JSON.stringify(requestBody))
+        });
+        
+        const raw = await fetch(event.target.action, {
+            method: event.target.method,
+            body: payload,
+            headers: headers,
+            mode: "cors",
+            cache: "default",
+        });
 
-            const response = await fetch(form.action, {
-                method: form.method,
-                headers: requestHeaders,
-                mode: "cors",
-                cache: "default",
-                body: JSON.stringify(requestBody)
-            });
+        if (raw.status === "403") window.location.assign("./login.html");
+        if (!raw.ok) throw Error(`Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
 
-            const data = await response.json();
-            if (data.status === "403") window.location.assign("login.html");
-            else (console.log(JSON.stringify(data, null, 2)));
-            form.reset();
-        }, false);
+        const your_bearer_token = "";
+        const responsePayload = await raw.json();
+
+        const x = local("create", "account", JSON.stringify({ account: responsePayload.account }));
+        console.log(`@kutbi:~/fetch$ Your Kutbi account has been retrieved successfully from ${event.target.action}.`);
+
+        window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
         throw Error(`We got a problem at handleFormSubmit() function. Please help!`);
     }
 }
+
+const genericRequest = async (url, token) => {
+    const requestHeaders = new Headers();
+    requestHeaders.set("Accept", "text/plain; charset=utf-8");
+    requestHeaders.set("User-Agent", "Kutbi Web Desktop (https://www.kutbi.com)");
+    requestHeaders.set("Content-Type", "application/json; charset=utf-8");
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+    
+    const raw = await fetch(url, {
+        headers: requestHeaders,
+        credentials: "same-origin",
+        method: "GET"
+    });
+
+    if (!raw.ok) throw `Failed to fetch the url with error ${raw.status}`;
+
+    const content = await raw.json();
+
+    return content;
+};
+
+const deletePost = (url, id) => {
+    return fetch(`${url}/${id}`, {
+        method: "DELETE"
+    });
+  }
 
 export { parseGetSubmit, handleFormSubmit };
