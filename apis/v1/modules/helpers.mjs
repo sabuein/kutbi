@@ -39,10 +39,8 @@ const Logger = class Logger {
 const requests = [];
 
 const mainLogger = (request, response, next) => {
-    const log = new Logger(request);
-    requests.push(log.print());
-    request.details = log.print();
-    console.log(log.toString());
+    requests.push(new Logger(request).print());
+    console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
     next();
 };
 
