@@ -61,11 +61,17 @@ article.author-card p {
     padding-bottom: 1rem;
 }
 
-/*
-nav button#lightDark::before {
-    content: attr(data-sun);
+nav button#resetStorage {
+    rotate: 0deg;
+    transition: rotate 700ms ease-in-out 0s;
+    background-color: transparent;
 }
-*/
+
+nav button#resetStorage:is(:hover, :active, :focus) {
+    rotate: -180deg;
+    transition: rotate 700ms ease-in-out 0s;
+}
+
 
 body > header,
 body > footer {
