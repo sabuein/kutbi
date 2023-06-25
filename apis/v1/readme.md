@@ -13,6 +13,7 @@ A way to organise books
 - https://www.npmjs.com/package/mysql
 - https://www.npmjs.com/package/nodemon
 - https://www.npmjs.com/package/jsonwebtoken
+- https://www.npmjs.com/package/bcrypt
 - https://github.com/pillarjs/hbs
 
 ### Terminal:

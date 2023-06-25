@@ -39,6 +39,7 @@ try {
         res.locals.stats = {
             accessTokens: 0,
             refreshTokens: 0,
+            tokenization: 0,
             authCounter: 0,
             authValidation: 0,
             cookies: 0,

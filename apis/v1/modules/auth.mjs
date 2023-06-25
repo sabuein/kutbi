@@ -94,16 +94,23 @@ const register = async (request, response, next) => {
 };
 
 const tokenize = async (account) => {
-    const raw = {
-        guid: account.guid,
-        username: account.username,
-        email: account.email
-    };
-    Object.assign(account, {
-        accessToken: generateAccessToken(raw),
-        refreshToken: generateRefreshToken(raw),
-    });
-    return account.refreshToken;
+    try {
+        const raw = {
+            guid: account.guid,
+            username: account.username,
+            email: account.email
+        };
+        Object.assign(account, {
+            accessToken: generateAccessToken(raw),
+            refreshToken: generateRefreshToken(raw),
+        });
+        return account.refreshToken;
+    } catch (error) {
+        console.error(error);
+        return clearAuthCookies(request, response, next);
+    } finally {
+        response.locals.stats.tokenization++;
+    }
 };
 
 const validateAuthHeader = (request, response, next) => {

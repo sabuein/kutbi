@@ -78,10 +78,21 @@ accounts.route("/logout").delete(clearAuthTokens, async (req, res) => {
     .json({ message: "Successfully deleted refresh token" });
 });
 
-const encodeObjectToString = (object) =>
-  Buffer.from(JSON.stringify(object)).toString("base64");
-const decodeStringToObject = (string) =>
-  JSON.parse(Buffer.from(string, "base64").toString());
+const encodeObjectToString = (object) => {
+  try {
+    return Buffer.from(JSON.stringify(object)).toString("base64");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const decodeStringToObject = (string) => {
+  try {
+    return JSON.parse(Buffer.from(string, "base64").toString());
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export { accounts };
 
