@@ -108,8 +108,6 @@ const tokenize = async (account) => {
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
-    } finally {
-        response.locals.stats.tokenization++;
     }
 };
 
