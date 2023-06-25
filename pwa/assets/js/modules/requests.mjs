@@ -5,27 +5,27 @@ import { urlWithQuery, urlToJSON, encode, decode } from "./helpers.mjs";
 
 // GET, POST, PUT, DELETE, etc.
 
-const parseGetSubmit = (form) => {
+const handleGetForm = (form) => {
     if (form.method !== "GET") throw TypeError(`Please check form(#${form.id} method`);
     try {
         form.addEventListener("submit", (event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            console.log("Hi there...");
-            console.log(`An intercepted HTTP GET submission by form(#${form.id}) is being parsed as JSON within the console and returned as a JavaScript object...`);
+            console.log("@kutbi:~$ Hi there...");
+            console.log(`@kutbi:~$ An intercepted HTTP GET submission by form(#${form.id}) is being parsed as JSON within the console and returned as a JavaScript object...`);
             const url = urlWithQuery(form);
             return urlToJSON(url);
         }, false);
     } catch (error) {
         console.error(error);
-        throw Error(`We got a problem at catchGetForm() function. Please help!`);
+        throw Error(`@kutbi:~$ We got a problem at catchGetForm() function. Please help!`);
     }
 };
 
-const handleFormSubmit = async (event) => {
+const handleFormsWithBody = async (event) => {
     try {
         // Some constraints
-        if (!event.isTrusted) throw Error(`The form submission is not trusted.`);
+        if (!event.isTrusted) throw Error(`@kutbi:~$ The form submission is not trusted.`);
         event.preventDefault();
         event.stopImmediatePropagation();
 
@@ -55,18 +55,18 @@ const handleFormSubmit = async (event) => {
         });
 
         if (raw.status === "403") window.location.assign("./login.html");
-        if (!raw.ok) throw Error(`Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
+        if (!raw.ok) throw Error(`@kutbi:~$ Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
 
         const your_bearer_token = "";
         const responsePayload = await raw.json();
 
         const x = local("create", "account", JSON.stringify({ account: responsePayload.account }));
-        console.log(`@kutbi:~/fetch$ Your Kutbi account has been retrieved successfully from ${event.target.action}.`);
-
-        window.location.assign("./login.html");
+        console.log(`@kutbi:~$ Your account details have been retrieved successfully from ${event.target.action}.`);
+        
+        return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
-        throw Error(`We got a problem at handleFormSubmit() function. Please help!`);
+        throw Error(`@kutbi:~$ We got a problem at handleFormSubmit() function. Please help!`);
     }
 }
 
@@ -83,7 +83,7 @@ const genericRequest = async (url, token) => {
         method: "GET"
     });
 
-    if (!raw.ok) throw `Failed to fetch the url with error ${raw.status}`;
+    if (!raw.ok) throw `@kutbi:~$ Failed to fetch the url with error ${raw.status}`;
 
     const content = await raw.json();
 
@@ -96,4 +96,4 @@ const deletePost = (url, id) => {
     });
   }
 
-export { parseGetSubmit, handleFormSubmit };
+export { handleGetForm, handleFormsWithBody };

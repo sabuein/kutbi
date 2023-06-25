@@ -2,7 +2,7 @@
 
 import { id, qs } from "helpers";
 import { getAllAuthors } from "data";
-import { parseGetSubmit, handleFormSubmit } from "requests";
+import { handleGetForm, handleFormsWithBody } from "requests";
 import { updateImageDisplay, updateAuthorDisplay } from "interface";
 import { Account, loadAccount } from "objects";
 
@@ -33,24 +33,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                 event.stopImmediatePropagation();
                 window.localStorage.clear();
                 window.sessionStorage.clear();
-                window.location.reload();
                 console.log("Site data cleared.");
+                return window.location.reload();
             });
         } catch (error) {
             console.error(error);
         }
     }
 
-    const subscribeForm = id("subscribeForm");
-    const loginForm = id("loginForm");
+    const registerForm = id("registerForm"), loginForm = id("loginForm");
+    if (registerForm) registerForm.addEventListener("submit", await handleFormsWithBody, false);
+    if (loginForm) loginForm.addEventListener("submit", await handleFormsWithBody, false);
+
     const updateMe = id("updateBtn");
     const showHere = id("updateTxt");
-
-    if (subscribeForm) console.log(subscribeForm);
-
-    if (subscribeForm) parseGetSubmit(subscribeForm);
-    if (loginForm) loginForm.addEventListener("submit", await handleFormSubmit, false);
-
     // if (updateMe) updateMe.addEventListener("click", updateButton(e, showHere), false);
 
     // http://localhost:3558/tokens/csrf

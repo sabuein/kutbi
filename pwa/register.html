@@ -62,7 +62,7 @@
             <h4>User account</h4>
             <p>You are signing up to be able to post jobs & events adverts. Once you have created an account you will be able to post adverts for free subject to meeting the website policy. Please note that a separate account with a different email address will be needed if you want to also be able to get job/event search emails.</p>
         </section>
-        <form action="" method="get" id="subscribeForm">
+        <form action="http://localhost:3557/accounts/signup" method="POST" id="registerForm">
             <!-- Include the CSRF token as a hidden input field -->
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
             <fieldset>
