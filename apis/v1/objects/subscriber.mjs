@@ -3,9 +3,9 @@
 import {
     getConnectionFromPool,
     executeQuery,
-    releaseConnection,
-    Visitor
-} from "./classes.mjs";
+    releaseConnection
+} from "../modules/data.mjs";
+import Visitor from "./visitor.mjs";
 
 export default class Subscriber extends Visitor {
 

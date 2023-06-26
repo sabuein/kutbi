@@ -1,35 +1,31 @@
 "use strict";
 
-import dotenv from "dotenv";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { User, Subscriber, Visitor } from "../models/classes.mjs";
-
-dotenv.config({ path: "./.env" });
+import { encode, decode, tokenize, pwgenerator, pwcompare, tkverify } from "./helpers.mjs";
+import { User, Subscriber, Visitor } from "./classes.mjs";
 
 // Authentication and authorization
 // Validate and authenticate tokens
 const login = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
-        const { username, email, password } = decodeStringToObject(response.locals.account);
+        const { username, email, password } = decode(response.locals.account);
         if (!username || !email || !password) {
             const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
-            console.log(`${i}: @kutbi:~/signin/login$ Missing required parameters.\r\n`, record);
-            return response.status(400).json(record);
+            response.status(400).json(record);
+            throw Error(`${i}: @kutbi:~/signin/login$ Missing required parameters.`, record);
         }
 
         const existingAccount = await User._find(username, email);
         if (!existingAccount) {
-            const record = { status: 403, username: username, email: email, message: "We could not locate your Kutbi account." };
-            console.log(`${i}: @kutbi:~/signin/login$ Login into a non-existent account.\r\n`, record);
-            return response.status(403).json(record);
+            const record = { status: 403, username: username, email: email, message: "We could not locate your account." };
+            response.status(403).json(record);
+            throw Error(`${i}: @kutbi:~/signin/login$ Login into a non-existent account.`, record);
         }
 
-        if (await bcrypt.compare(password, existingAccount.passwordHash) !== true) {
+        if (await pwcompare(password, existingAccount.passwordHash) !== true) {
             const record = { status: 401, username: username, email: email, message: "Invalid password." };
-            console.log(`${i}: @kutbi:~/signin/login$ Someone tried to login into an account with an invalid password.`, record);
-            return response.status(401).json(record);
+            response.status(401).json(record);
+            throw Error(`${i}: @kutbi:~/signin/login$ Someone tried to login with an invalid password.`, record);
         }
 
         const account = await User._populate(existingAccount.guid);
@@ -45,7 +41,43 @@ const login = async (request, response, next) => {
 const recover = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
-        const { phoneNumber, recoveryEmail, fullName } = decodeStringToObject(response.locals.account);
+        const { phoneNumber, recoveryEmail, fullName } = decode(response.locals.account);
+        if ((!phoneNumber || !recoveryEmail) && !fullName) {
+            const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
+            console.log(`${i}: @kutbi:~/signin/recover$ Missing required parameters.\r\n`, record);
+            return response.status(400).json(record);
+        }
+        // Review a list of usernames that match your account
+        const matchingUsernames = [];
+        next();
+    } catch (error) {
+        console.error(error);
+        return clearAuthCookies(request, response, next);
+    }
+};
+
+const reset = async (request, response, next) => {
+    try {
+        const i = request.app.locals.index;
+        const { phoneNumber, recoveryEmail, fullName } = decode(response.locals.account);
+        if ((!phoneNumber || !recoveryEmail) && !fullName) {
+            const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
+            console.log(`${i}: @kutbi:~/signin/recover$ Missing required parameters.\r\n`, record);
+            return response.status(400).json(record);
+        }
+        // Review a list of usernames that match your account
+        const matchingUsernames = [];
+        next();
+    } catch (error) {
+        console.error(error);
+        return clearAuthCookies(request, response, next);
+    }
+};
+
+const verification = async (request, response, next) => {
+    try {
+        const i = request.app.locals.index;
+        const { phoneNumber, recoveryEmail, fullName } = decode(response.locals.account);
         if ((!phoneNumber || !recoveryEmail) && !fullName) {
             const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
             console.log(`${i}: @kutbi:~/signin/recover$ Missing required parameters.\r\n`, record);
@@ -61,11 +93,9 @@ const recover = async (request, response, next) => {
 };
 
 const register = async (request, response, next) => {
-    
-
     try {
         const i = request.app.locals.index;
-        const { username, email, password, roles, permissions } = decodeStringToObject(response.locals.account);
+        const { username, email, password, roles, permissions } = decode(response.locals.account);
         if (!username || !email || !password) {
             const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
             console.log(`${i}: @kutbi:~/signup/register$ Missing required parameters.`, record);
@@ -78,13 +108,12 @@ const register = async (request, response, next) => {
             return response.status(403).json({ status: 403, message: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
+        const pass = pwgenerator(password);
         const account = new User({
             username: username,
             email: email,
-            salt: salt,
-            passwordHash: passwordHash,
+            salt: pass.salt,
+            passwordHash: pass.hash,
             roles: roles,
             permissions: permissions,
             newRecord: true
@@ -104,44 +133,26 @@ const register = async (request, response, next) => {
     }
 };
 
-const tokenize = async (account) => {
-    try {
-        const raw = {
-            guid: account.guid,
-            username: account.username,
-            email: account.email
-        };
-        Object.assign(account, {
-            accessToken: generateAccessToken(raw),
-            refreshToken: generateRefreshToken(raw),
-        });
-        return account.refreshToken;
-    } catch (error) {
-        console.error(error);
-        return clearAuthCookies(request, response, next);
-    }
-};
-
-const validateAuthHeader = (request, response, next) => {
+const validateAuthHeader = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
         const header = request.headers.authorization;
         const token = header && header.split(" ")[1];
         
-        // Check if the request contains a valid authentication token
+        // Check if the request contains a valid access token
         if (!header || token === null) {
             console.log(`${i}: User ${request.body.username} denied access to ${request.hostname}`);
             return response.status(401).json({ status: 401, message: "Unauthorized access." });
         }
 
-        jwt.verify(token, process.env.access_token_secret, (error, user) => {
-            if (error) {
-                console.log(`${i}: The token has no permission to access ${request.hostname}`);
-                return response.status(403).json({ status: 403, message: "No permission to access." });
-            }
-            request.user = user;
+        const decoded = await tkverify("access", token);
+        if (!decoded) {
+            console.log(`${i}: The token has no permission to access ${request.hostname}`);
+            return response.status(403).json({ status: 403, message: "No permission to access." });
+        } else {
+            request.user = decoded;
             next();
-        });
+        }
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
@@ -150,19 +161,20 @@ const validateAuthHeader = (request, response, next) => {
     }
 };
 
-const validateAuthCookie = async (request, response, next) => {
+const validateAccessCookie = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
-        const accessToken = request.cookies.accessToken;
-        if (accessToken === "undefined") return response.status(400).json({ status: 400, message: "Unable to find token." });
-        jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
-            if (error) {
-                console.log(`${i}: The provided token has no permission to access ${request.hostname}`);
-                return response.status(403).json({ status: 403, message: "No permission to access." });
-            }
-            request.user = user;
+        const token = request.cookies.access;
+        if (token === "undefined") return response.status(400).json({ status: 400, message: "Unable to find token." });
+
+        const decoded = await tkverify("access", token);
+        if (!decoded) {
+            console.log(`${i}: The token has no permission to access ${request.hostname}`);
+            return response.status(403).json({ status: 403, message: "No permission to access." });
+        } else {
+            request.user = decoded;
             next();
-        });
+        }
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
@@ -171,21 +183,24 @@ const validateAuthCookie = async (request, response, next) => {
     }
 };
 
-const clearAuthTokens = (request, response, next) => {
+const clearAuthTokens = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
-        const { refreshToken } = request.body;
-        if (refreshToken === null) return response.sendStatus(401);
-        if (!request.app.locals.refreshTokens.includes(refreshToken)) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
+        const { token } = request.body;
+        if (token === null) return response.sendStatus(401);
+        if (!request.app.locals.refreshTokens.includes(token)) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
 
-        jwt.verify(refreshToken, process.env.refresh_token_secret, (error, user) => {
-            if (error) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
-            const exists = request.app.locals.refreshTokens.indexOf(refreshToken);
+        const decoded = await tkverify("refresh", token);
+        if (!decoded) {
+            console.log(`${i}: The token has no permission to access ${request.hostname}`);
+            return response.status(403).json({ status: 403, message: "No permission to access." });
+        } else {
+            const exists = request.app.locals.refreshTokens.indexOf(token);
             if (exists === -1) return response.status(400).json({ status: 400, message: "Unable to find token." });
             request.app.locals.refreshTokens.splice(exists,  1);
             console.log(`${i}: Details: Successfully removed authentication tokens.`);
             next();
-        });
+        }
     } catch (error) {
         console.error(error);
     } finally {
@@ -223,24 +238,6 @@ const setupAuth = async (request, response, next) => {
     }
 };
 
-const generateAccessToken = (accountRecords) => {
-    try {
-        return jwt.sign({ accountRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
-    } catch (error) {
-        console.error(error);
-        return clearAuthCookies(request, response, next);
-    }
-}
-
-const generateRefreshToken = (accountRecords) => {
-    try {
-        return jwt.sign({ accountRecords }, process.env.refresh_token_secret);
-    } catch (error) {
-        console.error(error);
-        return clearAuthCookies(request, response, next);
-    }
-}
-
 const setCookies = (response, account) => {
     try {
         response.cookie("accessToken", account.accessToken, {
@@ -268,7 +265,4 @@ const setHeaders = (response, account) => {
     // response.set("Content-Security-Policy", ``);
 };
 
-const encodeObjectToString = (object) => Buffer.from((object)).toString("base64");
-const decodeStringToObject = (string) => JSON.parse(Buffer.from(JSON.stringify(string), "base64").toString());
-
-export { login, recover, register, setupAuth, validateAuthHeader, validateAuthCookie, clearAuthTokens, clearAuthCookies };
+export { login, recover, register, setupAuth, validateAuthHeader, validateAccessCookie, clearAuthTokens, clearAuthCookies };

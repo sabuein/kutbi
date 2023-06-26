@@ -2,13 +2,13 @@
 
 import express from "express";
 import cookieParser from "cookie-parser";
-import csrf from "csurf";
+// import csrf from "csurf";
 import { clearAuthCookies } from "../modules/auth.mjs";
 
 const tokens = express.Router();
 
 const parseCookie = cookieParser();
-const checkCSRF = csrf({ cookie: true });
+// const checkCSRF = csrf({ cookie: true });
 
 tokens
     .route("/")
@@ -19,9 +19,9 @@ tokens
 // Generate CSRF (Cross-Site Request Forgery) tokens
 tokens
     .route("/csrf")
-    .get(parseCookie, checkCSRF, (request, response) => {
-        const token = request.csrfToken();
-        console.log(`New CSRF token has been created.`);
+    .get(parseCookie, (request, response) => {
+        const token = request;
+        console.log(`@kutbi:~/todo$ Prevent CSRF attacks.`);
         /*
         response.clearCookie("_csrf");
         response.cookie("_csrf", token, {
@@ -31,7 +31,7 @@ tokens
             signed: false
         });
         */
-        return response.status(201).json({ csrfToken: token });
+        return response.status(201).json({ status: 201, message: "@kutbi:~/todo$ Prevent CSRF attacks." });
     });
 
 export { tokens };

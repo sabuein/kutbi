@@ -4,7 +4,7 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection
-} from "./register.mjs";
+} from "../modules/data.mjs";
 
 const Post = class {
 

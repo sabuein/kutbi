@@ -4,7 +4,7 @@ import {
     getConnectionFromPool,
     executeQuery,
     releaseConnection
-} from "./classes.mjs";
+} from "../modules/data.mjs";
 
 export default class Visitor {
 

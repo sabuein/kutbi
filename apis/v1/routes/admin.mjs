@@ -1,5 +1,65 @@
-/*
+"use strict";
 
+import express from "express";
+import {
+  login,
+  recover,
+  register,
+  setupAuth,
+  validateAuthHeader,
+  validateAccessCookie,
+  clearAuthTokens,
+  clearAuthCookies,
+} from "../modules/auth.mjs";
+import { roles, checkPermission } from "../modules/roles.mjs";
+
+const admin = express.Router();
+
+
+const requireAuthentication = async (request, response, next) => {
+    try {
+        const i = request.app.locals.index;
+        console.log(`${i}: @kutbi:~$ The request has been authenticated successfully.`);
+        next();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const loadAdmin = async (request, response, next) => {
+    try {
+        const i = request.app.locals.index;
+        console.log(`${i}: @kutbi:~$ An administrator account has been loaded successfully.`);
+        next();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+admin.all("*", requireAuthentication, loadAdmin);
+
+admin
+    .route("/")
+    .get(async (req, res) => {
+        try {
+            const i = req.app.locals.index;
+            console.log(`${i}: @kutbi:~/todo$ GET /admin/`);
+            return res.status(200).json({ status: 200, message: "GET /admin/" });
+        } catch (error) {
+            console.error(error);
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            const i = req.app.locals.index;
+            console.log(`${i}: @kutbi:~/todo$ POST /admin/`);
+            return res.status(200).json({ status: 200, message: "POST /admin/" });
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+/*
 TODO:
 
 GET /admin/posts/
@@ -9,6 +69,35 @@ POST /admin/posts/
 POST /admin/posts/{id}/copy
 PUT /admin/posts/{id}/
 DELETE /admin/posts/{id}/
+
+*/
+
+admin
+    .route("/posts")
+    .get(async (req, res) => {
+        try {
+            const i = req.app.locals.index;
+            console.log(`${i}: @kutbi:~/todo$ GET /admin/posts/`);
+            return res.status(200).json({ status: 200, message: "GET /admin/posts/" });
+        } catch (error) {
+            console.error(error);
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            const i = req.app.locals.index;
+            console.log(`${i}: @kutbi:~/todo$ POST /admin/posts/`);
+            return res.status(200).json({ status: 200, message: "POST /admin/posts/" });
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+export { admin };
+
+/*
+
+TODO:
 
 GET /admin/tiers/?include=monthly_price,yearly_price,benefits
 POST /admin/tiers/

@@ -7,22 +7,30 @@ const loadAccount = async () => {
     const current = {};
     try {
         let retrieved = local("read", "account");
-        if (retrieved) current.account = JSON.parse(retrieved);
-        if (!current.account) throw Error("@kutbi:~/accounts$ We could not retrieve any account from the browser. You need to log in.");
-        else current.account = (new Account(JSON.parse(decode(current.account.account)))).toString();
+
+        if (retrieved) {
+            current.loggen = JSON.parse(local("read", "loggen"));
+            current.account = JSON.parse(retrieved);
+        }
+
+        if (current.account) {
+            local("update", "loggen", (++current.loggen).toString());
+            current.loggen = local("read", "loggen");
+            current.account = (new Account(JSON.parse(decode(current.account.account)))).toString();
+        } else { throw Error("@kutbi:~/accounts$ We could not retrieve any account from the browser. You need to log in."); }
         
         const tokens = local("read", "tokens");
-        if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any logged in accounts in the browser. You need to log in.");        
+        if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any tokens from the browser. You need to log in.");        
         else current.tokens = JSON.parse(tokens);
 
-        console.log("@kutbi:~$ Your Kutbi account has been retrieved successfully from the browser.");
+        console.log("@kutbi:~$ Your Kutbi account and login details have been retrieved successfully from the browser.");
         return current;
     } catch (error) {
         console.error(error);
         return null;
         // window.location.replace("./login.html");
     } finally {
-        console.log(`@kutbi:~$ loadAccount() ended.`)
+        console.log(`@kutbi:~$ Function loadAccount() ended.`);
     }
 };
 
@@ -34,7 +42,7 @@ class Account {
         return this._total.toString();
     }
 
-    isLoggedIn;
+    loggen;
     type;
     firstName;
     lastName;
@@ -65,8 +73,7 @@ class Account {
     constructor(obj) {
         Account._total++;
         for (const attribute in obj) this[attribute] = obj[attribute];
-        this.isLoggedIn = true;
-        this.init();
+        this.setlocal();
         /*
         this.type = obj.type;
         this.firstName = obj.firstName;
@@ -99,8 +106,9 @@ class Account {
         
     }
 
-    init() {
-        return local("create", "tokens", JSON.stringify({
+    setlocal() {
+        this.loggen = true;
+        return local("update", "tokens", JSON.stringify({
             access: this.accessToken,
             refresh: this.refreshToken,
         }));
@@ -124,12 +132,12 @@ class Account {
         });
     }
 
-    get isLoggedIn() {
-        return this.isLoggedIn;
+    get loggen() {
+        return this.loggen;
     }
     
-    set isLoggedIn(value) {
-        this.isLoggedIn = value;
+    set loggen(value) {
+        this.loggen = value;
     }
 
     get type() {

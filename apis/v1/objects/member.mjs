@@ -1,6 +1,11 @@
 "use strict";
 
-import { User } from "./classes.mjs";
+import {
+    getConnectionFromPool,
+    executeQuery,
+    releaseConnection
+} from "../modules/data.mjs";
+import User from "./user.mjs";
 
 export default class Member extends User {
 

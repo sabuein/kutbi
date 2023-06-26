@@ -3,28 +3,13 @@
 import { local, session } from "./apis.mjs";
 import { urlWithQuery, urlToJSON, encode, decode } from "./helpers.mjs";
 
-// GET, POST, PUT, DELETE, etc.
-
-const handleGetForm = (form) => {
-    if (form.method !== "GET") throw TypeError(`Please check form(#${form.id} method`);
-    try {
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            console.log("@kutbi:~$ Hi there...");
-            console.log(`@kutbi:~$ An intercepted HTTP GET submission by form(#${form.id}) is being parsed as JSON within the console and returned as a JavaScript object...`);
-            const url = urlWithQuery(form);
-            return urlToJSON(url);
-        }, false);
-    } catch (error) {
-        console.error(error);
-        throw Error(`@kutbi:~$ We got a problem at catchGetForm() function. Please help!`);
-    }
-};
-
 const handleFormsWithBody = async (event) => {
     
     const log = {
+        form: {
+            action: event.target.action,
+            method: event.target.method
+        },
         headers: {}
     };
 
@@ -39,13 +24,21 @@ const handleFormsWithBody = async (event) => {
         formData.forEach((value, key) => requestBody[key] = value);
         event.target.reset();
 
+        // Content-Type: image/png
+        // Content-Type: text/html; charset=UTF-8;
+        // Content-Type: application/xml
+        // Content-Type: application/x-www-form-urlencoded;
+        // Content-Type: multipart/form-data;
         // The content type for JSONP (padded JSON) is application/javascript
+
         const headers = new Headers();
-        // const bearer = JSON.parse(local("read", "tokens"));
-        headers.set("Accept", "application/json; charset=utf-8");
-        headers.set("Content-Type", "application/json; charset=utf-8");
+        // const tokens = JSON.parse(local("read", "tokens"));
+        headers.set("Accept", "application/json; charset=UTF-8");
+        headers.set("Content-Type", "application/json; charset=UTF-8");
         headers.set("Access-Control-Allow-Headers", "");
-        // headers.set("Authorization", `Bearer ${bearer.access}`);
+        // headers.set("Access-Control-Allow-Credentials", "true");
+        // headers.set("Authorization", `Bearer ${tokens.access}`);
+        // headers.set("X-ACCESS_TOKEN", "");
         headers.set("X-Requested-With", "");
         headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
         headers.set("Cookie", document.cookie); // Include cookies
@@ -56,7 +49,7 @@ const handleFormsWithBody = async (event) => {
             "account": encode(JSON.stringify(requestBody))
         });
 
-        log.request = requestBody;
+        log.body = requestBody;
         log.encoded = payload;
 
         // In another words, in 'mode' '-no-'cors' you can only set application/x-www-form-urlencoded, multipart/form-data, or text/plain to the Content-Type.
@@ -75,17 +68,35 @@ const handleFormsWithBody = async (event) => {
         }
 
         const responsePayload = await raw.json();
-        local("create", "account", JSON.stringify({ account: responsePayload.account }));
-        console.log(`@kutbi:~$ Your account has been retrieved successfully from ${event.target.action}.`);
+        local("create", "account", JSON.stringify({ loggen: 0, account: responsePayload.account }));
+        local("update", "loggen", (0).toString());
+        console.log(`@kutbi:~$ Your account and login details have been retrieved successfully from ${event.target.action}.`);
         log.response = responsePayload;
-        // return window.location.reload(); // window.location.assign("./login.html");
+        return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
         throw Error(`@kutbi:~$ We got a problem at handleFormSubmit() function. Please help!`);
     } finally {
         console.log(JSON.stringify(log, null, 2));
     }
-}
+};
+
+const handleGetForm = (form) => {
+    if (form.method !== "GET") throw TypeError(`Please check form(#${form.id} method`);
+    try {
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            console.log("@kutbi:~$ Hi there...");
+            console.log(`@kutbi:~$ An intercepted HTTP GET submission by form(#${form.id}) is being parsed as JSON within the console and returned as a JavaScript object...`);
+            const url = urlWithQuery(form);
+            return urlToJSON(url);
+        }, false);
+    } catch (error) {
+        console.error(error);
+        throw Error(`@kutbi:~$ We got a problem at catchGetForm() function. Please help!`);
+    }
+};
 
 const genericRequest = async (url, token) => {
     const requestHeaders = new Headers();
@@ -111,6 +122,6 @@ const deletePost = (url, id) => {
     return fetch(`${url}/${id}`, {
         method: "DELETE"
     });
-  }
+};
 
 export { handleGetForm, handleFormsWithBody };

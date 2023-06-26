@@ -5,8 +5,8 @@ import hbs from "hbs";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { mainLogger } from "./helpers.mjs";
-import { accounts, authors, books, dashboard, tokens, users, index } from "./routes.mjs";
-import { User, Subscriber, Visitor } from "../models/classes.mjs";
+import { admin, tokens, dashboard, users, accounts, books, authors, index } from "./routes.mjs";
+import { User, Subscriber, Visitor } from "./classes.mjs";
 
 const app = express();
 
@@ -65,13 +65,14 @@ try {
         res.locals.authenticated = false;
         next();
     });
-
-    app.use("/accounts", accounts);
-    app.use("/authors", authors);
-    app.use("/books", books);
-    app.use("/dashboard", dashboard);
+    // app.all("/admin/*", requireAuthentication);
+    app.use("/admin", admin);
     app.use("/tokens", tokens);
+    app.use("/dashboard", dashboard);
     app.use("/users", users);
+    app.use("/accounts", accounts);
+    app.use("/books", books);
+    app.use("/authors", authors);
     app.use("/", index);
 } catch (error) {
     console.error(error);

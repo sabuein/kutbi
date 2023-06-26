@@ -10,6 +10,10 @@ A way to organise books
 
 ### Useful links
 
+- https://datatracker.ietf.org/doc/html/rfc7519
+- https://expressjs.com/en/5x/api.html (Beta)
+- https://expressjs.com/en/4x/api.html
+- https://expressjs.com/en/guide/using-middleware.html
 - https://www.npmjs.com/package/mysql
 - https://www.npmjs.com/package/nodemon
 - https://www.npmjs.com/package/jsonwebtoken
@@ -33,7 +37,6 @@ npm install nodemon --save-dev
 npm install hbs
 npm install jsonwebtoken
 npm install bcrypt
-npm install csurf
 npm install cookie-parser
 
 ## Start the server

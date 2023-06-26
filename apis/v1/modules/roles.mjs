@@ -1,4 +1,3 @@
-
 "use strict";
 
 // Role-based access control (RBAC) system

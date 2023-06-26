@@ -5,13 +5,14 @@ import { getAllAuthors } from "data";
 import { handleGetForm, handleFormsWithBody } from "requests";
 import { updateImageDisplay, updateAuthorDisplay } from "interface";
 import { Account, loadAccount } from "objects";
+import { registerServiceWorker, unregisterServiceWorker } from "apis";
 
 // import { position } from "apis";
 
 // const submission = "http://127.0.0.1:5500/public/subscribe.html?email=Sarah.McFarlane%40vubiquity.co.uk&confirmEmail=sabuein%40gmail.com&preferences=authors&preferences=books&preferences=publishers&preferences=reviews&preferences=all&frequency=monthly&format=text&solution=99999#main-content";
 
 document.addEventListener("DOMContentLoaded", async () => {
-    registerServiceWorker();
+    registerServiceWorker()
     const user = await loadAccount();
     try {
         if (user === "Anonymous") throw Error("@kutbi:~$ Hello, Anonymous. You need to sign in.");
@@ -19,9 +20,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error(error);
     } finally {
-        if (user) console.log(JSON.stringify(user, null, 2));
+        if (user && user.loggen === "1") console.log(JSON.stringify(user, null, 2));
+        else if (user) console.log(JSON.stringify({ "Browsing activity since last login": user.loggen }, null, 2));
     }
-    
+
+    if (!window.localStorage.getItem("hello")) {
+        window.localStorage.setItem("hello", "world!");
+        console.log("True: New local has been created.");
+    } else {
+        console.log(`False: Same old local. Hello, ${window.localStorage.getItem("hello")}`);
+    }
+
+    if (!window.sessionStorage.getItem("hello")) {
+        window.sessionStorage.setItem("hello", "world!");
+        console.log("True: New session has been created.");
+    } else {
+        console.log(`False: Same old session. Hello, ${window.sessionStorage.getItem("hello")}`);
+    }
     
     const resetStorage = id("resetStorage");
     if (resetStorage) {
@@ -34,6 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 window.localStorage.clear();
                 window.sessionStorage.clear();
                 console.log("Site data cleared.");
+                unregisterServiceWorker();
                 return window.location.reload();
             });
         } catch (error) {
@@ -56,18 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log(x.watch());
     console.log(x.current());*/
 });
-
-const registerServiceWorker = async () => {
-    try {
-        if (!"serviceWorker" in navigator) throw Error("@kutbi:~$ Service workers are not supported.");
-        await navigator.serviceWorker.register("/pwa/serviceWorker.js", { scope: "./" });
-        const worker = await navigator.serviceWorker.ready;
-        console.log(`@kutbi:~$ Service worker registration succeeded and it has been ${worker.active.state}.`);
-    } catch (error) {
-        console.error(error);
-        console.log(`@kutbi:~$ Service worker registration failed.`);
-    }
-};
 
 // const xo = await getAllAuthors();
 // console.log(JSON.stringify(xo, null, 3));

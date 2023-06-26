@@ -52,32 +52,31 @@ const decodeStringToObject = (string) => JSON.parse(atob(string));
 */
 
 // Stores data with no expiration date
-const local = (operation, key, string = null) => {
+const local = (operation, key = null, string = null) => {
     try {
         if (!window.localStorage && typeof (Storage) !== "undefined") throw Error("Web Storage is not supported by this browser.");
         let returnValue = null;
         switch (operation) {
             // Create, Read, Update, Delete, and Reset 
             case "create":
-                if (!window.localStorage.getItem(key)) {
-                    console.log(`@kutbi:~$ A record titled "${key}" has been saved to the local storage.`);
-                    return window.localStorage.setItem(key, string);
-                }
-                break;
+                if (window.localStorage.getItem(key)) local("delete", key);
+                // console.log(`@kutbi:~$ A record titled "${key}" has been saved to the local storage.`);
+                return window.localStorage.setItem(key, string);
             case "read":
-                if (window.localStorage.getItem(key)) {
-                    console.log(`@kutbi:~$ A record titled "${key}" has been read from the local storage.`);
-                    return window.localStorage.getItem(key);
-                }
-                break;
+                if (!window.localStorage.getItem(key)) return console.log(`@kutbi:~$ There is no record titled "${key}" in the local storage.`);
+                // console.log(`@kutbi:~$ A record titled "${key}" has been read from the local storage.`);
+                return window.localStorage.getItem(key);
             case "update":
-                console.log(`@kutbi:~$ A record titled "${key}" has been updated in the local storage.`);
+                // console.log(`@kutbi:~$ A record titled "${key}" has been updated in the local storage.`);
                 return window.localStorage.setItem(key, string);
             case "delete":
-                console.log(`@kutbi:~$ A record titled "${key}" has been deleted from the local storage.`);
-                return window.localStorage.removeItem(key);
+                if (local("read", key)) {
+                    // console.log(`@kutbi:~$ A record titled "${key}" has been deleted from the local storage.`);
+                    return window.localStorage.removeItem(key);
+                }
+                break;
             case "reset":
-                console.log(`@kutbi:~$ Your local storage has been resetted successfully.`);
+                // console.log(`@kutbi:~$ Your local storage has been resetted successfully.`);
                 return window.localStorage.clear();
         }
     } catch (error) {
@@ -158,4 +157,33 @@ const openConnection = (operation) => {
     }
 };
 
-export { local, session, geoPosition };
+
+const registerServiceWorker = async () => {
+    try {
+        if (!"serviceWorker" in window.navigator) throw Error("@kutbi:~$ Service workers are not supported.");
+        if (!window.navigator.serviceWorker.controller) {
+            await window.navigator.serviceWorker.register("/pwa/serviceWorker.js", { scope: "./" });
+            const worker = await window.navigator.serviceWorker.ready;
+            console.log(`@kutbi:~$ Service worker registration succeeded and it has been ${worker.active.state}.`);
+        }
+    } catch (error) {
+        console.error(error);
+        console.log(`@kutbi:~$ Service worker registration failed.`);
+    }
+};
+
+const unregisterServiceWorker = async () => {
+    try {
+        if (!"serviceWorker" in window.navigator) throw Error("@kutbi:~$ Service workers are not supported.");
+        const registrations = await window.navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) registration.unregister();
+        console.log(`@kutbi:~$ Service worker unregistration succeeded.`);
+    } catch (error) {
+        console.error(error);
+        console.log(`@kutbi:~$ Service worker unregistration failed.`);
+    }
+};
+
+
+
+export { local, session, geoPosition, registerServiceWorker, unregisterServiceWorker };
