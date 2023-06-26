@@ -20,6 +20,10 @@ const Logger = class Logger {
         this.#referrer = request.get("referrer") || "none";
     }
 
+    get index() {
+        return this.#index;
+    }
+
     print() {
         return {
             index: this.#index,
@@ -40,7 +44,8 @@ const requests = [];
 
 const mainLogger = (request, response, next) => {
     requests.push(new Logger(request).print());
-    console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
+    // console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
+    request.app.locals.index++;
     next();
 };
 

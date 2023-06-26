@@ -11,60 +11,73 @@ dotenv.config({ path: "./.env" });
 // Validate and authenticate tokens
 const login = async (request, response, next) => {
     try {
+        const i = request.app.locals.index;
         const { username, email, password } = decodeStringToObject(response.locals.account);
         if (!username || !email || !password) {
-            const someone = { username: username, email: email, message: "Missing required parameters" };
-            return response.status(400).json(someone);
+            const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
+            console.log(`${i}: @kutbi:~/signin/login$ Missing required parameters.\r\n`, record);
+            return response.status(400).json(record);
         }
+
         const existingAccount = await User._find(username, email);
         if (!existingAccount) {
-            const record = { username: username, email: email, message: "We couldn't locate your Kutbi account" };
-            console.log(`@kutbi:~/signin$ Someone tried to login into a non-existent account.\r\n`, record);
+            const record = { status: 403, username: username, email: email, message: "We could not locate your Kutbi account." };
+            console.log(`${i}: @kutbi:~/signin/login$ Login into a non-existent account.\r\n`, record);
             return response.status(403).json(record);
         }
+
         if (await bcrypt.compare(password, existingAccount.passwordHash) !== true) {
-            const record = { username: username, email: email, message: "Invalid password" };
-            console.log(`@kutbi:~/signin$ Someone tried to login into an account with invalid password.\r\n`, record);
+            const record = { status: 401, username: username, email: email, message: "Invalid password." };
+            console.log(`${i}: @kutbi:~/signin/login$ Someone tried to login into an account with an invalid password.`, record);
             return response.status(401).json(record);
         }
+
         const account = await User._populate(existingAccount.guid);
-        await tokenize(account);
-        response.locals.tempTokens.push(account.refreshToken);
+        request.app.locals.refreshTokens.push(await tokenize(account));
         response.locals.account = account.records();
         next();
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
-    } finally {
-        response.locals.stats.logins++;
     }
 };
 
 const recover = async (request, response, next) => {
-    const { phoneNumber, recoveryEmail, fullName } = decodeStringToObject(response.locals.account);
-    if ((!phoneNumber || !recoveryEmail) && !fullName) return response.status(400).json({ error: "Missing required parameters" });
     try {
+        const i = request.app.locals.index;
+        const { phoneNumber, recoveryEmail, fullName } = decodeStringToObject(response.locals.account);
+        if ((!phoneNumber || !recoveryEmail) && !fullName) {
+            const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
+            console.log(`${i}: @kutbi:~/signin/recover$ Missing required parameters.\r\n`, record);
+            return response.status(400).json(record);
+        }
         // Review a list of usernames that match your account
-        const matchingUsernames = []
+        const matchingUsernames = [];
         next();
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
-    } finally {
-        console.log("TODO: recover();");
-        response.locals.stats.recoveries++;
     }
 };
 
 const register = async (request, response, next) => {
-    const { username, email, password, roles, permissions } = decodeStringToObject(response.locals.account);
-    if (!username || !email || !password) return response.status(400).json({ error: "Missing required parameters" });
+    
+
     try {
+        const i = request.app.locals.index;
+        const { username, email, password, roles, permissions } = decodeStringToObject(response.locals.account);
+        if (!username || !email || !password) {
+            const record = { status: 400, username: username, email: email, message: "Missing required parameters." };
+            console.log(`${i}: @kutbi:~/signup/register$ Missing required parameters.`, record);
+            return response.status(400).json(record);
+        }
+
         const existingAccount = await User._find(username, email);
         if (existingAccount) {
-            console.log(`${existingAccount.guid}@kutbi:~/signup/register$ The provided details already exists for another ${existingAccount.type} account.`);
-            return response.status(403).json({ error: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
+            console.log(`${i}: ${existingAccount.guid}@kutbi:~/signup/register$ The provided details already exists for another ${existingAccount.type} account.`);
+            return response.status(403).json({ status: 403, message: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         }
+
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
         const account = new User({
@@ -77,8 +90,8 @@ const register = async (request, response, next) => {
             newRecord: true
         });
         await account.save();
-        await tokenize(account);
-        response.locals.tempTokens.push(account.refreshToken);
+
+        request.app.locals.refreshTokens.push(await tokenize(account));
         response.locals.account = account.records();
         console.log("response.locals.account from register();");
         console.log(response.locals.account);
@@ -88,8 +101,6 @@ const register = async (request, response, next) => {
     } catch (error) {
         console.error(error);
         return clearAuthCookies(request, response, next);
-    } finally {
-        response.locals.stats.signups++;
     }
 };
 
@@ -113,19 +124,20 @@ const tokenize = async (account) => {
 
 const validateAuthHeader = (request, response, next) => {
     try {
+        const i = request.app.locals.index;
         const header = request.headers.authorization;
         const token = header && header.split(" ")[1];
         
         // Check if the request contains a valid authentication token
         if (!header || token === null) {
-            console.log(`User ${request.body.username} denied access to ${request.hostname}`);
-            return response.status(401).json({ message: "Unauthorized access" });
+            console.log(`${i}: User ${request.body.username} denied access to ${request.hostname}`);
+            return response.status(401).json({ status: 401, message: "Unauthorized access." });
         }
 
         jwt.verify(token, process.env.access_token_secret, (error, user) => {
             if (error) {
-                console.log(`The token has no permission to access ${request.hostname}`);
-                return response.status(403).json({ message: "No permission to access" });
+                console.log(`${i}: The token has no permission to access ${request.hostname}`);
+                return response.status(403).json({ status: 403, message: "No permission to access." });
             }
             request.user = user;
             next();
@@ -134,18 +146,19 @@ const validateAuthHeader = (request, response, next) => {
         console.error(error);
         return clearAuthCookies(request, response, next);
     } finally {
-        response.locals.stats.authValidation++;
+        request.app.locals.stats.authValidation++;
     }
 };
 
 const validateAuthCookie = async (request, response, next) => {
-    const accessToken = request.cookies.accessToken;
-    if (accessToken === "undefined") return response.status(400).json({ error: "Unable to find token" });
     try {
+        const i = request.app.locals.index;
+        const accessToken = request.cookies.accessToken;
+        if (accessToken === "undefined") return response.status(400).json({ status: 400, message: "Unable to find token." });
         jwt.verify(accessToken, process.env.access_token_secret, (error, user) => {
             if (error) {
-                console.log(`The provided token has no permission to access ${request.hostname}`);
-                return response.status(403).json({ error: "No permission to access" });
+                console.log(`${i}: The provided token has no permission to access ${request.hostname}`);
+                return response.status(403).json({ status: 403, message: "No permission to access." });
             }
             request.user = user;
             next();
@@ -154,41 +167,43 @@ const validateAuthCookie = async (request, response, next) => {
         console.error(error);
         return clearAuthCookies(request, response, next);
     } finally {
-        response.locals.stats.authValidation++;
+        request.app.locals.stats.authValidation++;
     }
 };
 
 const clearAuthTokens = (request, response, next) => {
     try {
+        const i = request.app.locals.index;
         const { refreshToken } = request.body;
         if (refreshToken === null) return response.sendStatus(401);
-        if (!response.locals.tempTokens.includes(refreshToken)) return response.status(403).json({ error: "Forbidden. You need to sign in." });
+        if (!request.app.locals.refreshTokens.includes(refreshToken)) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
 
         jwt.verify(refreshToken, process.env.refresh_token_secret, (error, user) => {
-            if (error) return response.status(403).json({ error: "Forbidden. You need to sign in." });
-            const exists = response.locals.tempTokens.indexOf(refreshToken);
-            if (exists === -1) return response.status(400).json({ error: "Unable to find token" });
-            response.locals.tempTokens.splice(exists,  1);
-            console.log("Details: Successfully removed authentication tokens.");
+            if (error) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
+            const exists = request.app.locals.refreshTokens.indexOf(refreshToken);
+            if (exists === -1) return response.status(400).json({ status: 400, message: "Unable to find token." });
+            request.app.locals.refreshTokens.splice(exists,  1);
+            console.log(`${i}: Details: Successfully removed authentication tokens.`);
             next();
         });
     } catch (error) {
         console.error(error);
     } finally {
-        response.locals.stats.clearTokens++;
+        request.app.locals.stats.clearTokens++;
     }
 };
 
 const clearAuthCookies = async (request, response, next) => {
     try {
+        const i = request.app.locals.index;
         response.clearCookie("accessToken");
         response.clearCookie("refreshToken");
-        console.log("accessToken and refreshToken have been cleared.");
+        console.log(`${i}: accessToken and refreshToken have been cleared.`);
         return clearAuthTokens(request, response, next);
     } catch (error) {
         console.error(error);
     } finally {
-        response.locals.stats.clearCookies++;
+        request.app.locals.stats.clearCookies++;
     }
 };
 
@@ -202,7 +217,9 @@ const setupAuth = async (request, response, next) => {
         console.error(error);
         return clearAuthCookies(request, response, next);
     } finally {
-        response.locals.stats.authCounter++;
+        request.app.locals.stats.headers++;
+        request.app.locals.stats.cookies++;
+        request.app.locals.stats.authCounter++;
     }
 };
 
@@ -242,8 +259,6 @@ const setCookies = (response, account) => {
     } catch (error) {
         console.error(error);
         throw Error("We couldn't setup cookies on the client machine for a reason or another!");
-    } finally {
-        response.locals.stats.cookies++;
     }
 };
 

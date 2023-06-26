@@ -5,6 +5,7 @@ import { idLogger } from "../modules/helpers.mjs";
 import { validateAuthHeader, validateAuthCookie } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
 
+// Browse, Read, Edit, Add, Copy, Delete
 // userPasswords
 
 const users = express.Router();
