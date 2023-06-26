@@ -54,7 +54,7 @@
         <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
     </noscript>
     <main class="app-main flexy align-start" id="main-content">
-        <section>
+        <section style="display: none;">
             <h3>Create new account</h3>
             <p>The account type you are creating is different depending on what you want to do.</p>
             <h4>Subscriber account</h4>
@@ -64,15 +64,21 @@
         </section>
         <form action="http://localhost:3557/accounts/signup" method="POST" id="registerForm">
             <!-- Include the CSRF token as a hidden input field -->
-            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-            <fieldset>
+            <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
+            <fieldset class="flexy">
+                <legend>Your details</legend>
+                <label for="registerUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" required /></label>
+                <label for="registerEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="registerEmail" autocomplete="email" size="32" maxlength="64" required /></label>
+                <label for="registerPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="registerPass" autocomplete="new-password" size="32" maxlength="64" required /></label>
+            </fieldset>
+            <fieldset style="display: none;">
                 <legend>Your details</legend>
                 <label for="subEmail">Email address<span title="The email address is not made public. It will only be used if you need to be contacted about your account or for opted-in notifications.">&sext;</span></label>
-                <input type="email" name="email" id="subEmail" required />
+                <input type="email" name="email" id="subEmail" required value="sabuein@gmail.com" />
                 <label for="subEmailAgain">Confirm e-mail address<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
-                <input type="email" name="confirmEmail" id="subEmailAgain" required />
+                <input type="email" name="confirmEmail" id="subEmailAgain" required value="sabuein@gmail.com" />
             </fieldset>
-            <fieldset class="flexy">
+            <fieldset class="flexy" style="display: none;">
                 <legend>Email Preferences<span title="What type of alerts do you want to receive?">&sext;</span></legend>
                 <label for="authorsBox"><input type="checkbox" name="preferences" id="authorsBox" value="authors">Authors</label>
                 <label for="booksBox"><input type="checkbox" name="preferences" id="booksBox" value="books">Books</label>
@@ -89,11 +95,11 @@
                     </select>Alerts Frequency<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
                 <label for="format"><input type="checkbox" name="format" id="format" value="text" />Receive emails in plain text format</label>
             </fieldset>
-            <fieldset>
+            <fieldset style="display: none;">
                 <legend>Captcha</legend>
-                <label for="solution">Maths question<input type="text" id="problem" readonly value="1 + 1 =" /><input type="number" name="solution" id="solution" required /><span title="Solve this simple math problem and enter the result. E.g. for 1+3, enter 4.">&sext;</span></label>
+                <label for="solution">Maths question<input type="text" id="problem" readonly value="1 + 1 =" /><input type="number" name="solution" id="solution" required value="2" /><span title="Solve this simple math problem and enter the result. E.g. for 1+3, enter 4.">&sext;</span></label>
             </fieldset>
-            <p>You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
+            <p style="display: none;">You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
             <input type="submit" value="Create new account" />
             <input type="reset" value="Reset">
         </form>

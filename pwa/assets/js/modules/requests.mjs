@@ -54,16 +54,22 @@ const handleFormsWithBody = async (event) => {
             cache: "default",
         });
 
-        if (raw.status === "403") window.location.assign("./login.html");
-        if (!raw.ok) throw Error(`@kutbi:~$ Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
-
         const your_bearer_token = "";
         const responsePayload = await raw.json();
+
+        console.log(raw);
+
+        if (raw.status === "400" || raw.status === "403") {
+            console.log(JSON.stringify({ status: raw.status, response: responsePayload }, null, 2));
+            // window.location.assign("./login.html");
+        }
+
+        if (!raw.ok) throw Error(`@kutbi:~$ Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
 
         const x = local("create", "account", JSON.stringify({ account: responsePayload.account }));
         console.log(`@kutbi:~$ Your account details have been retrieved successfully from ${event.target.action}.`);
         
-        return window.location.reload(); // window.location.assign("./login.html");
+        // return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
         throw Error(`@kutbi:~$ We got a problem at handleFormSubmit() function. Please help!`);
