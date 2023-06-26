@@ -27,7 +27,8 @@ const timestamp = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
 const encodeObjectToString = (object) => {
     try {
-        return Buffer.from((object)).toString("base64");
+        // return Buffer.from((object)).toString("base64");
+        return Buffer.from(JSON.stringify(object)).toString("base64");
     } catch (error) {
         console.error(error);
         throw Error("Failed to encodeObjectToString();");
@@ -36,7 +37,8 @@ const encodeObjectToString = (object) => {
 
 const decodeStringToObject = (string) => {
     try {
-        return JSON.parse(Buffer.from(JSON.stringify(string), "base64").toString());
+        // return JSON.parse(Buffer.from(JSON.stringify(string), "base64").toString());
+        return JSON.parse(Buffer.from(string, "base64").toString());
     } catch (error) {
         console.error(error);
         throw Error("Failed to decodeStringToObject();");
@@ -63,7 +65,8 @@ const tokenize = async (account) => {
 
 const generateAccessToken = (accountRecords) => {
     try {
-        return jwt.sign({ accountRecords }, process.env.access_token_secret, { expiresIn: 3600000 });
+        const accessTokenExpiry = "30m"; // Access token expires in 30 minutes
+        return jwt.sign({ accountRecords }, process.env.access_token_secret, { expiresIn: accessTokenExpiry });
     } catch (error) {
         console.error(error);
         throw Error("Failed to generateAccessToken();");
@@ -72,17 +75,18 @@ const generateAccessToken = (accountRecords) => {
 
 const generateRefreshToken = (accountRecords) => {
     try {
-        return jwt.sign({ accountRecords }, process.env.refresh_token_secret);
+        const refreshTokenExpiry = "7d"; // Refresh token expires in 7 days
+        return jwt.sign({ accountRecords }, process.env.refresh_token_secret, { expiresIn: refreshTokenExpiry });
     } catch (error) {
         console.error(error);
         throw Error("Failed to generateRefreshToken();");
     }
 };
 
-const pwgenerator = async (password) => {
+const hashPassword = async (password) => {
     try {
         const passwordSalt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
+        const passwordHash = await bcrypt.hash(password, passwordSalt);
         return ({ salt: passwordSalt, hash: passwordHash });
     } catch (error) {
         console.error(error);
@@ -90,7 +94,7 @@ const pwgenerator = async (password) => {
     }
 };
 
-const pwcompare = async (password, existingPassword) => {
+const comparePasswords = async (password, existingPassword) => {
     try {
         return await bcrypt.compare(password, existingPassword); 
     } catch (error) {
@@ -99,13 +103,13 @@ const pwcompare = async (password, existingPassword) => {
     }
 };
 
-const tkverify = (type, token) => {
+const verifyToken = (type, token) => {
     try {
         if (type === "access") return jwt.verify(token, process.env.access_token_secret);
         if (type === "refresh") return jwt.verify(token, process.env.refresh_token_secret);
     } catch (error) {
         console.error(error);
-        throw Error("Failed to pwverify();");
+        throw Error("Failed to tkverify();");
     }
 };
 
@@ -116,7 +120,7 @@ export {
     encodeObjectToString as encode,
     decodeStringToObject as decode,
     tokenize,
-    pwgenerator,
-    pwcompare,
-    tkverify
+    hashPassword,
+    comparePasswords,
+    verifyToken
 };

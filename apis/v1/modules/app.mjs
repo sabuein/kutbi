@@ -28,6 +28,7 @@ try {
     // bodyParser.text({type: '*/*'})
 
     app.use(express.json());
+    // app.use(express.urlencoded({ extended: true }));
     app.use(express.urlencoded({ extended: false }));
     app.use(express.text({ type: "*/*" }));
     
@@ -51,7 +52,9 @@ try {
         subscribers: Subscriber.total,
         users: User.total
     };
-
+    
+    // Apply middleware to all routes
+    // app.use(requireAuth);
     app.use(mainLogger);
     app.use((req, res, next) => {
         res.set("Access-Control-Allow-Origin", "http://localhost:5500");

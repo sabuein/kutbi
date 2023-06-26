@@ -1,6 +1,6 @@
 "use strict";
 
-import { encode, decode, tokenize, pwgenerator, pwcompare, tkverify } from "./helpers.mjs";
+import { encode, decode, tokenize, hashPassword, comparePasswords, verifyToken } from "./helpers.mjs";
 import { User, Subscriber, Visitor } from "./classes.mjs";
 
 // Authentication and authorization
@@ -22,7 +22,7 @@ const login = async (request, response, next) => {
             throw Error(`${i}: @kutbi:~/signin/login$ Login into a non-existent account.`, record);
         }
 
-        if (await pwcompare(password, existingAccount.passwordHash) !== true) {
+        if (await comparePasswords(password, existingAccount.passwordHash) !== true) {
             const record = { status: 401, username: username, email: email, message: "Invalid password." };
             response.status(401).json(record);
             throw Error(`${i}: @kutbi:~/signin/login$ Someone tried to login with an invalid password.`, record);
@@ -108,7 +108,7 @@ const register = async (request, response, next) => {
             return response.status(403).json({ status: 403, message: "Apologies for the inconvenience. The username and/or email you provided already exists in our records. Please consider using alternative details for registration, or if you already have a Kutbi account, kindly log in to access your existing account." });
         }
 
-        const pass = pwgenerator(password);
+        const pass = await hashPassword(password);
         const account = new User({
             username: username,
             email: email,
@@ -133,6 +133,36 @@ const register = async (request, response, next) => {
     }
 };
 
+// A middleware function to check if the client is logged in or has an active access token:
+const requireAuth = async (request, response, next) => {
+    // Retrieve access token from a cookie named "accessToken"
+    const accessToken = await request.cookies.accessToken;
+    if (!accessToken) response.status(401).json({ status: 401, message: "Access token not found." });
+    try {
+        verifyToken("access", accessToken);
+        next();
+    } catch (error) {
+        console.error(error);
+        return res.status(401).json({ status: 401, message: "Invalid access token." });
+    }
+};
+
+const clearAuth = () => {};
+
+// A middleware function to check if the client has a valid refresh token:
+const requireRefreshToken = async (request, response, next) => {
+    // Retrieve refresh token from a cookie named "refreshToken"
+    const refreshToken = request.cookies.refreshToken;
+    if (!refreshToken) response.status(401).json({ status: 401, message: "Refresh token not found." });
+    try {
+        verifyToken("refresh", refreshToken);
+        next();
+    } catch (error) {
+        console.error(error);
+        return response.status(401).json({ status: 401, message: "Invalid refresh token." });
+    }
+};
+
 const validateAuthHeader = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
@@ -145,7 +175,7 @@ const validateAuthHeader = async (request, response, next) => {
             return response.status(401).json({ status: 401, message: "Unauthorized access." });
         }
 
-        const decoded = await tkverify("access", token);
+        const decoded = await verifyToken("access", token);
         if (!decoded) {
             console.log(`${i}: The token has no permission to access ${request.hostname}`);
             return response.status(403).json({ status: 403, message: "No permission to access." });
@@ -167,7 +197,7 @@ const validateAccessCookie = async (request, response, next) => {
         const token = request.cookies.access;
         if (token === "undefined") return response.status(400).json({ status: 400, message: "Unable to find token." });
 
-        const decoded = await tkverify("access", token);
+        const decoded = await verifyToken("access", token);
         if (!decoded) {
             console.log(`${i}: The token has no permission to access ${request.hostname}`);
             return response.status(403).json({ status: 403, message: "No permission to access." });
@@ -190,7 +220,7 @@ const clearAuthTokens = async (request, response, next) => {
         if (token === null) return response.sendStatus(401);
         if (!request.app.locals.refreshTokens.includes(token)) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
 
-        const decoded = await tkverify("refresh", token);
+        const decoded = await verifyToken("refresh", token);
         if (!decoded) {
             console.log(`${i}: The token has no permission to access ${request.hostname}`);
             return response.status(403).json({ status: 403, message: "No permission to access." });
@@ -224,6 +254,7 @@ const clearAuthCookies = async (request, response, next) => {
 
 const setupAuth = async (request, response, next) => {
     try {
+        // Set the access and refresh tokens as an HTTP headers, as well as cookies
         const account = await response.locals.account;
         setHeaders(response, { accessToken: account.accessToken, refreshToken: account.refreshToken });
         setCookies(response, { accessToken: account.accessToken, refreshToken: account.refreshToken });
@@ -240,6 +271,8 @@ const setupAuth = async (request, response, next) => {
 
 const setCookies = (response, account) => {
     try {
+        const accessTokenExpiry = "30m"; // Access token expires in 30 minutes
+        const refreshTokenExpiry = "7d"; // Refresh token expires in 7 days
         response.cookie("accessToken", account.accessToken, {
             httpOnly: false,
             secure: true,
@@ -255,7 +288,7 @@ const setCookies = (response, account) => {
         });
     } catch (error) {
         console.error(error);
-        throw Error("We couldn't setup cookies on the client machine for a reason or another!");
+        throw Error("We could not setup cookies on the client machine for a reason or another!");
     }
 };
 
@@ -265,4 +298,16 @@ const setHeaders = (response, account) => {
     // response.set("Content-Security-Policy", ``);
 };
 
-export { login, recover, register, setupAuth, validateAuthHeader, validateAccessCookie, clearAuthTokens, clearAuthCookies };
+export {
+    login,
+    recover,
+    register,
+    requireAuth,
+    clearAuth,
+    requireRefreshToken,
+    setupAuth,
+    validateAuthHeader,
+    validateAccessCookie,
+    clearAuthTokens,
+    clearAuthCookies
+};

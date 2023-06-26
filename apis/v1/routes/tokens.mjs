@@ -3,7 +3,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 // import csrf from "csurf";
-import { clearAuthCookies } from "../modules/auth.mjs";
+import { clearAuthCookies, requireRefreshToken } from "../modules/auth.mjs";
 
 const tokens = express.Router();
 
@@ -33,5 +33,18 @@ tokens
         */
         return response.status(201).json({ status: 201, message: "@kutbi:~/todo$ Prevent CSRF attacks." });
     });
+
+// A route to refresh the access token:
+tokens
+    .route("/refresh")
+    .post(requireRefreshToken, (request, response) => {
+    // Assuming the refresh token is valid, generate a new access token
+    const user = { id: 123, username: "example" };
+    const newAccessToken = jwt.sign(user, secretKey, { expiresIn: accessTokenExpiry });
+  
+    // Set the new access token as a cookie
+    response.cookie("accessToken", newAccessToken, { httpOnly: true });
+    response.sendStatus(200);
+  });
 
 export { tokens };
