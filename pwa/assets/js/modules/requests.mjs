@@ -23,6 +23,11 @@ const handleGetForm = (form) => {
 };
 
 const handleFormsWithBody = async (event) => {
+    
+    const log = {
+        headers: {}
+    };
+
     try {
         // Some constraints
         if (!event.isTrusted) throw Error(`@kutbi:~$ The form submission is not trusted.`);
@@ -34,17 +39,27 @@ const handleFormsWithBody = async (event) => {
         formData.forEach((value, key) => requestBody[key] = value);
         event.target.reset();
 
+        // The content type for JSONP (padded JSON) is application/javascript
         const headers = new Headers();
+        // const bearer = JSON.parse(local("read", "tokens"));
         headers.set("Accept", "application/json; charset=utf-8");
-        headers.set("Content-Type", "text/plain; charset=utf-8");
+        headers.set("Content-Type", "application/json; charset=utf-8");
+        headers.set("Access-Control-Allow-Headers", "");
+        // headers.set("Authorization", `Bearer ${bearer.access}`);
+        headers.set("X-Requested-With", "");
         headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
-        // headers.set("Authorization", `Bearer ${your_bearer_token}`);
         headers.set("Cookie", document.cookie); // Include cookies
-        // headers.forEach((value, key) => console.log(`${key}: ${value}`));
-        
+
+        headers.forEach((value, key) => log.headers[key] = value);
+
         const payload = JSON.stringify({
             "account": encode(JSON.stringify(requestBody))
         });
+
+        log.request = requestBody;
+        log.encoded = payload;
+
+        // In another words, in 'mode' '-no-'cors' you can only set application/x-www-form-urlencoded, multipart/form-data, or text/plain to the Content-Type.
         
         const raw = await fetch(event.target.action, {
             method: event.target.method,
@@ -54,25 +69,21 @@ const handleFormsWithBody = async (event) => {
             cache: "default",
         });
 
-        const your_bearer_token = "";
-        const responsePayload = await raw.json();
-
-        console.log(raw);
-
-        if (raw.status === "400" || raw.status === "403") {
-            console.log(JSON.stringify({ status: raw.status, response: responsePayload }, null, 2));
+        if (raw.status === "400" || raw.status === "403" || !raw.ok) {
+            throw Error(`@kutbi:~$ Failed to fetch with ${event.target.method.toUpperCase()} from ${event.target.action}`);
             // window.location.assign("./login.html");
         }
 
-        if (!raw.ok) throw Error(`@kutbi:~$ Failed to fetch with ${event.event.method.toUpperCase()} from ${event.target.action}`);
-
-        const x = local("create", "account", JSON.stringify({ account: responsePayload.account }));
-        console.log(`@kutbi:~$ Your account details have been retrieved successfully from ${event.target.action}.`);
-        
+        const responsePayload = await raw.json();
+        local("create", "account", JSON.stringify({ account: responsePayload.account }));
+        console.log(`@kutbi:~$ Your account has been retrieved successfully from ${event.target.action}.`);
+        log.response = responsePayload;
         // return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
         throw Error(`@kutbi:~$ We got a problem at handleFormSubmit() function. Please help!`);
+    } finally {
+        console.log(JSON.stringify(log, null, 2));
     }
 }
 
