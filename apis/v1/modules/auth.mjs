@@ -263,11 +263,7 @@ const setCookies = (response, account) => {
 };
 
 const setHeaders = (response, account) => {
-    response.set("Access-Control-Allow-Origin", "http://localhost:5500");
-    response.set("Access-Control-Request-Method", "POST, GET, PUT, DELETE, OPTIONS");
-    response.set("Access-Control-Request-Headers", "Authorization");
     response.set("Authorization", `Bearer ${account.accessToken}`);
-    // response.set("X-Powered-By", "Kutbi & Express.js");
     // response.set("Cache-Control", ``);
     // response.set("Content-Security-Policy", ``);
 };

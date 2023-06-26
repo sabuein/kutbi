@@ -54,6 +54,12 @@ try {
 
     app.use(mainLogger);
     app.use((req, res, next) => {
+        res.set("Access-Control-Allow-Origin", "http://localhost:5500");
+        res.set("Access-Control-Request-Method", "GET, POST, PUT, DELETE, OPTIONS");
+        res.set("Access-Control-Max-Age", "3600");
+        res.set("Access-Control-Request-Headers", "Authorization");
+        res.set("Access-Control-Allow-Headers", "Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, User-Agent, Cookie");
+        res.set("X-Powered-By", "Kutbi & Express.js");
         const payload = (req.body) ? (typeof req.body === "string") ? (JSON.parse(req.body).account) : (req.body.account) : null;
         res.locals.account = payload;
         res.locals.authenticated = false;
