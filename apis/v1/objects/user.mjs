@@ -9,21 +9,24 @@ import Subscriber from "./subscriber.mjs";
 
 export default class User extends Subscriber {
 
-    #activity = [];
-    #commentNotifications = null;
-    #mentionNotifications = null;
-
     static _total = 0;
 
     static get total() {
         return User._total.toString();;
     }
 
-    constructor(details) {
-        super(details);
+    #activity = [];
+    #commentNotifications = null;
+    #mentionNotifications = null;
+
+    constructor(object) {
+        super(object);
         User._total++;
-        this.#commentNotifications = details.commentNotifications || null;
-        this.#mentionNotifications = details.mentionNotifications || null;
+        const { activity, commentNotifications, mentionNotifications } = object;
+        if (!!activity && activity instanceof Array && activity.length > 0) this.#activity = activity;
+        if (!!commentNotifications && typeof commentNotifications !== "boolean") this.#commentNotifications = commentNotifications;
+        if (!!mentionNotifications && typeof mentionNotifications !== "boolean") this.#mentionNotifications = mentionNotifications;
+        this.addActivity(`The ${this.type} has been instantiated successfully.`);
     }
     
     static _findQuery() {
@@ -57,20 +60,24 @@ export default class User extends Subscriber {
         console.log({ "todo": "User publish();" });
     }
 
+    async addActivity(newActivity) {
+        this.#activity.push(newActivity);
+    }
+
     get activity() {
         return this.#activity;
     }
 
-    set activity(log) {
-        this.#activity.push(log);
+    set activity(value) {
+        if (!!value && value instanceof Array && value.length > 0) this.#activity = value;
     }
 
     get commentNotifications() {
-        return this.#mentionNotifications;
+        return this.#commentNotifications;
     }
 
     set commentNotifications(value) {
-        this.#mentionNotifications = value;
+        this.#commentNotifications = value;
     }
 
     get mentionNotifications() {

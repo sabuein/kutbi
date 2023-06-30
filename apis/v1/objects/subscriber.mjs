@@ -9,6 +9,13 @@ import Visitor from "./visitor.mjs";
 
 export default class Subscriber extends Visitor {
 
+    static _total = 0;
+
+    static get total() {
+        return Subscriber._total.toString();;
+    }
+
+    #newRecord = null;
     #guid = null;
     #username = null;
     #email = null;
@@ -33,44 +40,66 @@ export default class Subscriber extends Visitor {
     #lastSeen = null;
     #accessibility = null;
     #activeStatus = null;
-    #newRecord = null;
 
-    static _total = 0;
-
-    static get total() {
-        return Subscriber._total.toString();;
-    }
-
-    constructor(details) {
-        super(details);
+    constructor(object) {
+        super(object);
         Subscriber._total++;
-        this.#guid = details.guid || null,
-        this.#username = details.username || null;
-        this.#email = details.email || null;
-        this.#salt = details.salt || null;
-        this.#passwordHash = details.passwordHash || null;
-        this.#roles = details.roles || [],
-        this.#permissions = details.permissions || [];
-        this.#accessToken = details.accessToken || null;
-        this.#refreshToken = details.refreshToken || null;
-        this.#photoUrl = details.photoUrl || null;
-        this.#coverImage = details.coverImage || null;
-        this.#github = details.github || null;
-        this.#twitter = details.twitter || null;
-        this.#facebook = details.facebook || null;
-        this.#instagram = details.instagram || null;
-        this.#youtube = details.youtube || null;
-        this.#website = details.website || null;
-        this.#personalUrl = details.personalUrl || null;
-        this.#createdAt = details.createdAt || null;
-        this.#updatedAt = details.updatedAt || null;
-        this.#deletedAt = details.deletedAt || null;
-        this.#lastSeen = details.lastSeen || null;
-        this.#accessibility = details.accessibility || null;
-        this.#activeStatus = details.activeStatus || null;
-        this.#newRecord = details.newRecord || null;
+        // const schema = {};
+        // for (const [key, value] of Object.entries(object)) { if (!!value) schema[key] = object[key]; }
+        const {
+            guid,
+            username,
+            email,
+            salt,
+            passwordHash,
+            roles,
+            permissions,
+            accessToken,
+            refreshToken,
+            photoUrl,
+            coverImage,
+            github,
+            twitter,
+            facebook,
+            instagram,
+            youtube,
+            website,
+            personalUrl,
+            createdAt,
+            updatedAt,
+            deletedAt,
+            lastSeen,
+            accessibility,
+            activeStatus,
+            newRecord
+        } = object;
+        if (!!guid && typeof guid === "string" && guid.length === 32) this.#guid = guid;
+        this.#username = username;
+        this.#email = email;
+        this.#salt = salt;
+        this.#passwordHash = passwordHash;
+        this.#newRecord = newRecord;
+        if (!!roles && roles instanceof Array) this.#roles = roles;
+        if (!!permissions && permissions instanceof Array) this.#permissions = permissions;
+        this.#accessToken = accessToken;
+        this.#refreshToken = refreshToken;
+        this.#photoUrl = (!!photoUrl && typeof photoUrl === "string") ? photoUrl : "/assets/images/svg/books.svg";
+        this.#coverImage = (!!coverImage && typeof coverImage === "string") ? coverImage : "/assets/images/svg/books.svg";
+        this.#github = (!!github && typeof github === "string") ? github : "https://github.com/";
+        this.#twitter = (!!twitter && typeof twitter === "string") ? twitter : "https://twitter.com/";
+        this.#facebook = (!!facebook && typeof facebook === "string") ? facebook : "https://www.facebook.com/";
+        this.#instagram = (!!instagram && typeof instagram === "string") ? instagram : "https://www.instagram.com/";
+        this.#youtube = (!!youtube && typeof youtube === "string") ? youtube : "https://www.youtube.com/";
+        this.#website = (!!website && typeof website === "string") ? website : "/";
+        this.#personalUrl = (!!personalUrl) ? personalUrl : "#main-content";
+        if (!!createdAt) this.#createdAt = createdAt;
+        if (!!updatedAt) this.#updatedAt = updatedAt;
+        if (!!deletedAt) this.#deletedAt = deletedAt;
+        if (!!lastSeen) this.#lastSeen = lastSeen;
+        if (!!accessibility) this.#accessibility = accessibility;
+        if (!!activeStatus) this.#activeStatus = activeStatus;
     }
-        
+
     static _findQuery() {
         return `
         SELECT u.subscriptionType "type", sub.suid "guid", sub.username, sub.email, s.salt, s.passwordHash
@@ -154,10 +183,10 @@ export default class Subscriber extends Visitor {
             await executeQuery(connection, this._passQuery(), [id, this.#salt, this.#passwordHash]);
 
             // Insert the user roles into the UserRoles table
-            this.#roles.forEach(async role => await executeQuery(connection, this._rolesQuery(), [id, role]));
+            if (!!this.#roles) this.#roles.forEach(async role => await executeQuery(connection, this._rolesQuery(), [id, role]));
 
             // Insert the user permissions into the UserPermissions table
-            this.#permissions.forEach(async permission => await executeQuery(connection, this._permQuery(), [id, permission]));
+            if (!!this.#permissions) this.#permissions.forEach(async permission => await executeQuery(connection, this._permQuery(), [id, permission]));
 
             // Rretrieving guid
             const guidResult = await executeQuery(connection, this._guidQuery(), [id]);
@@ -215,6 +244,14 @@ export default class Subscriber extends Visitor {
         console.log({ "todo": "Subscriber block();" });
     }
 
+    async delete() {
+        console.log({ "todo": "Subscriber delete();" });
+    }
+
+    async destroy() {
+        console.log({ "todo": "Subscriber destroy();" });
+    }
+
     get newRecord() {
         return this.#newRecord;
     }
@@ -270,6 +307,78 @@ export default class Subscriber extends Visitor {
         // if (value.length < 0 || value.length < 5) throw new RangeError("Refresh token is invalid");
         this.#refreshToken = value;
     }
+    
+    get photoUrl() {
+        return this.#photoUrl;
+    }
+
+    set photoUrl(value) {
+        this.#photoUrl = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get coverImage() {
+        return this.#coverImage;
+    }
+
+    set coverImage(value) {
+        this.#coverImage = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get github() {
+        return this.#github;
+    }
+
+    set github(value) {
+        this.#github = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get twitter() {
+        return this.#twitter;
+    }
+
+    set twitter(value) {
+        this.#twitter = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get facebook() {
+        return this.#facebook;
+    }
+
+    set facebook(value) {
+        this.#facebook = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get instagram() {
+        return this.#instagram;
+    }
+
+    set instagram(value) {
+        this.#instagram = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get youtube() {
+        return this.#youtube;
+    }
+
+    set youtube(value) {
+        this.#youtube = (!!value && typeof value === "string") ? value : "/assets/images/svg/books.svg";
+    }
+
+    get website() {
+        return this.#website;
+    }
+
+    set website(value) {
+        this.#website = (!!value && typeof value === "string") ? value : "#main-content";
+    }
+
+    get personalUrl() {
+        return this.#personalUrl;
+    }
+
+    set personalUrl(value) {
+        this.#personalUrl = (!!value && typeof value === "string") ? value : "/";
+    }
 
     get createdAt() {
         return this.#createdAt;
@@ -294,14 +403,6 @@ export default class Subscriber extends Visitor {
         this.#updatedAt = value;
     }
 
-    async destroy() {
-        console.log({ "todo": "Subscriber destroy();" });
-    }
-
-    async delete() {
-        console.log({ "todo": "Subscriber delete();" });
-    }
-
     get deletedAt() {
         return this.#deletedAt;
     }
@@ -321,6 +422,22 @@ export default class Subscriber extends Visitor {
         if (typeof value !== "string") throw new TypeError("lastSeen type is invalid");
         this.#lastSeen = value;
     }
+    
+    get accessibility() {
+        return this.#accessibility;
+    }
+
+    set accessibility(value) {
+        this.#accessibility = (!!value) ? value : "/";
+    }
+
+    get activeStatus() {
+        return this.#activeStatus;
+    }
+
+    set activeStatus(value) {
+        this.#activeStatus = (!!value) ? value : "/";
+    }
 
     raw() {
         return ({
@@ -331,21 +448,12 @@ export default class Subscriber extends Visitor {
         });
     }
 
-    #getNonNullAttributes() {
-        const attributes = [];
-        for (let attribute in this) {
-            if (this.hasOwnProperty(attribute) && this[attribute] !== null) {
-                attributes.push({ attribute: this[attribute] });
-            }
-        }
-        return attributes;
-    }
-
     toString() {
         const subscribership = {
             guid: this.guid,
             username: this.username,
             email: this.email,
+            newRecord: this.newRecord,
             permissions: this.permissions,
             roles: this.roles,
             accessToken: this.accessToken,

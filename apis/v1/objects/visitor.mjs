@@ -8,6 +8,12 @@ import {
 
 export default class Visitor {
 
+    static _total = 0;
+
+    static get total() {
+        return this.constructor._total;
+    }
+
     #subscriptionType = null;
     #firstName = null;
     #lastName = null;
@@ -17,25 +23,28 @@ export default class Visitor {
     #occupation = null;
     #location = null;
     #interests = [];
-
-    static _total = 0;
-
-    static get total() {
-        return this.constructor._total;
-    }
     
-    constructor(details) {
+    constructor(object) {
         Visitor._total++;
+        const {
+            firstName,
+            lastName,
+            fullName,
+            dob,
+            gender,
+            occupation,
+            location,
+            interests
+        } = object;
         this.#subscriptionType = this.constructor.name.toLowerCase();
-        this.#firstName = details.firstName || null;
-        this.#lastName = details.lastName || null;
-        this.#fullName = details.fullName || null;
-        this.#dob = details.dob || null;
-        this.#gender = details.gender || null;
-        this.#occupation = details.occupation || null;
-        this.#location = details.location || null;
-        this.#interests = details.interests || [];
-        // Additional properties can be added here
+        if (!!firstName && typeof firstName === "string") this.#firstName = firstName;
+        if (!!lastName && typeof lastName === "string") this.#lastName = lastName;
+        if (!!fullName && typeof fullName === "string") this.#fullName = fullName;
+        if (!!dob) this.#dob;
+        if (!!gender && typeof gender === "string") this.#gender = gender;
+        if (!!occupation) this.#occupation = occupation;
+        if (!!location) this.#location = location;
+        if (!!interests && interests instanceof Array) this.#interests = interests;
     }
 
     static get total() {
