@@ -20,13 +20,17 @@ export default class User extends Subscriber {
     #mentionNotifications = null;
 
     constructor(object) {
-        super(object);
-        User._total++;
-        const { activity, commentNotifications, mentionNotifications } = object;
-        if (!!activity && activity instanceof Array && activity.length > 0) this.#activity = activity;
-        if (!!commentNotifications && typeof commentNotifications !== "boolean") this.#commentNotifications = commentNotifications;
-        if (!!mentionNotifications && typeof mentionNotifications !== "boolean") this.#mentionNotifications = mentionNotifications;
-        this.addActivity(`The ${this.type} has been instantiated successfully.`);
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            User._total++;
+            super(object);
+            const { activity, commentNotifications, mentionNotifications } = object;
+            if (!!activity && activity instanceof Array && activity.length > 0) this.#activity = activity;
+            if (!!commentNotifications && typeof commentNotifications !== "boolean") this.#commentNotifications = commentNotifications;
+            if (!!mentionNotifications && typeof mentionNotifications !== "boolean") this.#mentionNotifications = mentionNotifications;
+            this.addActivity(`The ${this.type} has been instantiated successfully.`);
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
     
     static _findQuery() {

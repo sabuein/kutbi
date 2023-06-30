@@ -25,26 +25,30 @@ export default class Visitor {
     #interests = [];
     
     constructor(object) {
-        Visitor._total++;
-        const {
-            firstName,
-            lastName,
-            fullName,
-            dob,
-            gender,
-            occupation,
-            location,
-            interests
-        } = object;
-        this.#subscriptionType = this.constructor.name.toLowerCase();
-        if (!!firstName && typeof firstName === "string") this.#firstName = firstName;
-        if (!!lastName && typeof lastName === "string") this.#lastName = lastName;
-        if (!!fullName && typeof fullName === "string") this.#fullName = fullName;
-        if (!!dob) this.#dob;
-        if (!!gender && typeof gender === "string") this.#gender = gender;
-        if (!!occupation) this.#occupation = occupation;
-        if (!!location) this.#location = location;
-        if (!!interests && interests instanceof Array) this.#interests = interests;
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            Visitor._total++;
+            const {
+                firstName,
+                lastName,
+                fullName,
+                dob,
+                gender,
+                occupation,
+                location,
+                interests
+            } = object;
+            this.#subscriptionType = this.constructor.name.toLowerCase();
+            if (!!firstName && typeof firstName === "string") this.#firstName = firstName;
+            if (!!lastName && typeof lastName === "string") this.#lastName = lastName;
+            if (!!fullName && typeof fullName === "string") this.#fullName = fullName;
+            if (!!dob) this.#dob;
+            if (!!gender && typeof gender === "string") this.#gender = gender;
+            if (!!occupation) this.#occupation = occupation;
+            if (!!location) this.#location = location;
+            if (!!interests && interests instanceof Array) this.#interests = interests;
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
 
     static get total() {

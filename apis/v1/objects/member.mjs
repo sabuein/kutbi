@@ -19,11 +19,15 @@ export default class Member extends User {
         return Visitor._total.toString();
     }
 
-    constructor(details) {
-        Member._total++;
-        super(details);
-        this.#postsCount = 0;
-        // Additional properties can be added here
+    constructor(object) {
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            Member._total++;
+            super(object);
+            this.#postsCount = 0;
+            // Additional properties can be added here
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
 
     get postCount() {

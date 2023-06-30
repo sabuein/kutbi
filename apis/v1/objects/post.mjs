@@ -8,18 +8,30 @@ import {
 
 const Post = class {
 
-    #uuid = null;
-
     static _total = 0;
 
     static get total() {
         return Post._total.toString();
     }
+    
+    #uuid = null;
 
-    constructor(details) {
-        Post._total++;
-        this.#uuid = details.uuid;
-        // Additional properties can be added here
+    constructor(object) {
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            Post._total++;
+            this.#uuid = object.uuid;
+            // Additional properties can be added here
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
+    }
+
+    get uuid() {
+        return this.#uuid;
+    }
+
+    set uuid(value) {
+        this.#uuid = value;
     }
 };
 

@@ -42,62 +42,66 @@ export default class Subscriber extends Visitor {
     #activeStatus = null;
 
     constructor(object) {
-        super(object);
-        Subscriber._total++;
-        // const schema = {};
-        // for (const [key, value] of Object.entries(object)) { if (!!value) schema[key] = object[key]; }
-        const {
-            guid,
-            username,
-            email,
-            salt,
-            passwordHash,
-            roles,
-            permissions,
-            accessToken,
-            refreshToken,
-            photoUrl,
-            coverImage,
-            github,
-            twitter,
-            facebook,
-            instagram,
-            youtube,
-            website,
-            personalUrl,
-            createdAt,
-            updatedAt,
-            deletedAt,
-            lastSeen,
-            accessibility,
-            activeStatus,
-            newRecord
-        } = object;
-        if (!!guid && typeof guid === "string" && guid.length === 32) this.#guid = guid;
-        this.#username = username;
-        this.#email = email;
-        this.#salt = salt;
-        this.#passwordHash = passwordHash;
-        this.#newRecord = newRecord;
-        if (!!roles && roles instanceof Array) this.#roles = roles;
-        if (!!permissions && permissions instanceof Array) this.#permissions = permissions;
-        this.#accessToken = accessToken;
-        this.#refreshToken = refreshToken;
-        this.#photoUrl = (!!photoUrl && typeof photoUrl === "string") ? photoUrl : "/assets/images/svg/books.svg";
-        this.#coverImage = (!!coverImage && typeof coverImage === "string") ? coverImage : "/assets/images/svg/books.svg";
-        this.#github = (!!github && typeof github === "string") ? github : "https://github.com/";
-        this.#twitter = (!!twitter && typeof twitter === "string") ? twitter : "https://twitter.com/";
-        this.#facebook = (!!facebook && typeof facebook === "string") ? facebook : "https://www.facebook.com/";
-        this.#instagram = (!!instagram && typeof instagram === "string") ? instagram : "https://www.instagram.com/";
-        this.#youtube = (!!youtube && typeof youtube === "string") ? youtube : "https://www.youtube.com/";
-        this.#website = (!!website && typeof website === "string") ? website : "/";
-        this.#personalUrl = (!!personalUrl) ? personalUrl : "#main-content";
-        if (!!createdAt) this.#createdAt = createdAt;
-        if (!!updatedAt) this.#updatedAt = updatedAt;
-        if (!!deletedAt) this.#deletedAt = deletedAt;
-        if (!!lastSeen) this.#lastSeen = lastSeen;
-        if (!!accessibility) this.#accessibility = accessibility;
-        if (!!activeStatus) this.#activeStatus = activeStatus;
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            super(object);
+            Subscriber._total++;
+            // const schema = {};
+            // for (const [key, value] of Object.entries(object)) { if (!!value) schema[key] = object[key]; }
+            const {
+                guid,
+                username,
+                email,
+                salt,
+                passwordHash,
+                roles,
+                permissions,
+                accessToken,
+                refreshToken,
+                photoUrl,
+                coverImage,
+                github,
+                twitter,
+                facebook,
+                instagram,
+                youtube,
+                website,
+                personalUrl,
+                createdAt,
+                updatedAt,
+                deletedAt,
+                lastSeen,
+                accessibility,
+                activeStatus,
+                newRecord
+            } = object;
+            if (!!guid && typeof guid === "string" && guid.length === 32) this.#guid = guid;
+            this.#username = username;
+            this.#email = email;
+            this.#salt = salt;
+            this.#passwordHash = passwordHash;
+            this.#newRecord = newRecord;
+            if (!!roles && roles instanceof Array) this.#roles = roles;
+            if (!!permissions && permissions instanceof Array) this.#permissions = permissions;
+            this.#accessToken = accessToken;
+            this.#refreshToken = refreshToken;
+            this.#photoUrl = (!!photoUrl && typeof photoUrl === "string") ? photoUrl : "/assets/images/svg/books.svg";
+            this.#coverImage = (!!coverImage && typeof coverImage === "string") ? coverImage : "/assets/images/svg/books.svg";
+            this.#github = (!!github && typeof github === "string") ? github : "https://github.com/";
+            this.#twitter = (!!twitter && typeof twitter === "string") ? twitter : "https://twitter.com/";
+            this.#facebook = (!!facebook && typeof facebook === "string") ? facebook : "https://www.facebook.com/";
+            this.#instagram = (!!instagram && typeof instagram === "string") ? instagram : "https://www.instagram.com/";
+            this.#youtube = (!!youtube && typeof youtube === "string") ? youtube : "https://www.youtube.com/";
+            this.#website = (!!website && typeof website === "string") ? website : "/";
+            this.#personalUrl = (!!personalUrl) ? personalUrl : "#main-content";
+            if (!!createdAt) this.#createdAt = createdAt;
+            if (!!updatedAt) this.#updatedAt = updatedAt;
+            if (!!deletedAt) this.#deletedAt = deletedAt;
+            if (!!lastSeen) this.#lastSeen = lastSeen;
+            if (!!accessibility) this.#accessibility = accessibility;
+            if (!!activeStatus) this.#activeStatus = activeStatus;
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
 
     static _findQuery() {

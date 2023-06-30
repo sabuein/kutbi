@@ -12,12 +12,16 @@ export default class Log {
     #referrer;
     
     constructor (request) {
-        this.#index = ++Log.#total;
-        this.#method = request.method;
-        this.#endpoint = `${request.protocol}://${request.hostname}${request.originalUrl}`;
-        this.#ip = request.socket.remoteAddress || request.header("x-forwarded-for");
-        this.#time = new Date().toString();
-        this.#referrer = request.get("referrer") || "none";
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            this.#index = ++Log.#total;
+            this.#method = request.method;
+            this.#endpoint = `${request.protocol}://${request.hostname}${request.originalUrl}`;
+            this.#ip = request.socket.remoteAddress || request.header("x-forwarded-for");
+            this.#time = new Date().toString();
+            this.#referrer = request.get("referrer") || "none";
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
 
     get index() {
