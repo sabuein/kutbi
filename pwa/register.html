@@ -67,9 +67,10 @@
             <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
             <fieldset class="flexy">
                 <legend>Your details</legend>
-                <label for="registerUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" required /></label>
-                <label for="registerEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="registerEmail" autocomplete="email" size="32" maxlength="64" required /></label>
-                <label for="registerPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="registerPass" autocomplete="new-password" size="32" maxlength="64" required /></label>
+                <label for="registerUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" minlength="4" maxlength="16" pattern="\w{4,16}" required /></label>
+                <label for="registerEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="registerEmail" autocomplete="email" size="32" minlength="8" maxlength="64" required /></label>
+                <label for="registerPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="registerPass" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
+                <label for="registerPassX">تأكيد كلمة السر<span title="Please, again, type your account password">&sext;</span><input type="password" name="passwordX" id="registerPassX" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
             </fieldset>
             <!--fieldset style="display: none;">
                 <legend>Your details</legend>

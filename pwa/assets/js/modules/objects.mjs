@@ -70,40 +70,42 @@ class Account {
     commentNotifications;
     mentionNotifications;
 
-    constructor(obj) {
-        Account._total++;
-        for (const attribute in obj) this[attribute] = obj[attribute];
-        this.setlocal();
-        /*
-        this.type = obj.type;
-        this.firstName = obj.firstName;
-        this.lastName = obj.lastName;
-        this.fullName = obj.fullName;
-        this.dob = obj.dob;
-        this.gender = obj.gender;
-        this.occupation = obj.occupation;
-        this.location = obj.location;
-        this.interests = obj.interests;
-        this.guid = obj.guid;
-        this.username = obj.username;
-        this.email = obj.email;
-        this.permissions = obj.permissions;
-        this.roles = obj.roles;
-        this.accessToken = obj.accessToken;
-        this.refreshToken = obj.refreshToken;
-        this.photoUrl = obj.photoUrl;
-        this.coverImage = obj.coverImage;
-        this.personalUrl = obj.personalUrl;
-        this.createdAt = obj.createdAt;
-        this.updatedAt = obj.updatedAt;
-        this.lastSeen = obj.lastName;
-        this.accessibility = obj.accessibility;
-        this.activeStatus = obj.activeStatus;
-        this.commentNotifications = obj.commentNotifications;
-        this.mentionNotifications = obj.mentionNotifications;
-        */
-
-        
+    constructor(object) {
+        if (!!object && object instanceof Object && !!Object.keys(object).length) {
+            Account._total++;
+            for (const attribute in object) this[attribute] = object[attribute];
+            this.setlocal();
+            /*
+            this.type = obj.type;
+            this.firstName = obj.firstName;
+            this.lastName = obj.lastName;
+            this.fullName = obj.fullName;
+            this.dob = obj.dob;
+            this.gender = obj.gender;
+            this.occupation = obj.occupation;
+            this.location = obj.location;
+            this.interests = obj.interests;
+            this.guid = obj.guid;
+            this.username = obj.username;
+            this.email = obj.email;
+            this.permissions = obj.permissions;
+            this.roles = obj.roles;
+            this.accessToken = obj.accessToken;
+            this.refreshToken = obj.refreshToken;
+            this.photoUrl = obj.photoUrl;
+            this.coverImage = obj.coverImage;
+            this.personalUrl = obj.personalUrl;
+            this.createdAt = obj.createdAt;
+            this.updatedAt = obj.updatedAt;
+            this.lastSeen = obj.lastName;
+            this.accessibility = obj.accessibility;
+            this.activeStatus = obj.activeStatus;
+            this.commentNotifications = obj.commentNotifications;
+            this.mentionNotifications = obj.mentionNotifications;
+            */
+        } else {
+            throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
+        }
     }
 
     setlocal() {

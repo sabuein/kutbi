@@ -1,9 +1,12 @@
 "use strict";
 
 import { local, session } from "./apis.mjs";
+import { handleInput, validateInput } from "./data.mjs";
 import { urlWithQuery, urlToJSON, encode, decode } from "./helpers.mjs";
 
 const handleFormsWithBody = async (event) => {
+
+    if (!(!!event.target && event.target instanceof HTMLFormElement)) throw Error("Please check the form type.");
     
     const log = {
         form: {
@@ -19,10 +22,26 @@ const handleFormsWithBody = async (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
 
+        const { username, email, password, passwordX } = event.target.elements;
+
+        if (password.value !== passwordX.value) {
+            passwordX.addEventListener("input", handleInput, false);
+            throw Error("Retyped password does not match the original password");
+        }
+        validateInput(username);
+        console.log("Username:", validateInput(username))
+        validateInput(email);
+        console.log("Email:", validateInput(email));
+        validateInput(password);
+        console.log("Password:", validateInput(password));
+        validateInput(passwordX);
+        console.log("PasswordX:", validateInput(passwordX));
+        // event.target.elements.forEach(element => console.log(element)); // handleInput
+
         const requestBody = {};
         const formData = new FormData(event.target);
         formData.forEach((value, key) => requestBody[key] = value);
-        event.target.reset();
+        // (TODO: Uncomment in production) event.target.reset();
 
         // Content-Type: image/png
         // Content-Type: text/html; charset=UTF-8;
