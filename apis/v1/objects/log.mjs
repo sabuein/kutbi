@@ -1,5 +1,7 @@
 "use strict";
 
+const timestamp = () => new Date().toISOString().slice(0, 19).replace("T", " ");
+
 export default class Log {
 
     static #total = 0;
@@ -11,14 +13,16 @@ export default class Log {
     #time;
     #referrer;
     
-    constructor (request) {
+    constructor (object) {
         if (!!object && object instanceof Object && !!Object.keys(object).length) {
             this.#index = ++Log.#total;
-            this.#method = request.method;
-            this.#endpoint = `${request.protocol}://${request.hostname}${request.originalUrl}`;
-            this.#ip = request.socket.remoteAddress || request.header("x-forwarded-for");
-            this.#time = new Date().toString();
-            this.#referrer = request.get("referrer") || "none";
+            const { method, protocol, hostname, originalUrl, socket, header, referrer } = object;
+            this.#method = method;
+            this.#endpoint = `${protocol}://${hostname}${originalUrl}`;
+            this.#ip = socket.remoteAddress || header("x-forwarded-for");
+            // this.#time = new Date().toString();
+            this.#time = timestamp();
+            this.#referrer = (!!referrer) ? referrer : "/";
         } else {
             throw Error(`Sorry, couldn't create ${this.constructor.name}.`);
         }

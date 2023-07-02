@@ -11,8 +11,7 @@ import {
   setupAuth,
   validateAuthHeader,
   validateAccessCookie,
-  clearAuthTokens,
-  clearAuthCookies,
+  resetAuth,
 } from "../modules/auth.mjs";
 import { encode, decode } from "../modules/helpers.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";

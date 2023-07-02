@@ -3,7 +3,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 // import csrf from "csurf";
-import { clearAuthCookies, requireRefreshToken } from "../modules/auth.mjs";
+import { resetAuth, requireRefreshToken } from "../modules/auth.mjs";
 
 const tokens = express.Router();
 
@@ -12,7 +12,7 @@ const parseCookie = cookieParser();
 
 tokens
     .route("/")
-    .post(clearAuthCookies, async (req, res) => {
+    .post(resetAuth, async (req, res) => {
         return res.json(req.user.toString());
     });
 

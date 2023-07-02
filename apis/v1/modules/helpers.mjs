@@ -13,6 +13,7 @@ const mainLogger = (request, response, next) => {
     requests.push(new Log(request).print());
     // console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
     request.app.locals.index++;
+    request.app.locals.timestamp = Log 
     next();
 };
 
@@ -20,10 +21,6 @@ const idLogger = (request, response, next, id) => {
     console.log(`ID: ${id}`);
     next();
 };
-
-// Input Validation and Sanitization
-
-const timestamp = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
 const encodeObjectToString = (object) => {
     try {
@@ -116,7 +113,6 @@ const verifyToken = (type, token) => {
 export {
     mainLogger,
     idLogger,
-    timestamp,
     encodeObjectToString as encode,
     decodeStringToObject as decode,
     tokenize,

@@ -121,11 +121,11 @@ const register = async (request, response, next) => {
         await account.save();
 
         request.app.locals.refreshTokens.push(await tokenize(account));
-        response.locals.account = account.records();
+        response.locals.account = await account.records();
         console.log("response.locals.account from register();");
         console.log(response.locals.account);
-        console.log("account from login();");
-        console.log(account);
+        console.log("account from register();");
+        console.log(account.records());
         next();
     } catch (error) {
         console.error(error);
@@ -238,6 +238,16 @@ const clearAuthTokens = async (request, response, next) => {
     }
 };
 
+const resetAuth = async (request, response, next) => {
+    try {
+        return clearAuthCookies(request, response, next);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        request.app.locals.stats.resetAuth++;
+    }
+};
+
 const clearAuthCookies = async (request, response, next) => {
     try {
         const i = request.app.locals.index;
@@ -308,6 +318,5 @@ export {
     setupAuth,
     validateAuthHeader,
     validateAccessCookie,
-    clearAuthTokens,
-    clearAuthCookies
+    resetAuth
 };

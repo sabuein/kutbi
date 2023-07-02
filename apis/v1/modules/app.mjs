@@ -43,6 +43,7 @@ try {
         authValidation: 0,
         headers: 0,
         cookies: 0,
+        resetAuth: 0,
         clearTokens: 0,
         clearCookies: 0,
         logins: 0,

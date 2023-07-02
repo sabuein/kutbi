@@ -2,7 +2,6 @@
 
 import dotenv from "dotenv";
 import mysql from "mysql";
-import { timestamp } from "./helpers.mjs";
 
 dotenv.config({ path: "./.env" });
 
