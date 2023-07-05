@@ -105,7 +105,7 @@ let sample = [
 const updateAuthorDisplay = async (output) => {
     try {
         // const authorsArray = [];
-        const authors = await getAllAuthors();
+        const authors = await getAllAuthors() || [];
         // for (let author in authors) authorsArray.push(authors[author]);
         
         // console.log(authors);

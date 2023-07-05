@@ -2,45 +2,62 @@
 
 import { local, session } from "./apis.mjs";
 import { handleInput, validateInput } from "./data.mjs";
-import { urlWithQuery, urlToJSON, encode, decode } from "./helpers.mjs";
+import { urlWithQuery, urlToJSON, encode, decode, getCookie } from "./helpers.mjs";
+
+const formElementsAreValid = async (elements) => {
+    // Checks if the signin/singup form elements are valid and ready to be used in the HTTP request
+    try {
+        const { username, email, password, passwordX } = elements,
+            match = (!!passwordX) ? (password.value === passwordX.value) : false,
+            usernameIsValid = await validateInput(username),
+            emailIsValid = await validateInput(email),
+            passwordIsValid = await validateInput(password);
+
+        console.log(usernameIsValid ? "✅ Valid" : "❌ Invalid", "username input.");
+        console.log(emailIsValid ? "✅ Valid" : "❌ Invalid", "email input.");
+        console.log(passwordIsValid ? "✅ Valid" : "❌ Invalid", "password input.");
+
+        if (!usernameIsValid) throw Error("The username is invalid");
+        if (!emailIsValid) throw Error("The email address is invalid");
+        if (!passwordIsValid) throw Error("The password is invalid");
+        if (!!passwordX && !match) {
+            passwordX.addEventListener("input", handleInput, false);
+            console.log("❌ Passwords do not match.");
+            throw Error("Passwords do not match");
+        } else if (!!passwordX && !!match) console.log("✅ Password do match.");
+        return true;
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const handleFormsWithBody = async (event) => {
 
-    if (!(!!event.target && event.target instanceof HTMLFormElement)) throw Error("Please check the form type.");
+    if (!(!!event.target && event.target instanceof HTMLFormElement)) throw Error("Please check the form type");
     
-    const log = {
+    const log = ({
         form: {
             action: event.target.action,
             method: event.target.method
         },
-        headers: {}
-    };
+        headers: new Headers()
+    });
 
     try {
         // Some constraints
-        if (!event.isTrusted) throw Error(`@kutbi:~$ The form submission is not trusted.`);
+        if (!event.isTrusted) throw Error(`@kutbi:~$ The form submission is not trusted`);
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        const { username, email, password, passwordX } = event.target.elements;
+        if (!(await formElementsAreValid(event.target.elements))) throw Error("Form inputs are invalid");
 
-        if (password.value !== passwordX.value) {
-            passwordX.addEventListener("input", handleInput, false);
-            throw Error("Retyped password does not match the original password");
-        }
-        validateInput(username);
-        console.log("Username:", validateInput(username))
-        validateInput(email);
-        console.log("Email:", validateInput(email));
-        validateInput(password);
-        console.log("Password:", validateInput(password));
-        validateInput(passwordX);
-        console.log("PasswordX:", validateInput(passwordX));
         // event.target.elements.forEach(element => console.log(element)); // handleInput
 
         const requestBody = {};
         const formData = new FormData(event.target);
-        formData.forEach((value, key) => requestBody[key] = value);
+        formData.forEach((value, key) => {
+            if (key === "username" || key === "email" || key === "password") requestBody[key] = value;
+        });
         // (TODO: Uncomment in production) event.target.reset();
 
         // Content-Type: image/png
@@ -50,19 +67,17 @@ const handleFormsWithBody = async (event) => {
         // Content-Type: multipart/form-data;
         // The content type for JSONP (padded JSON) is application/javascript
 
-        const headers = new Headers();
-        // const tokens = JSON.parse(local("read", "tokens"));
-        headers.set("Accept", "application/json; charset=UTF-8");
-        headers.set("Content-Type", "application/json; charset=UTF-8");
-        headers.set("Access-Control-Allow-Headers", "");
-        // headers.set("Access-Control-Allow-Credentials", "true");
-        // headers.set("Authorization", `Bearer ${tokens.access}`);
-        // headers.set("X-ACCESS_TOKEN", "");
-        headers.set("X-Requested-With", "");
-        headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
-        headers.set("Cookie", document.cookie); // Include cookies
+        const tokens = (local("read", "tokens")) ? JSON.parse(local("read", "tokens")) : null;
+        log.headers.set("Accept", "application/json; charset=UTF-8");
+        log.headers.set("Content-Type", "application/json; charset=UTF-8");
+        log.headers.set("Access-Control-Allow-Headers", "");
+        log.headers.set("Authorization", `Bearer ${ tokens ? tokens.access : "HI" }`);
+        log.headers.set("X-Requested-With", "X");
+        log.headers.set("X-Access-Token", "X");
+        log.headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
+        log.headers.set("Cookie", document.cookie); // Include cookies
 
-        headers.forEach((value, key) => log.headers[key] = value);
+        // headers.forEach((value, key) => log.headers[key] = value);
 
         const payload = JSON.stringify({
             "account": encode(JSON.stringify(requestBody))
@@ -76,27 +91,37 @@ const handleFormsWithBody = async (event) => {
         const raw = await fetch(event.target.action, {
             method: event.target.method,
             body: payload,
-            headers: headers,
+            headers: log.headers,
             mode: "cors",
             cache: "default",
+            credentials: "include"
         });
+        
+        const responsePayload = await raw.json();
 
-        if (raw.status === "400" || raw.status === "403" || !raw.ok) {
-            throw Error(`@kutbi:~$ Failed to fetch with ${event.target.method.toUpperCase()} from ${event.target.action}`);
-            // window.location.assign("./login.html");
+        if (raw.status === 400 || raw.status === 401 || raw.status === 403 ) {
+            log.error = responsePayload;
+            alert(JSON.stringify(responsePayload, null, 2));
+            throw Error(JSON.stringify({...responsePayload}, null, 2));
+        } else {
+            log.success = responsePayload;
+        }
+        
+        const cookies = window.document?.cookie;
+        if (!!cookies) {
+            console.log(cookies);
+            console.log(getCookie("accessToken"));
         }
 
-        const responsePayload = await raw.json();
+        // Save to the browser local storage
         local("create", "account", JSON.stringify({ loggen: 0, account: responsePayload.account }));
         local("update", "loggen", (0).toString());
-        console.log(`@kutbi:~$ Your account and login details have been retrieved successfully from ${event.target.action}.`);
-        log.response = responsePayload;
-        return window.location.reload(); // window.location.assign("./login.html");
+        // return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
-        throw Error(`@kutbi:~$ We got a problem at handleFormSubmit() function. Please help!`);
     } finally {
-        console.log(JSON.stringify(log, null, 2));
+        // console.dir(log);
+        if (!!log.success) console.log(JSON.stringify(log.success, null, 2));
     }
 };
 
@@ -113,7 +138,6 @@ const handleGetForm = (form) => {
         }, false);
     } catch (error) {
         console.error(error);
-        throw Error(`@kutbi:~$ We got a problem at catchGetForm() function. Please help!`);
     }
 };
 

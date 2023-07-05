@@ -3,8 +3,8 @@
 const getAllAuthors = async () => {
     try {
         const headers = new Headers();
-        headers.set("Accept", "application/json; charset=utf-8");
-        headers.set("Content-Type", "text/plain; charset=utf-8");
+        headers.set("Accept", "application/json; charset=UTF-8");
+        headers.set("Content-Type", "application/json; charset=UTF-8");
         headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
 
         const url = "http://localhost:3557/authors";
@@ -13,18 +13,15 @@ const getAllAuthors = async () => {
             method: "GET",
             headers: headers,
             mode: "cors",
-            cache: "default"
+            cache: "default",
+            credentials: "include"
         };
         
         const raw = await fetch(url, init);
-
-        console.log(raw);
-        
-        if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
-
+        // if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
         const content = await raw.json();
-
-        return content;
+        console.log(content);
+        return content.result;
 
     } catch (error) {
         console.error(error);
@@ -77,22 +74,18 @@ const sanitizeInput = (value) => {
     }
 };
 
-const validateInput = (input) => {
+const validateInput = async (input) => {
     if (!(!!input && input instanceof HTMLElement && !!input.value)) throw Error("Please check the input type and value.");
     const type = input.type;
     const val = sanitizeInput(input.value);
     const len = val.length;
+    const lowered = val.toLowerCase();
     try {
-        // Debugging
-        console.log("input value before sanitization:", input.value);
-        console.log("input value after sanitization:", val);
-
         switch (type) {
             case "number":
                 return !isNaN(parseFloat(val));
             case "text":
                 if (input.name === "username") { // HTML minlength="4" maxlength="16"
-                    console.log(`Input["username"]`);
                     if (4 > len) throw RangeError(`The username can't be less than 4 characters. Current input: ${len} characters.`);
                     if (len > 16) throw RangeError(`The username can't be more than 16 characters. Current input: ${len} characters.`);
                     return (4 <  len && len < 16);
@@ -129,13 +122,8 @@ const validateInput = (input) => {
                 if (len > 64) throw RangeError(`The email can't be more than 64 characters. The entered email has ${len} characters.`);
                 input.addEventListener("input", checkEmailType, false);
                 // Must contain a number of characters followed by an @ sign, followed by more characters, and then a period "."
-                const emailPattern = new RegExp(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$/);
-                return !emailPattern.test(val.toLowerCase());
-            default:
-                console.log("input after validation...");
-                console.log(input);
-                console.log(type);
-                break;
+                const emailPattern = new RegExp(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{8,64}$/);
+                return !emailPattern.test(lowered);
         }
 
         // Maybe other stuff?

@@ -63,9 +63,9 @@
             <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
             <fieldset class="flexy">
                 <legend>Your details</legend>
-                <label for="loginUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" value="salaheddin" /><!-- required --></label>
-                <label for="loginEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="loginEmail" autocomplete="email" value="sabuein@gmail.com" size="32" maxlength="64" /><!-- required --></label>
-                <label for="loginPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="loginPass" autocomplete="current-password" value="password" size="32" maxlength="64" /><!-- required --></label>
+                <label for="loginUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" value="salaheddin" required /><!-- required --></label>
+                <label for="loginEmail">و/أو البريد الإلكتروني<span title="Please type your account email address">&#9873;</span><input type="email" name="email" id="loginEmail" autocomplete="email" value="sabuein@gmail.com" size="32" maxlength="64" required /><!-- required --></label>
+                <label for="loginPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="loginPass" autocomplete="current-password" value="password" size="32" maxlength="64"required /><!-- required --></label>
             </fieldset>
             <input type="submit" value="Submit" />
             <input type="reset" value="Reset" />
