@@ -3,7 +3,8 @@
 import express from "express";
 import multer from "multer";
 import { getAllAuthors, addAuthor } from "../modules/data.mjs";
-import { idLogger } from "../modules/helpers.mjs";
+import { idLogger, isEmptyObject } from "../modules/helpers.mjs";
+import { requireAuth } from "../modules/auth.mjs";
 
 const authors = express.Router();
 
@@ -14,14 +15,23 @@ authors.param("id", idLogger);
 
 authors
     .route("/")
-    .get(getAllAuthors, (req, res) => res.status(200).json((JSON.parse(JSON.stringify(req.authors)))))
+    .get(requireAuth, getAllAuthors, async (req, res) => {
+        const i = req.app.locals.index;
+        // Use the accessToken or perform authentication logic
+        console.log(`${i}: The retrieval of all authors was successful.`);
+        return res.status(200).json(({
+            status: 200,
+            message: "All authors have been retrieved successfully",
+            result: JSON.parse(JSON.stringify(req.authors))
+        }))
+    })
     .post(upload.single("photo"), addAuthor, (req, res) => {
         // Redirect the user back to the referrering page
-        const referrer = req.details.referrer;
+        const referrer = req.app.locals.log.referrer;
         if (req.author && referrer) {
-            res.status(201).redirect(referrer); // Created
+            return res.status(201).redirect(referrer); // Created
         } else if (req.author) {
-            res.status(201).json({
+            return res.status(201).json({
                 status: 201,
                 id: result.insertId,
                 record: "author",

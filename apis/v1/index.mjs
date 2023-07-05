@@ -1,6 +1,6 @@
 "use strict";
 
-import { app } from "./modules/app.mjs";
+import { app } from "./modules/application.mjs";
 
 const port = 3557 || 3000;
 

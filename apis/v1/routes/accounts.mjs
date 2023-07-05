@@ -34,7 +34,11 @@ accounts.route("/signup").post(register, setupAuth, async (req, res) => {
     const account = await res.locals.account;
     if (!req.app.locals.accountTypes.includes(account.type)) return res.status(500).json({ status: 500, message: "Your account type is incorrect." });
     console.log(`${i}: ${account.guid}@kutbi:~/signup$ A ${account.type} account was created.`);
-    return res.status(201).send({account: encode(account)});
+    return res.status(201).send({
+      status: 201,
+      message: `A ${account.type} account was created`,
+      account: encode(account)
+    });
   } catch (error) {
     console.error(error);
   } finally {
@@ -61,7 +65,10 @@ accounts.route("/signin").post(login, setupAuth, async (req, res) => {
       }
     });
     console.log(`${i}: ${account.guid}@kutbi:~/signin$ Someone have logged into a ${account.type} account.`);
-    return res.status(200).json({ status: 200, account: encode(account) });
+    return res.status(200).json({
+      status: 200,
+      message: `You have logged into your ${account.type} account`,
+      account: encode(account) });
   } catch (error) {
     console.error(error);
   } finally {

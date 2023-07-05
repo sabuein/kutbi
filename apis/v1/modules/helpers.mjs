@@ -10,10 +10,11 @@ dotenv.config({ path: "./.env" });
 const requests = [];
 
 const mainLogger = (request, response, next) => {
-    requests.push(new Log(request).print());
+    const log = new Log(request);
+    requests.push(log.print());
     // console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
     request.app.locals.index++;
-    request.app.locals.timestamp = Log 
+    request.app.locals.log = log;
     next();
 };
 
@@ -110,6 +111,39 @@ const verifyToken = (type, token) => {
     }
 };
 
+const getCookie = async (cookieName, requestCookies) => {
+    try {
+        const name = cookieName + "=";
+        const decodedCookies = decodeURIComponent(await requestCookies);
+        const cookies = decodedCookies.split(";");
+        for(let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i];
+            while (cookie.charAt(0) === " ") {
+                cookie = cookie.substring(1);
+            }
+            if (cookie.indexOf(name) === 0) {
+                return cookie.substring(name.length, cookie.length);
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setCookieExpiry = (days) => {
+    try {
+        const d = new Date();
+        d.setTime(d.getTime() + (days*24*60*60*1000));
+        let expires = "expires="+ d.toUTCString();
+        return `cookieName=cookieValue;${expires};path=/`;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const isEmptyObject = (obj) => Object.keys(obj).length === 0;
+
 export {
     mainLogger,
     idLogger,
@@ -118,5 +152,7 @@ export {
     tokenize,
     hashPassword,
     comparePasswords,
-    verifyToken
+    verifyToken,
+    getCookie,
+    isEmptyObject
 };

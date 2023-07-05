@@ -1,6 +1,6 @@
 "use strict";
 
-import { encode, decode, tokenize, hashPassword, comparePasswords, verifyToken } from "./helpers.mjs";
+import { encode, decode, tokenize, hashPassword, comparePasswords, verifyToken, getCookie, isEmptyObject } from "./helpers.mjs";
 import { User, Subscriber, Visitor } from "./classes.mjs";
 
 // Authentication and authorization
@@ -30,7 +30,7 @@ const login = async (request, response, next) => {
 
         const account = await User._populate(existingAccount.guid);
         request.app.locals.refreshTokens.push(await tokenize(account));
-        response.locals.account = account.records();
+        response.locals.account = await account.records();
         next();
     } catch (error) {
         console.error(error);
@@ -124,8 +124,6 @@ const register = async (request, response, next) => {
         response.locals.account = await account.records();
         console.log("response.locals.account from register();");
         console.log(response.locals.account);
-        console.log("account from register();");
-        console.log(account.records());
         next();
     } catch (error) {
         console.error(error);
@@ -136,14 +134,40 @@ const register = async (request, response, next) => {
 // A middleware function to check if the client is logged in or has an active access token:
 const requireAuth = async (request, response, next) => {
     // Retrieve access token from a cookie named "accessToken"
-    const accessToken = await request.cookies.accessToken;
-    if (!accessToken) response.status(401).json({ status: 401, message: "Access token not found." });
+    const cookies = await request.app.locals?.cookies;
+    if (!cookies || isEmptyObject(cookies)) return response.status(401).json({ status: 401, message: "The cookies are missing. Please proceed to either log in or register." });
+    const i = request.app.locals.index;
+    const { accessToken, refreshToken } = cookies;
+    if (!accessToken) {
+        console.log(`${i}: The access token cookie is missing.`);
+        return response.status(401).json({ status: 401, message: "The access token cookie is missing. Please proceed to either log in or register." });
+    }
     try {
         verifyToken("access", accessToken);
         next();
     } catch (error) {
         console.error(error);
-        return res.status(401).json({ status: 401, message: "Invalid access token." });
+    }
+};
+
+const readCookies = async (request, response, next) => {
+    const i = request.app.locals.index;
+    try {
+        if (!request.headers.cookie) {
+            console.log(`${i}: The cookies in the request could not be located. Access denied.`);
+            request.app.locals.cookies = {};
+            return next();
+        }
+        const requestCookies = request.headers.cookie;
+        const cookies = request.app.locals.cookies;
+        const accessToken = await getCookie("accessToken", requestCookies)
+        const refreshToken = await getCookie("accessToken", requestCookies)
+        if (!!accessToken) cookies.accessToken = accessToken;
+        if (!!refreshToken) cookies.refreshToken = refreshToken;
+        console.log(`${i}: The cookies have been successfully read and stored in the request.`);
+        next();
+    } catch (error) {
+        console.error(error);
     }
 };
 
@@ -220,7 +244,7 @@ const clearAuthTokens = async (request, response, next) => {
         if (token === null) return response.sendStatus(401);
         if (!request.app.locals.refreshTokens.includes(token)) return response.status(403).json({ status: 403, message: "Forbidden. You need to sign in." });
 
-        const decoded = await verifyToken("refresh", token);
+        const decoded = verifyToken("refresh", token);
         if (!decoded) {
             console.log(`${i}: The token has no permission to access ${request.hostname}`);
             return response.status(403).json({ status: 403, message: "No permission to access." });
@@ -303,9 +327,11 @@ const setCookies = (response, account) => {
 };
 
 const setHeaders = (response, account) => {
-    response.set("Authorization", `Bearer ${account.accessToken}`);
-    // response.set("Cache-Control", ``);
-    // response.set("Content-Security-Policy", ``);
+    response.setHeader("Authorization", `Bearer ${account.accessToken}`);
+    response.setHeader("Cache-Control", `Max-Age=3600, must-revalidate`); // 3600 seconds = 1 hour
+    response.setHeader("Content-Security-Policy", `default-src "self"`);
+    // response.setHeader("Set-Cookie", `accessToken=${account.accessToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
+    // response.setHeader("Set-Cookie", `accessToken=${account.accessToken}, refreshToken=${account.refreshToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
 };
 
 export {
@@ -318,5 +344,6 @@ export {
     setupAuth,
     validateAuthHeader,
     validateAccessCookie,
-    resetAuth
+    resetAuth,
+    readCookies
 };

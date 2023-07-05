@@ -139,7 +139,7 @@ export default class Visitor {
 
     raw() { return ({ type: this.type }); }
 
-    records() { return this.toString(); }
+    async records() { return this.toString(); }
 
     toString() {
         const visitorship = {
