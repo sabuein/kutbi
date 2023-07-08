@@ -102,7 +102,8 @@ const handleFormsWithBody = async (event) => {
         if (raw.status === 400 || raw.status === 401 || raw.status === 403 ) {
             log.error = responsePayload;
             alert(JSON.stringify(responsePayload, null, 2));
-            throw Error(JSON.stringify({...responsePayload}, null, 2));
+            console.log(JSON.stringify(responsePayload, null, 2));
+            // throw Error(JSON.stringify({...responsePayload}, null, 2));
         } else {
             log.success = responsePayload;
         }
@@ -119,9 +120,11 @@ const handleFormsWithBody = async (event) => {
         // return window.location.reload(); // window.location.assign("./login.html");
     } catch (error) {
         console.error(error);
+        if (!!log.error) console.log(JSON.stringify(log.error, null, 2));
     } finally {
         // console.dir(log);
         if (!!log.success) console.log(JSON.stringify(log.success, null, 2));
+        
     }
 };
 

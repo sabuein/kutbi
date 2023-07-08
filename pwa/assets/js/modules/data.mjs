@@ -20,12 +20,38 @@ const getAllAuthors = async () => {
         const raw = await fetch(url, init);
         // if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
         const content = await raw.json();
-        console.log(content);
+        console.log(content.message);
         return content.result;
-
     } catch (error) {
         console.error(error);
         throw Error(`Something went wrong, please fix getAllAuthors();`);
+    }
+};
+
+const enterAuthorsMatrix = async () => {
+    try {
+        const url = "http://localhost:3557/authors/matrix";
+        
+        const headers = new Headers();
+        headers.set("Accept", "application/json; charset=UTF-8");
+        headers.set("Content-Type", "application/json; charset=UTF-8");
+        headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
+        
+        const init = {
+            method: "POST",
+            headers: headers,
+            mode: "cors",
+            cache: "default",
+            credentials: "include"
+        };
+
+        const raw = await fetch(url, init);
+        // if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
+        const content = await raw.json();
+        console.log(content.message);
+        return content.result;
+    } catch (error) {
+        console.error(error);
     }
 };
 
@@ -134,4 +160,4 @@ const validateInput = async (input) => {
     }
 };
 
-export { getAllAuthors, handleInput, validateInput };
+export { getAllAuthors, handleInput, validateInput, enterAuthorsMatrix };

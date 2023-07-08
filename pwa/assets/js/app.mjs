@@ -1,7 +1,7 @@
 "use strict";
 
 import { id, qs } from "helpers";
-import { getAllAuthors } from "data";
+import { getAllAuthors, enterAuthorsMatrix } from "data";
 import { handleGetForm, handleFormsWithBody } from "requests";
 import { updateImageDisplay, updateAuthorDisplay } from "interface";
 import { Account, loadAccount } from "objects";
@@ -16,12 +16,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const user = await loadAccount();
     try {
         if (user === "Anonymous") throw Error("@kutbi:~$ Hello, Anonymous. You need to sign in.");
-        if (user && user.account) console.log(`@kutbi:~$ Welcome back, ${user.account.username}.`);
+        if (!!user && user.account) console.log(`@kutbi:~$ Welcome back, ${user.account.username}.`);
     } catch (error) {
         console.error(error);
     } finally {
-        if (user && user.loggen === "1") console.log(JSON.stringify(user, null, 2));
-        else if (user) console.log(JSON.stringify({ "Browsing activity since last login": user.loggen }, null, 2));
+        if (!!user && user.loggen === "1") console.log(JSON.stringify(user, null, 2));
+        else if (user) console.log(`Browsing activity since last login: ${user.loggen}.`);
     }
 
     if (!window.localStorage.getItem("hello")) {
@@ -48,8 +48,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 event.stopImmediatePropagation();
                 window.localStorage.clear();
                 window.sessionStorage.clear();
-                console.log("Site data cleared.");
                 unregisterServiceWorker();
+                document.cookie = `accessToken=;expires=${new Date(0).toUTCString()}; path=/;`;
+                document.cookie = `refreshToken=;expires=${new Date(0).toUTCString()}; path=/;`;
+                console.log("Site data cleared.");
                 return window.location.reload();
             });
         } catch (error) {
@@ -58,8 +60,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const registerForm = id("registerForm"), loginForm = id("loginForm");
-    if (registerForm) registerForm.addEventListener("submit", await handleFormsWithBody, false);
-    if (loginForm) loginForm.addEventListener("submit", await handleFormsWithBody, false);
+    if (!!registerForm) registerForm.addEventListener("submit", await handleFormsWithBody, false);
+    if (!!loginForm) loginForm.addEventListener("submit", await handleFormsWithBody, false);
 
     const updateMe = id("updateBtn");
     const showHere = id("updateTxt");
@@ -78,16 +80,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Update the author avatar preview
 const avatar = id("author-avatar"), preview = id("avatar-preview");
-if (avatar) avatar.addEventListener("change", (e) => updateImageDisplay(e.target, preview), false);
+if (!!avatar) avatar.addEventListener("change", (e) => updateImageDisplay(e.target, preview), false);
 
 const authorDialog = id("addUpdateAuthorDialog"), dialogBtn = id("addUpdateAuthorButton");
-if (authorDialog && dialogBtn) dialogBtn.addEventListener("click", (e) => authorDialog.showModal(), false);
+if (!!authorDialog && !!dialogBtn) dialogBtn.addEventListener("click", (e) => authorDialog.showModal(), false);
+
+const authorMatrix = id("addAuthorMatixButton");
+if (!!authorMatrix) authorMatrix.addEventListener("click", (e) => enterAuthorsMatrix(), false);
 
 const authors = id("displayAuthors");
-if (authors) updateAuthorDisplay(authors);
+if (!!authors) updateAuthorDisplay(authors);
 
 const progressBar = qs(".reading-bar");
-if (progressBar) requestAnimationFrame(updateProgress);
+if (!!progressBar) requestAnimationFrame(updateProgress);
 
 function updateProgress() {
     try {
