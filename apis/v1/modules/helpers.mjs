@@ -7,14 +7,11 @@ import { Log } from "./classes.mjs";
 
 dotenv.config({ path: "./.env" });
 
-const requests = [];
-
 const mainLogger = (request, response, next) => {
-    const log = new Log(request);
-    requests.push(log.print());
     // console.log((JSON.stringify(requests.slice(-1), null, 2)), "\r\n");
     request.app.locals.index++;
-    request.app.locals.log = log;
+    request.app.locals.log = new Log(request);
+    request.app.locals.logs.push(request.app.locals.log.print());
     next();
 };
 
@@ -101,13 +98,20 @@ const comparePasswords = async (password, existingPassword) => {
     }
 };
 
-const verifyToken = (type, token) => {
+const verifyToken = async (token) => {
     try {
-        if (type === "access") return jwt.verify(token, process.env.access_token_secret);
-        if (type === "refresh") return jwt.verify(token, process.env.refresh_token_secret);
+        switch (token.type) {
+            case "access":
+                // console.log(JSON.stringify(jwt.verify(token, process.env.access_token_secret), null, 2));
+                return jwt.verify(token.access, process.env.access_token_secret);
+            case "refresh":
+                return jwt.verify(token.refresh, process.env.refresh_token_secret);
+            default:
+                break;
+        }
     } catch (error) {
-        console.error(error);
-        throw Error("Failed to tkverify();");
+        // console.error(error);
+        return error.message;
     }
 };
 
@@ -144,6 +148,12 @@ const setCookieExpiry = (days) => {
 
 const isEmptyObject = (obj) => Object.keys(obj).length === 0;
 
+const padNumber = (number, size) => {
+    let num = number.toString();
+    while (num.length < size) num = "0" + num;
+    return num;
+};
+
 export {
     mainLogger,
     idLogger,
@@ -154,5 +164,6 @@ export {
     comparePasswords,
     verifyToken,
     getCookie,
-    isEmptyObject
+    isEmptyObject,
+    padNumber as pad
 };

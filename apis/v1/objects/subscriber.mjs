@@ -5,9 +5,9 @@ import {
     executeQuery,
     releaseConnection
 } from "../modules/data.mjs";
-import Visitor from "./visitor.mjs";
+import Client from "./client.mjs";
 
-export default class Subscriber extends Visitor {
+export default class Subscriber extends Client {
 
     static _total = 0;
 

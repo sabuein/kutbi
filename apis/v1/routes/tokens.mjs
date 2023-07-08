@@ -3,7 +3,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 // import csrf from "csurf";
-import { resetAuth, requireRefreshToken } from "../modules/auth.mjs";
+import { resetAuth } from "../modules/auth.mjs";
 
 const tokens = express.Router();
 
@@ -37,7 +37,7 @@ tokens
 // A route to refresh the access token:
 tokens
     .route("/refresh")
-    .post(requireRefreshToken, (request, response) => {
+    .post((request, response) => {
     // Assuming the refresh token is valid, generate a new access token
     const user = { id: 123, username: "example" };
     const newAccessToken = jwt.sign(user, secretKey, { expiresIn: accessTokenExpiry });

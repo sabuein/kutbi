@@ -2,7 +2,7 @@
 
 import express from "express";
 import { idLogger } from "../modules/helpers.mjs";
-import { validateAuthHeader, validateAccessCookie } from "../modules/auth.mjs";
+import { validateAuthHeader } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";
 
 // Browse, Read, Edit, Add, Copy, Delete
@@ -33,7 +33,7 @@ const tempPosts = [
 
 users
     .route("/")
-    .get(validateAuthHeader, validateAccessCookie, (req, res) => {
+    .get(validateAuthHeader, (req, res) => {
         // If the token is valid, the user is authenticated
         // Allow users to access the protected resource
         console.log(`User ${req.user.username} granted access to ${req.hostname}`);
@@ -43,22 +43,22 @@ users
 // Browse, Read, Edit, Add, Copy, Delete
 users
     .route("/:guid")
-    .get(validateAuthHeader, validateAccessCookie, checkPermission(roles.ADMIN, "read"), (req, res) => {
+    .get(validateAuthHeader, checkPermission(roles.ADMIN, "read"), (req, res) => {
         return res.json({ guid: req.params.guid });
     })
-    .put(validateAuthHeader, validateAccessCookie, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
+    .put(validateAuthHeader, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
         return res.status(200).send(`User with ID #${req.params.guid} has been updated`);
     })
-    .post(validateAuthHeader, validateAccessCookie, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
+    .post(validateAuthHeader, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "update"), (req, res) => {        
         return res.status(200).send(`User with ID #${req.params.guid} has been updated`);
     })
-    .delete(validateAuthHeader, validateAccessCookie, checkPermission(roles.ADMIN, "delete"), (req, res) => {
+    .delete(validateAuthHeader, checkPermission(roles.ADMIN, "delete"), (req, res) => {
         return res.status(200).send(`User with ID #${req.params.guid} has been deleted`);
     });
 
 users
     .route("/dashboard")
-    .post(validateAuthHeader, validateAccessCookie, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "read, update"), (req, res) => {
+    .post(validateAuthHeader, checkPermission([roles.SUBSCRIBER, roles.USER, roles.ADMIN], "read, update"), (req, res) => {
         return res.json(req.user.toString());
     });
 

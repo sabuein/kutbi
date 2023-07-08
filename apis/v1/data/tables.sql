@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS Books (
 
 -- Create BookImages table (Many-to-Many Mapping)
 CREATE TABLE IF NOT EXISTS BookImages (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     bookId INT,
     photoUrl VARCHAR(255),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

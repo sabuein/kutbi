@@ -2,14 +2,14 @@
 
 import express from "express";
 import hbs from "hbs";
-import cors from "cors";
-import bodyParser from "body-parser";
 import { mainLogger } from "./helpers.mjs";
+import { fakeData } from "./data.mjs";
 import { admin, tokens, dashboard, users, accounts, books, authors, index } from "./routes.mjs";
-import { User, Subscriber, Visitor } from "./classes.mjs";
+import { User, Subscriber, Client } from "./classes.mjs";
 import { readCookies } from "./auth.mjs";
 
 const app = express();
+const data = fakeData();
 
 try {
     app.set("view engine", "hbs");
@@ -18,14 +18,6 @@ try {
         console.log(`TODO: Fix error with hbs.\r\n`);
     });
 
-    // app.use(cors({ origin: ["http://localhost:5500", "http://127.0.0.1:5500"] }));
-
-    /*
-    // Use the body-parser middleware to parse request bodies
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }));
-    */
-
     // bodyParser.text({type: '*/*'})
 
     // app.use(express.text({ type: "*/*" }));
@@ -33,9 +25,14 @@ try {
     app.use(express.urlencoded({ limit: "50mb", extended: false }));
 
     app.locals.index = 0;
-    app.locals.accountTypes = ["subscriber", "user"];
+    app.locals.payload;
+    app.locals.cookies = { accessToken: null, refreshToken: null };
+    app.locals.account = new Object();
+    app.locals.authenticated;
+    app.locals.accountTypes = ["client", "subscriber", "user", "member"];
+    app.locals.log;
+    app.locals.logs = [];
     app.locals.loggedinAccounts = [];
-    app.locals.cookies = {};
     app.locals.refreshTokens = [];
     app.locals.stats = {
         accessTokens: 0,
@@ -50,11 +47,14 @@ try {
         logins: 0,
         recoveries: 0,
         signups: 0,
-        visitors: Visitor.total,
+        visitors: Client.total,
         subscribers: Subscriber.total,
         users: User.total
     };
-    
+    app.locals.fakeData = {
+        authors: Object.entries(data.authors)
+    };
+
     // Apply middleware to all routes
     app.use(mainLogger);
     app.use((req, res, next) => {
@@ -67,13 +67,11 @@ try {
             "Access-Control-Allow-Headers": "Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Access-Token, User-Agent, Cookie",
             "X-Powered-By": "Kutbi & Express.js"
         });
-        const payload = (req.body) ? (typeof req.body === "string") ? (JSON.parse(req.body).account) : (req.body.account) : null;
-        res.locals.account = payload;
-        res.locals.authenticated = false;
+        const payload = (!!req.body) ? (typeof req.body === "string") ? (JSON.parse(req.body).account) : (req.body.account) : null;
+        if (!!payload) req.app.locals.payload = payload;
         next();
     });
     app.use(readCookies);
-    // app.all("/admin/*", requireAuthentication);
     app.use("/admin", admin);
     app.use("/tokens", tokens);
     app.use("/dashboard", dashboard);

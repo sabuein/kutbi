@@ -7,7 +7,6 @@ import {
   register,
   setupAuth,
   validateAuthHeader,
-  validateAccessCookie,
   resetAuth
 } from "../modules/auth.mjs";
 import { roles, checkPermission } from "../modules/roles.mjs";

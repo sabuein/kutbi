@@ -32,4 +32,4 @@ const checkPermission = (roles, permissions) => {
 // checkPermission([roles.SUBSCRIBER, roles.ADMIN], ["", ""]);
 // checkPermission([roles.SUBSCRIBER, roles.ADMIN], [""]);
   
-export { roles, checkPermission };
+export { roles, rolePermissions, checkPermission };

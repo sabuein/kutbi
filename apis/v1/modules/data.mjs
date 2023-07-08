@@ -2,6 +2,8 @@
 
 import dotenv from "dotenv";
 import mysql from "mysql";
+import fakeAuthors from "../data/authors.json" assert { type: "json" };
+import { isEmptyObject } from "./helpers.mjs";
 
 dotenv.config({ path: "./.env" });
 
@@ -100,58 +102,141 @@ const getAllAuthors = async (request, response, next) => {
 };
 
 const addAuthor = (request, response, next) => {
-  const {
-    fname,
-    lname,
-    bio,
-    dob,
-    lang,
-    tel,
-    country,
-    email,
-    github,
-    twitter,
-    facebook,
-    instagram,
-    youtube,
-    website
-  } = request.body;
-  const photoUrl = request.file ? `../apis/v1/${request.file.path}` : `../apis/v1/uploads/no-photo.png`;
-  /*
-  const {
-    originalname,
-    encoding,
-    mimetype,
-    destination,
-    filename,
-    path,
-    size
-  } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
-  */
-  const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, bio, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, photoUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  const values = [
-    fname || null,
-    lname || null,
-    bio || null,
-    dob || null,
-    lang || null,
-    tel || null,
-    country || null,
-    email || null,
-    github || null,
-    twitter || null,
-    facebook || null,
-    instagram || null,
-    youtube || null,
-    website || null,
-    photoUrl
-  ];
-  pool.query(statement, values, (error, result) => {
-    if (error) throw error;
-    response.author = result;
-    pool.end();
-  });
-  next();
+  
+  const authors = request.app.locals.fakeData.authors;
+  console.log(authors);
+  
+  const message = `Greetings to the matrix! You have successfully included ${authors.length} fictitious authors! Enjoy your exploration!`;
+  console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/authors$ ${message.split("! ")[1]}.`);
+
+  if (!!authors && !isEmptyObject(authors)) {
+    const added = [];
+    authors.forEach(author => {
+      console.log(author);
+      const {
+        fname,
+        lname,
+        bio,
+        dob,
+        lang,
+        tel,
+        country,
+        email,
+        github,
+        twitter,
+        facebook,
+        instagram,
+        youtube,
+        website,
+        photoUrl,
+        /*createdAt,
+        updatedAt,
+        deletedAt*/
+      } = author;
+      added.push([writeAuthor({
+        fname: fname,
+        lname: lname,
+        bio: bio,
+        dob: dob,
+        lang: lang,
+        tel: tel,
+        country: country,
+        email: email,
+        github: github,
+        twitter: twitter,
+        facebook: facebook,
+        instagram: instagram,
+        youtube: youtube,
+        website: website,
+        photoUrl: photoUrl
+      })]);
+    });
+    request.author = added;
+    next();
+  } else {
+    const {
+      fname,
+      lname,
+      bio,
+      dob,
+      lang,
+      tel,
+      country,
+      email,
+      github,
+      twitter,
+      facebook,
+      instagram,
+      youtube,
+      website,
+      photoUrl,
+      /*createdAt,
+      updatedAt,
+      deletedAt*/
+    } = request.body;
+    request.author = [writeAuthor({
+      fname: fname,
+      lname: lname,
+      bio: bio,
+      dob: dob,
+      lang: lang,
+      tel: tel,
+      country: country,
+      email: email,
+      github: github,
+      twitter: twitter,
+      facebook: facebook,
+      instagram: instagram,
+      youtube: youtube,
+      website: website,
+      photoUrl: photoUrl
+    })];
+    //const photoUrl = request.file ? `../apis/v1/${request.file.path}` : `../apis/v1/uploads/no-photo.png`;
+    next();
+    /*
+    const {
+      originalname,
+      encoding,
+      mimetype,
+      destination,
+      filename,
+      path,
+      size
+    } = request.files[0]; // request.file || request.files[0]; const uploadedFiles = req.files;
+    */
+  }
+};
+
+const writeAuthor = (author) => {
+  try {
+    const x = [];
+    const pool = mysql.createPool(init), statement = `INSERT INTO Authors (fname, lname, bio, dob, lang, tel, country, email, github, twitter, facebook, instagram, youtube, website, photoUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const values = [
+      author.fname || null,
+      author.lname || null,
+      author.bio || null,
+      author.dob || null,
+      author.lang || null,
+      author.tel || null,
+      author.country || null,
+      author.email || null,
+      author.github || null,
+      author.twitter || null,
+      author.facebook || null,
+      author.instagram || null,
+      author.youtube || null,
+      author.website || null,
+      author.photoUrl || null
+    ];
+    pool.query(statement, values, (error, result) => {
+      if (error) throw error;
+      x.push(result);
+      pool.end();
+    });
+    return x;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const extension = (mimetype) => {
@@ -263,6 +348,12 @@ const addOperation = (request, response, next) => {
   }
 };
 
+const fakeData = () => {
+  return {
+    authors: JSON.parse(JSON.stringify(fakeAuthors.authors))
+  };
+};
+
 export {
   getAllAuthors,
   addAuthor,
@@ -276,5 +367,6 @@ export {
   addOperation,
   getConnectionFromPool,
   executeQuery,
-  releaseConnection
+  releaseConnection,
+  fakeData
 };

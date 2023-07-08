@@ -6,7 +6,7 @@ import {
     releaseConnection
 } from "../modules/data.mjs";
 
-export default class Visitor {
+export default class Client {
 
     static _total = 0;
 
@@ -26,7 +26,7 @@ export default class Visitor {
     
     constructor(object) {
         if (!!object && object instanceof Object && !!Object.keys(object).length) {
-            Visitor._total++;
+            Client._total++;
             const {
                 firstName,
                 lastName,
@@ -52,7 +52,7 @@ export default class Visitor {
     }
 
     static get total() {
-        return Visitor._total.toString();
+        return Client._total.toString();
     }
 
     get type() {
@@ -142,7 +142,7 @@ export default class Visitor {
     async records() { return this.toString(); }
 
     toString() {
-        const visitorship = {
+        const clientship = {
             type: this.type,
             firstName: this.firstName,
             lastName: this.lastName,
@@ -154,7 +154,7 @@ export default class Visitor {
             interests: this.interests
         };
         return ({
-            ...visitorship
+            ...clientship
         });
     }
 };

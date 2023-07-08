@@ -20,7 +20,7 @@ export default class Log {
             this.#method = method;
             this.#endpoint = `${protocol}://${hostname}${originalUrl}`;
             this.#ip = socket.remoteAddress || header("x-forwarded-for");
-            // this.#time = new Date().toString();
+            this.#time = new Date().toString();
             this.#time = timestamp();
             this.#referrer = (!!referrer) ? referrer : "/";
         } else {
