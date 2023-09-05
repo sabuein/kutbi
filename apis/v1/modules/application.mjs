@@ -2,7 +2,7 @@
 
 import express from "express";
 import hbs from "hbs";
-import { mainLogger } from "./helpers.mjs";
+import { mainLogger, checkAccount } from "./helpers.mjs";
 import { fakeData } from "./data.mjs";
 import { admin, tokens, dashboard, users, accounts, books, authors, index } from "./routes.mjs";
 import { User, Subscriber, Client } from "./classes.mjs";
@@ -26,8 +26,8 @@ try {
 
     app.locals.index = 0;
     app.locals.payload;
-    app.locals.cookies = { accessToken: null, refreshToken: null };
-    app.locals.account = new Object();
+    app.locals.account = {};
+    app.locals.cookies = {};
     app.locals.authenticated;
     app.locals.accountTypes = ["client", "subscriber", "user", "member"];
     app.locals.log;
@@ -57,21 +57,8 @@ try {
 
     // Apply middleware to all routes
     app.use(mainLogger);
-    app.use((req, res, next) => {
-        res.set({
-            "Access-Control-Allow-Origin": "http://localhost:5500",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Request-Method": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Max-Age": "3600",
-            "Access-Control-Request-Headers": "Authorization",
-            "Access-Control-Allow-Headers": "Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Access-Token, User-Agent, Cookie",
-            "X-Powered-By": "Kutbi & Express.js"
-        });
-        const payload = (!!req.body) ? (typeof req.body === "string") ? (JSON.parse(req.body).account) : (req.body.account) : null;
-        if (!!payload) req.app.locals.payload = payload;
-        next();
-    });
-    app.use(readCookies);
+    app.use(checkAccount);
+    // app.use(readCookies);
     app.use("/admin", admin);
     app.use("/tokens", tokens);
     app.use("/dashboard", dashboard);

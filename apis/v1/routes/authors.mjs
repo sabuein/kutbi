@@ -4,7 +4,7 @@ import express from "express";
 import multer from "multer";
 import { getAllAuthors, addAuthor } from "../modules/data.mjs";
 import { idLogger, isEmptyObject, pad } from "../modules/helpers.mjs";
-import { requireAuth } from "../modules/auth.mjs";
+import { readCookies, requireAuth } from "../modules/auth.mjs";
 
 const authors = express.Router();
 
@@ -15,11 +15,12 @@ authors.param("id", idLogger);
 
 authors
     .route("/")
-    .get(requireAuth, getAllAuthors, async (req, res) => {
+    .get(readCookies, requireAuth, getAllAuthors, async (req, res) => {
         const i = req.app.locals.index;
         try {
             // Retrieve access token from a cookie named "accessToken"
             const cookies = req.app.locals.cookies;
+            console.log(cookies);
             if (!cookies || isEmptyObject(cookies)) throw Error(`No cookies are available. Please proceed with either logging in or registering.`);
             console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/authors$ The retrieval of ${req.authors.length} authors was completed successfully.`);
             return res.status(200).json(({
@@ -29,7 +30,7 @@ authors
                 time: + Date.now()
             }));
         } catch (error) {
-            console.error(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/authors$ ${error.message.split(". ")[0]}`);
+            console.error(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/authors$ ${error.message.split(". ")[0]}.`);
             // return response.status(401).json({ status: 401, message: error.message, time: + Date.now() });
         }
     })

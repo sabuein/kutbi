@@ -29,7 +29,7 @@ const login = async (request, response, next) => {
         if (!!account) {
             refreshTokens.push(await tokenize(account));
             request.app.locals.account = await account.records();
-            return next();
+            next();
         }
     } catch (error) {
         const i = request.app.locals.index;
@@ -37,7 +37,7 @@ const login = async (request, response, next) => {
         response.clearCookie("accessToken");
         response.clearCookie("refreshToken");
         console.error(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/signin/login$ ${message}.`);
-        return response.status(Number(status)).json({
+        response.status(Number(status)).json({
             status: status,
             username: username,
             email: email,
@@ -144,7 +144,7 @@ const register = async (request, response, next) => {
 const requireAuth = async (request, response, next) => {
     const i = request.app.locals.index;
     try {
-        const { accessToken = null, refreshToken = null } = request.app.locals.account;
+        const { accessToken = null, refreshToken = null } = request.app.locals.cookies;
         if (!accessToken && !refreshToken) {
             response.clearCookie("accessToken");
             response.clearCookie("refreshToken");
@@ -172,10 +172,9 @@ const requireAuth = async (request, response, next) => {
 const readCookies = async (request, response, next) => {
     const i = request.app.locals.index;
     try {
-        const account = request.app.locals.account;
-        const cookies = request.headers.cookie;
+        const cookies = request.headers.cookie || null;
+        
         if (!cookies || (typeof cookies !== "string")) {
-            request.app.locals.account = {};
             console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/readCookies$ The request is missing the necessary cookies to access private endpoints.`);
             return next();
         }
@@ -185,19 +184,13 @@ const readCookies = async (request, response, next) => {
         const refreshCookie = await getCookie("refreshToken", cookies) || null;
 
         if (!!accessCookie) {
-            Object.defineProperty(account, "accessToken", {
-                value: accessCookie,
-                writable: true
-            });
-            accessTokenIsValid = await validToken({ type: "access", access: account.accessToken }, account);
+            configureObject(request.app.locals.account, "accessToken", accessCookie);
+            accessTokenIsValid = await validToken({ type: "access", access: request.app.locals.account.accessToken }, request.app.locals.account);
         }
 
         if (!!refreshCookie) {
-            Object.defineProperty(account, "refreshToken", {
-                value: refreshCookie,
-                writable: true
-            });
-            refreshTokenIsValid = await validToken({ type: "refresh", refresh: account.refreshToken }, account);
+            configureObject(request.app.locals.account, "refreshToken", refreshCookie);
+            refreshTokenIsValid = await validToken({ type: "refresh", refresh: request.app.locals.account.refreshToken }, request.app.locals.account);
         }
 
         // console.log(JSON.stringify({
@@ -206,29 +199,27 @@ const readCookies = async (request, response, next) => {
         // }, null, 2), "\r\n");
 
         if (!accessTokenIsValid && !refreshTokenIsValid) {
-            request.app.locals.cookies = {};
-            throw Error(`The provided cookies can not be used to access ${request.hostname}. Please `);
+            throw Error(`The provided cookies can not be used to access ${request.headers.host}${request.originalUrl}. The browser cookies must be cleared.`);
         } else if (!accessTokenIsValid && !!refreshTokenIsValid) {
-            const exists = refreshTokens.indexOf(account.refreshToken);
+            const exists = refreshTokens.indexOf(request.app.locals.account.refreshToken);
             if (!!exists && exists !== -1) refreshTokens.splice(exists, 1);
-            refreshTokens.push(await tokenize(account));
-            setCookies(response, { accessToken: account.accessToken, refreshToken: account.refreshToken });
-            request.app.locals.cookies.accessToken = account.accessToken;
-            request.app.locals.cookies.refreshToken = account.refreshToken;
+            refreshTokens.push(await tokenize(request.app.locals.account));
+            setCookies(response, { accessToken: request.app.locals.account.accessToken, refreshToken: request.app.locals.account.refreshToken });
+            configureObject(request.app.locals.cookies, "accessToken", request.app.locals.account.accessToken);
+            configureObject(request.app.locals.cookies, "refreshToken", request.app.locals.account.refreshToken);
             console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/readCookies$ New access tokens have been generated...`);
             return next();
-        }
-
-        if (!!accessTokenIsValid) {
-            configureObject(request.app.locals.cookies, "accessToken", account.accessToken);
-            configureObject(request.app.locals.cookies, "refreshToken", account.refreshToken);
-            next();
+        } else if (!!accessTokenIsValid) {
+            console.log("Both:", !!accessTokenIsValid && !!refreshTokenIsValid);
+            configureObject(request.app.locals.cookies, "accessToken", request.app.locals.account.accessToken);
+            if (!!refreshTokenIsValid) configureObject(request.app.locals.cookies, "refreshToken", request.app.locals.account.refreshToken);
+            return next();
         } else {
-            throw Error("Something is wrong!");
+            throw Error("Sorry, something went wrong. Please contact the site administrator.");
         }
     } catch (error) {
         console.error(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/readCookies$: ${error.message.split(". ")[0]}.`);
-        return response.status(401).json({ status: 401, message: error.message, time: + Date.now() });
+        response.status(401).json({ status: 401, message: error.message, time: + Date.now() });
     } finally {
         request.app.locals.stats.authValidation++;
     }
@@ -365,33 +356,49 @@ const setupAuth = (request, response, next) => {
 
 const setCookies = (response, account) => {
     try {
-        const accessTokenExpiry = "30m"; // Access token expires in 30 minutes
-        const refreshTokenExpiry = "7d"; // Refresh token expires in 7 days
-        response.cookie("accessToken", account.accessToken, {
+        const init = {
             httpOnly: false,
             secure: true,
-            maxAge: 3600000, // One hour in milliseconds
+            maxAge: null,
             signed: false
-        });
+        };
 
-        response.cookie("refreshToken", account.refreshToken, {
-            httpOnly: false,
-            secure: true,
-            maxAge: 2629800000, // One month in milliseconds
-            signed: false
-        });
+        init.maxAge = 1800000; // Half an hour in milliseconds
+        response.cookie("accessToken", account.accessToken, init);
+        init.maxAge = 604800000; // One week in milliseconds
+        response.cookie("refreshToken", account.refreshToken, init);
+
     } catch (error) {
         console.error(error);
-        throw Error("For some reason or another, we were unable to establish cookie setup on the client machine");
+        throw Error("We were unable to establish setup cookies on the client machine. Please contact the site administrator.");
     }
 };
 
 const setHeaders = (response, account) => {
-    response.setHeader("Authorization", `Bearer ${account.accessToken}`);
-    response.setHeader("Cache-Control", `Max-Age=3600, must-revalidate`); // 3600 seconds = 1 hour
-    response.setHeader("Content-Security-Policy", `default-src "self"`);
-    // response.setHeader("Set-Cookie", `accessToken=${account.accessToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
-    // response.setHeader("Set-Cookie", `accessToken=${account.accessToken}, refreshToken=${account.refreshToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
+    try {
+        response.set({
+            /*"Access-Control-Allow-Origin": "http://localhost:5500",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Request-Method": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Max-Age": "3600",
+            "Access-Control-Request-Headers": "Authorization",
+            "Access-Control-Allow-Headers": "Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Access-Token, User-Agent, Cookie",
+            "X-Powered-By": "Kutbi & Express.js",*/
+            "Authorization": `Bearer ${account.accessToken}`,
+            "Cache-Control": `Max-Age=3600, must-revalidate`,
+            "Content-Security-Policy": `default-src "self"`
+        });
+        /*
+        response.setHeader("Authorization", `Bearer ${account.accessToken}`);
+        response.setHeader("Cache-Control", `Max-Age=3600, must-revalidate`); // 3600 seconds = 1 hour
+        response.setHeader("Content-Security-Policy", `default-src "self"`);
+        response.setHeader("Set-Cookie", `accessToken=${account.accessToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
+        response.setHeader("Set-Cookie", `accessToken=${account.accessToken}, refreshToken=${account.refreshToken}; Max-Age=3600; Path=/; Expires=Wed, 05 Jul 2023 02:16:04 GMT; Secure`);
+        */
+    } catch (error) {
+        console.error(error);
+        throw Error("We were unable to establish setup headers on the client machine. Please contact the site administrator.");
+    }
 };
 
 export {

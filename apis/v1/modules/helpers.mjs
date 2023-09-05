@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Log } from "./classes.mjs";
+import { response } from "express";
 
 dotenv.config({ path: "./.env" });
 
@@ -14,6 +15,21 @@ const mainLogger = (request, response, next) => {
     request.app.locals.logs.push(request.app.locals.log.print());
     next();
 };
+
+const checkAccount = (request, response, next) => {
+    const payload = (!!request.body) ? (typeof request.body === "string") ? (JSON.parse(request.body).account) : (request.body.account) : null;
+    if (!!payload) request.app.locals.payload = payload;
+    response.set({
+        "Access-Control-Allow-Origin": "http://localhost:5500",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Request-Method": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Max-Age": "3600",
+        "Access-Control-Request-Headers": "Authorization",
+        "Access-Control-Allow-Headers": "Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Access-Token, User-Agent, Cookie",
+        "X-Powered-By": "Kutbi & Express.js"
+    });
+    next();
+}
 
 const idLogger = (request, response, next, id) => {
     console.log(`ID: ${id}`);
@@ -156,6 +172,7 @@ const padNumber = (number, size) => {
 
 export {
     mainLogger,
+    checkAccount,
     idLogger,
     encodeObjectToString as encode,
     decodeStringToObject as decode,

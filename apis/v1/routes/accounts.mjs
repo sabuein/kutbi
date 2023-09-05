@@ -46,9 +46,9 @@ accounts.route("/signin").post(login, setupAuth, async (req, res) => {
     const i = req.app.locals.index;
     const account = req.app.locals.account;
 
-    if (!req.app.locals.accountTypes.includes(account.type)) {
+    if (!!account && !req.app.locals.accountTypes.includes(account.type)) {
       console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/signin$ Someone tried to login into a ${account.type} non-existent account.`);
-      return res.status(500).json({ status: 500, message: "We couldn't locate your Kutbi account", time: + Date.now() });
+      res.status(500).json({ status: 500, message: "We couldn't locate your Kutbi account", time: + Date.now() });
     }
 
     req.app.locals.loggedinAccounts.forEach(record => {
@@ -61,7 +61,7 @@ accounts.route("/signin").post(login, setupAuth, async (req, res) => {
     });
 
     console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/signin$ A ${account.type} account has been accessed by someone.`);
-    return res.status(200).json({
+    res.status(200).json({
       status: 200,
       message: `You have logged into your ${account.type} account`,
       account: encode(account),
