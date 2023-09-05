@@ -1,0 +1,5 @@
+# start of file
+user-agent: *
+disallow: /apis/
+disallow: /*.pdf
+sitemap: http://localhost:5500/sitemap.xml
