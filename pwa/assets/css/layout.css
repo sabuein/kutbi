@@ -73,8 +73,8 @@ nav button#resetStorage:is(:hover, :active, :focus) {
 }
 
 
-body > header,
-body > footer {
+body>header,
+body>footer {
     margin: 2rem 0;
     width: 100%;
 }
@@ -116,7 +116,8 @@ main#main-content {
     padding: 2rem 0;
     width: 85%;
 }
-main#main-content > * {
+
+main#main-content>* {
     width: 100%;
 }
 
@@ -151,7 +152,7 @@ textarea {
     resize: vertical;
 }
 
-fieldset[name="field"] > * {
+fieldset[name="field"]>* {
     flex-basis: 100%;
 }
 
@@ -159,19 +160,19 @@ fieldset[name="field"] label {
     flex: 0 1 10rem;
 }
 
-fieldset[name="field"] label + :is(input, select, textarea) {
+fieldset[name="field"] label+ :is(input, select, textarea) {
     flex: 1 0 18rem;
 }
 
-fieldset[name="field"] label + input[type="number"] {
+fieldset[name="field"] label+input[type="number"] {
     flex: unset;
 }
 
-fieldset[name="field"] input[type="number"] + input[type="button"] {
+fieldset[name="field"] input[type="number"]+input[type="button"] {
     padding: .25rem;
 }
 
-label > span {
+label>span {
     font-size: small;
 }
 
@@ -251,7 +252,7 @@ div#avatar-preview {
     text-align: center;
 }
 
-div#avatar-preview > p {
+div#avatar-preview>p {
     padding: 1rem;
     border: thin dashed;
 }
@@ -262,7 +263,10 @@ div#avatar-preview ol {
 
 dialog#addUpdateAuthorDialog {
     margin: auto;
+    max-width: 100%;
     width: 70dvmax;
+    max-height: 100%;
+    height: 70dvmin;
     padding: 1rem;
     border: none;
     border-radius: .75rem;
@@ -270,6 +274,12 @@ dialog#addUpdateAuthorDialog {
 
 dialog::backdrop {
     background-color: #dddddd;
+    background: repeating-linear-gradient(60deg,
+            rgba(0, 0, 255, .2),
+            rgba(0, 0, 255, .2) .1em,
+            rgba(0, 0, 255, .4) .1em,
+            rgba(0, 0, 255, .4) 1em);
+    backdrop-filter: blur(.1em);
 }
 
 p {
