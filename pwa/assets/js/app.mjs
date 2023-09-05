@@ -49,8 +49,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 window.localStorage.clear();
                 window.sessionStorage.clear();
                 unregisterServiceWorker();
-                document.cookie = `accessToken=;expires=${new Date(0).toUTCString()}; path=/;`;
-                document.cookie = `refreshToken=;expires=${new Date(0).toUTCString()}; path=/;`;
+                window.document.cookie = `accessToken=;expires=${new Date(0).toUTCString()}; path=/;`;
+                window.document.cookie = `refreshToken=;expires=${new Date(0).toUTCString()}; path=/;`;
                 console.log("Site data cleared.");
                 return window.location.reload();
             });

@@ -42,17 +42,15 @@ const showGeoError = (error) => {
     }
 };
 
-const geoPosition = () => {
-    return ({ watch: watchPosition(), current: currentPosition() });
-};
+const geoPosition = () => ({ watch: watchPosition(), current: currentPosition() });
 
 /*
 const encodeObjectToString = (object) => btoa(JSON.stringify(object));
 const decodeStringToObject = (string) => JSON.parse(atob(string));
 */
 
-// Stores data with no expiration date
 const local = (operation, key = null, string = null) => {
+    // Stores data with no expiration date
     try {
         if (!window.localStorage && typeof (Storage) !== "undefined") throw Error("Web Storage is not supported by this browser.");
         let returnValue = null;
@@ -85,8 +83,8 @@ const local = (operation, key = null, string = null) => {
     }
 };
 
-// Data is lost when the browser tab is closed
 const session = (operation, key, string) => {
+    // Data is lost when the browser tab is closed
     try {
         if (!window.sessionStorage) return null;
         switch (operation) {
@@ -118,7 +116,6 @@ const session = (operation, key, string) => {
 // IndexedDB
 
 const openConnection = (operation) => {
-
     try {
         if (!window.indexedDB) return null;
         const connection = window.indexedDB.open(databaseName, version);
@@ -184,6 +181,171 @@ const unregisterServiceWorker = async () => {
     }
 };
 
+const setNotification = () => {
+    try {
+        // Notification API
+        Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+                new Notification("Hi there!", {
+                    body: "Notification body",
+                    icon: "https://tapajyoti-bose.vercel.app/img/logo.png",
+                });
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
 
+const setGeoLocation = () => {
+    try {
+        navigator.permissions.query({ name: "geolocation" }).then((result) => {
+            if (result.state === "granted") {
+                // now you can use geolocation api
+                navigator.geolocation.getCurrentPosition(({ coords }) => {
+                    console.log(coords.latitude, coords.longitude);
+                });
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setSpeechSynthesis = () => {
+    try {
+        // Speech Synthesis
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance("Hello World");
+        synth.speak(utterance);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setSpeechRecognition = () => {
+    try {
+        if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+            // Speech Recognition is supported
+        }
+        // Speech Recognition
+        const SpeechRecognition =
+            window.SpeechRecognition ?? window.webkitSpeechRecognition;
+
+        const recognition = new SpeechRecognition();
+        recognition.start();
+        recognition.onresult = (event) => {
+            const speechToText = event.results[0][0].transcript;
+            console.log(speechToText);
+        };
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setWebShare = () => {
+    try {
+        // Web Share API
+        const shareHandler = async () => {
+            navigator.share({
+                title: "Tapajyoti Bose | Portfolio",
+                text: "Check out my website",
+                url: "https://tapajyoti-bose.vercel.app/",
+            });
+        };
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setScreenCapture = () => {
+    try {
+        // Screen Capture API
+        /* HTML
+        <video id="preview" autoplay>
+        Your browser doesn't support HTML5.
+      </video>
+      <button id="start" class="btn">Start</button>
+        */
+        const previewElem = document.getElementById("preview");
+        const startBtn = document.getElementById("start");
+
+        const startRecording = async () => {
+            previewElem.srcObject =
+                await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                    audio: true,
+                });
+        };
+
+        startBtn.addEventListener("click", startRecording);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setClipboard = () => {
+    try {
+        // Clipboard API
+        async function copyHandler() {
+            const text = "https://tapajyoti-bose.vercel.app/";
+            navigator.clipboard.writeText(text);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const setFullscreen = () => {
+    try {
+        // Fullscreen API
+        const enterFullscreen = async () => {
+            await document.documentElement.requestFullscreen();
+        };
+
+        const exitFullscreen = async () => {
+            await document.exitFullscreen();
+        };
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const screenWakeLock = () => {
+    try {
+        // Screen Wake Lock API
+        let wakeLock = null;
+
+        const lockHandler = async () => {
+            wakeLock = await navigator.wakeLock.request("screen");
+        };
+
+        const releaseHandler = async () => {
+            await wakeLock.release();
+            wakeLock = null;
+        };
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const screenOrientation = () => {
+    // Screen Orientation API
+    try {
+        const lockHandler = async () => {
+            await screen.orientation.lock("portrait");
+        };
+
+        const releaseHandler = () => {
+            screen.orientation.unlock();
+        };
+
+        const getOrientation = () => {
+            return screen.orientation.type;
+        };
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 export { local, session, geoPosition, registerServiceWorker, unregisterServiceWorker };

@@ -17,11 +17,17 @@ const getAllAuthors = async () => {
             credentials: "include"
         };
         
-        const raw = await fetch(url, init);
+        const response = await fetch(url, init);
         // if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
-        const content = await raw.json();
-        console.log(content.message);
-        return content.result;
+        const raw = await response.json();
+        if (raw.status === 400 || raw.status === 401 || raw.status === 403 ) {
+            alert(JSON.stringify(raw, null, 2));
+            console.log(JSON.stringify(raw, null, 2));
+            window.document.cookie = "";
+        } else {
+            console.log(raw.message);
+        }
+        return raw.result;
     } catch (error) {
         console.error(error);
         throw Error(`Something went wrong, please fix getAllAuthors();`);
