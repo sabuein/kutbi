@@ -3,16 +3,18 @@
 import { id, qs } from "helpers";
 import { getAllAuthors, enterAuthorsMatrix } from "data";
 import { handleGetForm, handleFormsWithBody } from "requests";
-import { updateImageDisplay, updateAuthorDisplay } from "interface";
+import { updateImageDisplay, updateAuthorDisplay, loadFonts } from "interface";
 import { Account, loadAccount } from "objects";
-import { registerServiceWorker, unregisterServiceWorker } from "apis";
+import { registerServiceWorker, unregisterServiceWorker, postMessageSW } from "apis";
 
 // import { position } from "apis";
 
 // const submission = "http://127.0.0.1:5500/public/subscribe.html?email=Sarah.McFarlane%40vubiquity.co.uk&confirmEmail=sabuein%40gmail.com&preferences=authors&preferences=books&preferences=publishers&preferences=reviews&preferences=all&frequency=monthly&format=text&solution=99999#main-content";
 
 document.addEventListener("DOMContentLoaded", async () => {
-    registerServiceWorker()
+    loadFonts();
+    registerServiceWorker("./serviceWorker.js");
+    postMessageSW("Hi service worker...");
     const user = await loadAccount();
     try {
         if (user === "Anonymous") throw Error("@kutbi:~$ Hello, Anonymous. You need to sign in.");

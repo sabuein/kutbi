@@ -2,6 +2,34 @@
 
 import { getAllAuthors } from "./data.mjs";
 
+const loadFonts = () => {
+    try {
+        class FontFaceObserver {
+
+            name;
+
+            constructor(name) {
+                name = this.name;
+            }
+
+            load() {
+                console.log("Hi...");
+            }
+        };
+
+        const pacificoObserver = new FontFaceObserver("Pacifico");
+
+        Promise.all([
+            pacificoObserver.load(),
+        ]).then(() => {
+            document.documentElement.className = "fonts-loaded";
+            console.log("Hooray! Font loaded.");
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const updateImageDisplay = (input, output) => {
     try {
         while (output.firstChild) output.removeChild(output.firstChild);
@@ -107,7 +135,7 @@ const updateAuthorDisplay = async (output) => {
         // const authorsArray = [];
         const authors = await getAllAuthors() || [];
         // for (let author in authors) authorsArray.push(authors[author]);
-        
+
         // console.log(authors);
         // console.log(authorsArray);
 
@@ -126,7 +154,7 @@ const updateAuthorDisplay = async (output) => {
                 instagram = document.createElement("a"),
                 youtube = document.createElement("a"),
                 website = document.createElement("a");
-            
+
             // Setting up the elements
             authorId.textContent = author.id;
             authorId.style.display = "none";
@@ -169,4 +197,4 @@ const updateAuthorDisplay = async (output) => {
     : (e.target.value = "Start machine") && (paragraph.textContent = "The machine is stopped.");
 };*/
 
-export { updateImageDisplay, updateAuthorDisplay };
+export { updateImageDisplay, updateAuthorDisplay, loadFonts };

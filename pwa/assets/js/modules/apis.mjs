@@ -155,13 +155,15 @@ const openConnection = (operation) => {
 };
 
 
-const registerServiceWorker = async () => {
+const registerServiceWorker = async (scriptURL, options = null) => {
     try {
         if (!"serviceWorker" in window.navigator) throw Error("@kutbi:~$ Service workers are not supported.");
         if (!window.navigator.serviceWorker.controller) {
-            await window.navigator.serviceWorker.register("/pwa/serviceWorker.js", { scope: "./" });
+            // Only use scope when you need a scope that is narrower than the default { scope: "./" }
+            if (!!options) await window.navigator.serviceWorker.register(scriptURL, options);
+            else await window.navigator.serviceWorker.register(scriptURL, { type: "module" });
             const worker = await window.navigator.serviceWorker.ready;
-            console.log(`@kutbi:~$ Service worker registration succeeded and it has been ${worker.active.state}.`);
+            console.log(`@kutbi:~$ Service worker registration succeeded: ${worker.active.state}.`);
         }
     } catch (error) {
         console.error(error);
@@ -178,6 +180,16 @@ const unregisterServiceWorker = async () => {
     } catch (error) {
         console.error(error);
         console.log(`@kutbi:~$ Service worker unregistration failed.`);
+    }
+};
+
+const postMessageSW = (message) => {
+    try {
+        window.navigator.serviceWorker.ready.then((registration) => {
+            registration.active.postMessage(message);
+          });
+    } catch (error) {
+        console.error(error);
     }
 };
 
@@ -348,4 +360,4 @@ const screenOrientation = () => {
     }
 };
 
-export { local, session, geoPosition, registerServiceWorker, unregisterServiceWorker };
+export { local, session, geoPosition, registerServiceWorker, unregisterServiceWorker, postMessageSW };
