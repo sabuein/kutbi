@@ -20,7 +20,8 @@
     <!-- <base href="/public/" target="_top"> -->
     <link rel="manifest" href="./kutbi.webmanifest">
     <link rel="stylesheet" type="text/css" href="./assets/css/layout.css" />
-    <script type="importmap">
+    <script type="module" src="./assets/js/app.mjs"></script>
+    <script type="importmap" defer>
         {
             "imports": {
                 "apis": "./assets/js/modules/apis.mjs",
@@ -34,7 +35,6 @@
             }
         }
     </script>
-    <script type="module" src="./assets/js/app.mjs"></script>
 </head>
 <body class="flexy">
     <header class="app-header flexy gap-x1" role="banner">
