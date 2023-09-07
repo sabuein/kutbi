@@ -1,4 +1,6 @@
-onmessage = (e) => {
-    const [a, b] = e.data;
-    postMessage(a + b);
+"use strict";
+
+self.onmessage = (event) => {
+    const [a, b] = event.data;
+    self.postMessage(a + b);
 };
