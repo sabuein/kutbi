@@ -13,7 +13,7 @@ import { registerServiceWorker, unregisterServiceWorker, postMessageSW } from "a
 
 document.addEventListener("DOMContentLoaded", async () => {
     loadFonts();
-    registerServiceWorker("./serviceWorker.js");
+    registerServiceWorker("/pwa/serviceWorker.js");
     postMessageSW("Hi service worker...");
     const user = await loadAccount();
     try {
@@ -59,6 +59,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    if (window.Worker) {
+        const myWorker = new Worker("worker.js");
+        console.log("A worker is here!");
+        myWorker.addEventListener("message", (event) => {
+            console.log(event.data);
+            console.log("Message received from worker.");
+        });
+        myWorker.postMessage([5, 3]);
+        console.log("Message posted to worker.");
+
+        const killWorkerThread  = () => {
+            myWorker.terminate();
+        };
     }
 
     const registerForm = id("registerForm"), loginForm = id("loginForm");
