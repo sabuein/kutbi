@@ -34,13 +34,13 @@
         }
     ],
     "id": "/?source=pwa",
-    "start_url": "./?source=pwa",
+    "start_url": "/pwa/?source=pwa",
     "lang": "ar",
     "dir": "rtl",
     "background_color": "#3367D6",
     "display_override": ["window-control-overlay", "minimal-ui"],
     "display": "standalone",
-    "scope": "./",
+    "scope": "/pwa/",
     "theme_color": "#3367D6",
     "orientation": "landscape",
     "shortcuts": [
