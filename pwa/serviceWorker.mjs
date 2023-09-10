@@ -1,9 +1,12 @@
-// Service worker: A client side proxy written in JavaScript
+"use strict";
+
+// serviceWorker.mjs
+
 // https://www.w3.org/TR/service-workers/
 
 const cacheVersion = 1;
 const cacheName = `kutbi-${cacheVersion}`;
-
+const scope = "/pwa/";
 const patterns = {
     scripts: "\.(js|mjs)$",
     stylesheets: "\.css$",
@@ -12,42 +15,45 @@ const patterns = {
     json: "\.json$"
 };
 
-const cacheList = [
-    "/pwa/",
-    "/pwa/authors.html",
-    "/pwa/change-password.html",
-    "/pwa/cookies.html",
-    "/pwa/faq.html",
-    "/pwa/features.html",
-    "/pwa/index.html",
-    "/pwa/kutbi.webmanifest",
-    "/pwa/login.html",
-    "/pwa/mobile.html",
-    "/pwa/purpose.html",
-    "/pwa/recover.html",
-    "/pwa/register.html",
-    "/pwa/sitemap.xml",
-    "/pwa/wishlist.html",
-    "/pwa/assets/css/layout.css",
-    "/pwa/assets/fonts/CircularXXWeb-Book.woff2",
-    "/pwa/assets/js/app.js",
-    "/pwa/assets/js/modules/apis.mjs",
-    "/pwa/assets/js/modules/auth.mjs",
-    "/pwa/assets/js/modules/data.mjs",
-    "/pwa/assets/js/modules/helpers.mjs",
-    "/pwa/assets/js/modules/interface.mjs",
-    "/pwa/assets/js/modules/monitor.mjs",
-    "/pwa/assets/js/modules/objects.mjs",
-    "/pwa/assets/js/modules/requests.mjs",
-    "/pwa/assets/images/add.png",
-    "/pwa/assets/images/apple-touch-icon.png",
-    "/pwa/assets/images/favicon-16x16.png",
-    "/pwa/assets/images/favicon-32x32.png",
-    "/pwa/assets/images/favicon.ico",
-    "/pwa/assets/images/screenshot1.png",
-    "/pwa/assets/images/screenshot2.jpg",
-    "/pwa/assets/images/android/android-launchericon-144-144.png",
-    "/pwa/assets/images/svg/books.svg"
+const cacheAssets = [
+    `${scope}`,
+    `${scope}authors.html`,
+    `${scope}change-password.html`,
+    `${scope}cookies.html`,
+    `${scope}faq.html`,
+    `${scope}features.html`,
+    `${scope}index.html`,
+    `${scope}kutbi.webmanifest`,
+    `${scope}login.html`,
+    `${scope}mobile.html`,
+    `${scope}purpose.html`,
+    `${scope}recover.html`,
+    `${scope}register.html`,
+    `${scope}serviceWorker.mjs`,
+    `${scope}sharedWorker.mjs`,
+    `${scope}sitemap.xml`,
+    `${scope}wishlist.html`,
+    `${scope}worker.mjs`,
+    `${scope}assets/css/layout.css`,
+    `${scope}assets/fonts/CircularXXWeb-Book.woff2`,
+    `${scope}assets/js/app.mjs`,
+    `${scope}assets/js/modules/apis.mjs`,
+    `${scope}assets/js/modules/auth.mjs`,
+    `${scope}assets/js/modules/data.mjs`,
+    `${scope}assets/js/modules/helpers.mjs`,
+    `${scope}assets/js/modules/interface.mjs`,
+    `${scope}assets/js/modules/monitor.mjs`,
+    `${scope}assets/js/modules/objects.mjs`,
+    `${scope}assets/js/modules/requests.mjs`,
+    `${scope}assets/images/add.png`,
+    `${scope}assets/images/apple-touch-icon.png`,
+    `${scope}assets/images/favicon-16x16.png`,
+    `${scope}assets/images/favicon-32x32.png`,
+    `${scope}assets/images/favicon.ico`,
+    `${scope}assets/images/screenshot1.png`,
+    `${scope}assets/images/screenshot2.jpg`,
+    `${scope}assets/images/android/android-launchericon-144-144.png`,
+    `${scope}assets/images/svg/books.svg`
 ];
 
 self.addEventListener("install", (event) => {
@@ -55,14 +61,13 @@ self.addEventListener("install", (event) => {
         // Setting up caches, offline assets, populating an IndexedDB, etc.
         event.waitUntil(
             caches.open(cacheName)
-                .then(cache => cache.addAll(cacheList))
+                .then(cache => cache.addAll(cacheAssets))
                 .then(self.skipWaiting())
         );
     } catch (error) {
         console.error(error);
     }
 });
-
 
 self.addEventListener("activate", async (event) => {
     // Clean up resources used in previous versions of the service worker
@@ -73,6 +78,7 @@ self.addEventListener("activate", async (event) => {
 
 self.addEventListener("message", (event) => {
     try {
+        if (event.origin !== self.origin) throw Error("@ServiceWorker:~$ The message origin is not the same.");;
         // event is an ExtendableMessageEvent object
         const properties = {
             data: event.data,
@@ -81,8 +87,9 @@ self.addEventListener("message", (event) => {
             source: event.source,
             ports: event.ports
         };
-        console.log(`The client sent me a message: ${event.data}`);
-        event.source.postMessage("Hi client");
+        console.log(`@ServiceWorker:~$ The client sent me a message...`);
+        console.log(event.data);
+        event.source.postMessage("Message received, thank you, client!");
     } catch (error) {
         console.error(error);
     }
@@ -113,7 +120,6 @@ self.addEventListener("sync", (event) => {
 self.addEventListener("fetch", (event) => {
     try {
         const url = new URL(event.request.url);
-        console.log(`Handling fetch event for ${url}`);
         /*
                 if (patterns.scripts.test(url.pathname)) event.respondWith(cacheOnly(event.request));
                 else if (patterns.stylesheets.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
@@ -149,37 +155,62 @@ self.addEventListener("push", (event) => {
         }
     } catch (error) {
         console.error(error);
+    } finally {
+        console.log(event.data.text());
     }
 }, false);
+
+self.addEventListener("notificationclick", (event) => {
+    console.log("On notification click: ", event.notification.tag);
+    event.notification.close();
+
+    // This looks to see if the current is already open and
+    // focuses if it is
+    event.waitUntil(
+        clients
+            .matchAll({
+                type: "window",
+            })
+            .then((clientList) => {
+                for (const client of clientList) {
+                    if (client.url === "/" && "focus" in client) return client.focus();
+                }
+                if (clients.openWindow) return clients.openWindow("/");
+            }),
+    );
+});
+
+self.addEventListener("error", (event) => {
+    // The error event has three fields: message, filename, and lineno.
+    event.preventDefault();
+    console.error(event.message);
+});
 
 const doInit = () => {
     console.log("doInit();");
 };
 
 const doShutdown = () => {
-    console.log("doShutdown()");
+    console.log("doShutdown();");
 };
 
 // Cache falling back to network
 const cacheThenNetwork = async (request) => {
     try {
         const cachedResponse = await caches.match(request, { cacheName: cacheName });
-        if (!!cachedResponse) {
-            console.log("Found response in cache:", cachedResponse);
-            return cachedResponse;
-        } else {
-            console.log("Falling back to network");
-            console.log(request);
+        if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
+        else {
             const fetchedResponse = await fetch(request);
             if (!!fetchedResponse) {
                 const responseClone = fetchedResponse.clone();
-                await caches.open(cacheName).put(request, responseClone);
-                return await cacheOnly(request) || await fetch(request);
-            }
+                const cache = await caches.open(cacheName);
+                cache.put(request, responseClone);
+                return await cacheOnly(request);
+            } else return Response.error();
         }
     } catch (error) {
         console.error(error);
-        // () => caches.match("/pwa/assets/images/error.jpg");
+        // () => caches.match(`${scope}assets/images/error.jpg`);
     }
 };
 
@@ -187,20 +218,18 @@ const cacheThenNetwork = async (request) => {
 const cacheOnly = async (request) => {
     try {
         const cachedResponse = await caches.match(request, { cacheName: cacheName });
-        if (!!cachedResponse) {
-            console.log("Found response in cache:", cachedResponse);
-            return cachedResponse;
-        } // else Response.error();
+        if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
+        else return Response.error();
     } catch (error) {
         console.error(error);
-        // () => caches.match("/pwa/assets/images/error.jpg");
+        // () => caches.match(`${scope}assets/images/error.jpg`);
     }
 };
 
 const deleteOldCaches = async (currentCache) => {
     const keys = await caches.keys();
     for (const key of keys) {
-        const isOurCache = key.startsWith("kutbi-");
+        const isOurCache = key.startsWith(cacheName.split("-"));
         if (currentCache === key || !isOurCache) {
             continue;
         }
