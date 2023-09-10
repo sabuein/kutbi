@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <base href="http://localhost:5500/pwa/" target="_top" />
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+        <meta name="description" content="A way to organise books" />
+        <meta name="keywords" content="HTML, CSS, JavaScript" />
+        <meta name="author" content="Salaheddin AbuEin" />
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+        <link rel="manifest" type="application/manifest+json" href="kutbi.webmanifest" crossorigin="use-credentials" />
+        <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
+        <script type="importmap">
+            {
+                "scopes": {
+                    "/pwa/": {
+                        "apis": "./assets/js/modules/apis.mjs",
+                        "auth": "./assets/js/modules/auth.mjs",
+                        "data": "./assets/js/modules/data.mjs",
+                        "helpers": "./assets/js/modules/helpers.mjs",
+                        "interface": "./assets/js/modules/interface.mjs",
+                        "monitor": "./assets/js/modules/monitor.mjs",
+                        "objects": "./assets/js/modules/objects.mjs",
+                        "requests": "./assets/js/modules/requests.mjs"
+                    }
+                }
+            }
+        </script>
+        <!-- link rel="modulepreload" href="/pwa/assets/js/app.js" / -->
+        <script type="module" src="assets/js/app.mjs"></script>
+        <script nomodule defer type="text/javascript" src="fallback.js"></script>
+        <title>لوحة التحكم</title>
+    </head>
+    <body class="flexy">
+        <header class="app-header flexy gap-x1" role="banner">
+            <div class="skipnav">
+                <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
+            </div>
+            <a href="." class="flexy row gap-x2">
+                <figure>
+                    <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+                </figure>
+                <div>
+                    <h1 role="heading" aria-level="1">كتبي</h1>
+                    <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+                </div>
+            </a>
+        </header>
+        <nav class="app-nav flexy">
+            <button type="button" id="menuToggle">&#x2630;</button>
+            <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+            <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
+        </nav>
+        <noscript class="flexy">
+            <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+        </noscript>
+        <main class="app-main flexy align-start" id="main-content">
+            <h3>أهلاً وسهلاً في برنامج كتبي</h3>
+            <p>أهلاً وسهلاً بكم في الصفحة الرئيسية من مشروع كتبي. هذا المشروع الذي أحاول من خلاله بناء نظام يساعدني ولعله يساعد أحد آخر في الإبقاء على بيانات المكتبة الشخصية متوفرة وسهلة ومعروضة بشكل جميل.</p>
+            <section>
+                <form>
+                    <fieldset class="flexy">
+                        <legend>Enter some config details or upload a file&hellip;</legend>
+                        <label for="selectedFile" title="يرجى رفع ملف واحد أو أكثر">رفع ملف واحد أو أكثر&colon;<input type="file" id="selectedFile" name="file" accept=".jpg, .jpeg, .png, .svg, .gif, .txt, .doc, .docx, .xml, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple /></label>
+                        <label for="content-area" title="يرجى كتابة النص المطلوب">كتابة النص المطلوب&colon;<textarea id="content-area" name="string"></textarea></label>
+                        <label for="select-as" title="يرجى اختيار نوع الملف المطلوب">اختيار نوع الملف المطلوب&colon;<select id="select-as" name="mime">
+                            <option value="" disabled selected>النوع المطلوب&hellip;</option>
+                            <optgroup label="Text">
+                                <option value="text&sol;plain">plain</option>
+                                <option value=""></option>
+                                <option value=""></option>
+                                <option value=""></option>
+                            </optgroup>
+                            <optgroup label="Images" disabled>
+                                <option value="image&sol;png">&period;png</option>
+                                <option value="image&sol;jpeg">&period;jpg&comma; &period;jpeg</option>
+                                <option value=""></option>
+                                <option value=""></option>
+                            </optgroup>
+                            <optgroup label="Theropods" disabled>
+                                <option value=""></option>
+                            </optgroup>
+                        </select></label>
+                        <input type="button" id="downloadThisContent" value="تنزيل" title="تنزيل" />
+                        <input type="submit" id="sendThisContent" value="إرسال" title="إرسال" />
+                        <input type="reset" value="إبدأ من جديد" title="إبدأ من جديد" />
+                    </fieldset>
+                </form>
+            </section>
+            <section>
+                <h2>APIs</h2>
+                <button type="button" id="subscribe">Push subscription</button>
+            </section>
+        </main>
+        <footer class="app-footer flexy row gap-x2">
+            <a href=".">الرئيسية</a>
+            <a href="login.html">الدخول</a>
+            <a href="register.html">الاشتراك والتسجيل</a>
+            <a href="authors.html">المؤلفين</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="dashboard.html" title="لوحة التحكم">لوحة التحكم</a>
+            <a href="dashboard.html#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+        </footer> 
+    </body>
+</html>
