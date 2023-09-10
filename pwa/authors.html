@@ -1,221 +1,228 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
-    <base href="http://localhost:5500/pwa/" target="_top" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-    <link rel="manifest" href="kutbi.webmanifest" />
-    <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
-    <script type="importmap">
-        {
-            "imports": {
-                "apis": "./assets/js/modules/apis.mjs",
-                "auth": "./assets/js/modules/auth.mjs",
-                "data": "./assets/js/modules/data.mjs",
-                "helpers": "./assets/js/modules/helpers.mjs",
-                "interface": "./assets/js/modules/interface.mjs",
-                "monitor": "./assets/js/modules/monitor.mjs",
-                "objects": "./assets/js/modules/objects.mjs",
-                "requests": "./assets/js/modules/requests.mjs"
+    <head>
+        <base href="http://localhost:5500/pwa/" target="_top" />
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+        <meta name="description" content="A way to organise books" />
+        <meta name="keywords" content="HTML, CSS, JavaScript" />
+        <meta name="author" content="Salaheddin AbuEin" />
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+        <link rel="manifest" type="application/manifest+json" href="kutbi.webmanifest" crossorigin="use-credentials" />
+        <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
+        <script type="importmap">
+            {
+                "scopes": {
+                    "/pwa/": {
+                        "apis": "./assets/js/modules/apis.mjs",
+                        "auth": "./assets/js/modules/auth.mjs",
+                        "data": "./assets/js/modules/data.mjs",
+                        "helpers": "./assets/js/modules/helpers.mjs",
+                        "interface": "./assets/js/modules/interface.mjs",
+                        "monitor": "./assets/js/modules/monitor.mjs",
+                        "objects": "./assets/js/modules/objects.mjs",
+                        "requests": "./assets/js/modules/requests.mjs"
+                    }
+                }
             }
-        }
-    </script>
-    <script type="module" src="assets/js/app.js"></script>
-    <title>المؤلفين</title>
-</head>
-<body class="flexy">
-    <header class="app-header flexy gap-x1" role="banner">
-        <div class="skipnav">
-            <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
-        </div>
-        <a href="." class="flexy row gap-x2">
-            <figure>
-                <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
-            </figure>
-            <div>
-                <h1 role="heading" aria-level="1">كتبي</h1>
-                <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+        </script>
+        <!-- link rel="modulepreload" href="/pwa/assets/js/app.js" / -->
+        <script type="module" src="assets/js/app.mjs"></script>
+        <script nomodule defer type="text/javascript" src="fallback.js"></script>
+        <title>المؤلفين</title>
+    </head>
+    <body class="flexy">
+        <header class="app-header flexy gap-x1" role="banner">
+            <div class="skipnav">
+                <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
             </div>
-        </a>
-    </header>
-    <nav class="app-nav flexy">
-        <button type="button" id="menuToggle">&#x2630;</button>
-        <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
-        <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
-    </nav>
-    <noscript class="flexy">
-        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
-    </noscript>
-    <div class="app-search flexy row gap-x1">
-        <input type="search" id="searching" placeholder="ابحث عن مؤلف أو مؤلفة&hellip;" />
-        <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
-    </div>
-    <main class="app-main flexy content-start gap-x1" id="main-content">
-        <button type="button" id="addUpdateAuthorButton">إضافة / تحديث بيانات مؤلف</button>
-        <dialog id="addUpdateAuthorDialog">
-            <form action="http://localhost:3557/authors" method="POST" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
-                <fieldset class="flexy row gap-x1" name="field" dir="rtl">
-                    <legend>
-                        <label for="form-dir">المؤلف</label>
-                        <select id="form-dir" name="selectDir" onchange="field.dir = this.value; field.dir === 'rtl' ? (selectDir.labels[0].textContent = 'المؤلف') && (authorId.labels[0].textContent = 'رقم العضوية&colon;') : (selectDir.labels[0].textContent = 'Author') && (authorId.labels[0].textContent = 'Membership number&colon;');">
-                            <option value="rtl" selected>ع</option>
-                            <option value="ltr">EN</option>
-                        </select>
-                        <!-- Include the CSRF token as a hidden input field -->
-                        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-                    </legend>
-                    <div class="flexy row start gap-x1" aria-hidden="true">
-                        <input type="hidden" id="author-id" name="authorId" pattern="\d{4,4}" title="رقم العضوية" />
-                        <input type="hidden" id="get-author-by-id" value="جلب" />
-                    </div>
-                    <details open>
-                        <summary></summary>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-fname">الاسم الأول&colon; <span>(3-16) حرف</span></label>
-                            <input type="text" id="author-fname" name="fname" autocomplete="given-name" minlength="3" maxlength="16" required placeholder="صلاح الدين" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-lname">الاسم الأخير&colon; <span>(3-16) حرف</span></label>
-                            <input type="text" id="author-lname" name="lname" autocomplete="family-name" minlength="3" maxlength="16" required placeholder="أبو عين" />
-                        </div>
-                    </details>
-                    <details>
-                        <summary></summary>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-dob">تاريخ الميلاد&colon;</label>
-                            <input type="date" id="author-dob" name="bday" autocomplete="bday" value="1987-01-18" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-country">اللغة&colon;</label>
-                            <select id="author-language" name="language" autocomplete="language">
-                                <option value="ar" selected>العربية</option>
-                                <option value="en">English</option>
+            <a href="." class="flexy row gap-x2">
+                <figure>
+                    <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+                </figure>
+                <div>
+                    <h1 role="heading" aria-level="1">كتبي</h1>
+                    <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+                </div>
+            </a>
+        </header>
+        <nav class="app-nav flexy">
+            <button type="button" id="menuToggle">&#x2630;</button>
+            <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+            <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
+        </nav>
+        <noscript class="flexy">
+            <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+        </noscript>
+        <div class="app-search flexy row gap-x1">
+            <input type="search" id="searching" placeholder="ابحث عن مؤلف أو مؤلفة&hellip;" />
+            <input type="submit" id="startSearch" title="ابحث&hellip;" value="ابحث" />
+        </div>
+        <main class="app-main flexy content-start gap-x1" id="main-content">
+            <button type="button" id="addUpdateAuthorButton">إضافة / تحديث بيانات مؤلف</button>
+            <dialog id="addUpdateAuthorDialog">
+                <form action="http://localhost:3557/authors" method="POST" enctype="multipart/form-data" autocomplete="on" accept-charset="utf-8"><!-- application/x-www-form-urlencoded -->
+                    <fieldset class="flexy row gap-x1" name="field" dir="rtl">
+                        <legend>
+                            <label for="form-dir">المؤلف</label>
+                            <select id="form-dir" name="selectDir" onchange="field.dir = this.value; field.dir === 'rtl' ? (selectDir.labels[0].textContent = 'المؤلف') && (authorId.labels[0].textContent = 'رقم العضوية&colon;') : (selectDir.labels[0].textContent = 'Author') && (authorId.labels[0].textContent = 'Membership number&colon;');">
+                                <option value="rtl" selected>ع</option>
+                                <option value="ltr">EN</option>
                             </select>
+                            <!-- Include the CSRF token as a hidden input field -->
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                        </legend>
+                        <div class="flexy row start gap-x1" aria-hidden="true">
+                            <input type="hidden" id="author-id" name="authorId" pattern="\d{4,4}" title="رقم العضوية" />
+                            <input type="hidden" id="get-author-by-id" value="جلب" />
                         </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-phone">رقم الهاتف&colon;</label>
-                            <input type="tel" id="author-phone" name="tel" autocomplete="tel" placeholder="+447930120661" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-country">الدولة&colon;</label>
-                            <select id="author-country" name="country" autocomplete="country">
-                                <optgroup label="الدول العربية">
-                                    <option value="ps">فلسطين المحتلة</option>
-                                    <option value="jo">الأردن</option>
-                                    <option value="sy">سوريا</option>
-                                    <option value="lb">لبنان</option>
-                                    <option value="eg">مصر</option>
-                                </optgroup>
-                                <optgroup label="أوروبا">
-                                    <option value="gb" selected>المملكة المتحدة</option>
-                                    <option value="fr">فرنسا</option>
-                                </optgroup>
-                                <optgroup label="أمريكا الشمالية">
-                                    <option value="us">الولايات المتحدة</option>
-                                    <option value="um">جزر الولايات المتحدة البعيدة الصغرى</option>
-                                    <option value="ca">كندا</option>
-                                    <option value="mx">المكسيك</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-email">البريد الإلكتروني&colon;</label>
-                            <input type="email" id="author-email" name="email" autocomplete="email" size="32" minlength="3" maxlength="64" placeholder="sabuein@gmail.com" />
-                        </div>
-                    </details>
-                    <details>
-                        <summary></summary>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-github">جيت هب&colon;</label>
-                            <input type="url" id="author-github" name="github" autocomplete="impp" placeholder="https://github.com/sabuein" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-twitter">تويتر&colon;</label>
-                            <input type="url" id="author-twitter" name="twitter" autocomplete="impp" placeholder="https://twitter.com/sabuein" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-facebook">فيسبوك&colon;</label>
-                            <input type="url" id="author-facebook" name="facebook" autocomplete="impp" placeholder="https://www.facebook.com/sabuein/" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-instagram">إنستغرام&colon;</label>
-                            <input type="url" id="author-instagram" name="instagram" autocomplete="impp" placeholder="https://www.instagram.com/sabuein/" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-youtube">يوتيوب&colon;</label>
-                            <input type="url" id="author-youtube" name="youtube" autocomplete="impp" placeholder="https://www.youtube.com/@sabuein/" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-website">الموقع الإلكتروني&colon;</label>
-                            <input type="url" id="author-website" name="url" autocomplete="url" placeholder="https://sabuein.github.io/" />
-                        </div>
-                    </details>
-                    <details>
-                        <summary></summary>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-bio">نبذة مختصرة&colon;</label>
-                            <textarea id="author-bio" name="bio" rows="8" placeholder="إنسان، وأب، وزوج، ومبدع إلكتروني، ومطوّر ويب&period;"></textarea>
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-avatar">صورة شخصية&colon;</label>
-                            <input type="file" id="author-avatar" name="photo" autocomplete="photo" accept="image/*;capture=camera" capture="user" /><!-- multiple -->
-                        </div>
-                        <div class="flexy" id="avatar-preview">
-                            <p>لم يتم اختيار أي صورة لرفعها&hellip;</p>
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <video id="video-preview"></video>
-                        </div>
-                    </details>
-                    <details>
-                        <summary></summary>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-created-at">تاريخ الإضافة&colon;</label>
-                            <input type="datetime-local" id="author-created-at" name="created" value="2021-11-13T09:11" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-edited-at">تاريخ التحديث&colon;</label>
-                            <input type="datetime-local" id="author-edited-at" name="edited" value="2023-05-28T14:32" />
-                        </div>
-                        <div class="flexy row start gap-x1">
-                            <label for="author-deleted-at">تاريخ الحذف&colon;</label>
-                            <input type="datetime-local" id="author-deleted-at" name="deleted" value="2025-12-31T00:55" />
-                        </div>
-                    </details>
-                    <details>
-                        <summary></summary>
-                        <div class="flexy row gap-x1">
-                            <input type="submit" id="create" value="إضافة" />
-                            <input type="submit" id="update" value="تحديث" />
-                            <input type="reset" id="reset" value="مسح" />
-                            <input type="submit" aria-label="close" formmethod="dialog" value="إغلاق" formnovalidate />
-                        </div>
-                    </details>
-                </fieldset>
-            </form>
-        </dialog>
-        <button type="button" id="addAuthorMatixButton">أضف بشكل عشوائي</button>
-        <section id="displayAuthors" class="flexy row gap-x2">
-            <header>
-                <h3>المؤلفين</h3>
-            </header>
-        </section>
-    </main>
-    <footer class="app-footer flexy row gap-x2">
-        <a href=".">الرئيسية</a>
-        <a href="login.html">الدخول</a>
-        <a href="register.html">الاشتراك والتسجيل</a>
-        <a href="authors.html">المؤلفين</a>
-        <a href="faq.html">الأسئلة الشائعة</a>
-        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
-    </footer>
-</body>
+                        <details open>
+                            <summary></summary>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-fname">الاسم الأول&colon; <span>(3-16) حرف</span></label>
+                                <input type="text" id="author-fname" name="fname" autocomplete="given-name" minlength="3" maxlength="16" required placeholder="صلاح الدين" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-lname">الاسم الأخير&colon; <span>(3-16) حرف</span></label>
+                                <input type="text" id="author-lname" name="lname" autocomplete="family-name" minlength="3" maxlength="16" required placeholder="أبو عين" />
+                            </div>
+                        </details>
+                        <details>
+                            <summary></summary>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-dob">تاريخ الميلاد&colon;</label>
+                                <input type="date" id="author-dob" name="bday" autocomplete="bday" value="1987-01-18" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-country">اللغة&colon;</label>
+                                <select id="author-language" name="language" autocomplete="language">
+                                    <option value="ar" selected>العربية</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-phone">رقم الهاتف&colon;</label>
+                                <input type="tel" id="author-phone" name="tel" autocomplete="tel" placeholder="+447930120661" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-country">الدولة&colon;</label>
+                                <select id="author-country" name="country" autocomplete="country">
+                                    <optgroup label="الدول العربية">
+                                        <option value="ps">فلسطين المحتلة</option>
+                                        <option value="jo">الأردن</option>
+                                        <option value="sy">سوريا</option>
+                                        <option value="lb">لبنان</option>
+                                        <option value="eg">مصر</option>
+                                    </optgroup>
+                                    <optgroup label="أوروبا">
+                                        <option value="gb" selected>المملكة المتحدة</option>
+                                        <option value="fr">فرنسا</option>
+                                    </optgroup>
+                                    <optgroup label="أمريكا الشمالية">
+                                        <option value="us">الولايات المتحدة</option>
+                                        <option value="um">جزر الولايات المتحدة البعيدة الصغرى</option>
+                                        <option value="ca">كندا</option>
+                                        <option value="mx">المكسيك</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-email">البريد الإلكتروني&colon;</label>
+                                <input type="email" id="author-email" name="email" autocomplete="email" size="32" minlength="3" maxlength="64" placeholder="sabuein@gmail.com" />
+                            </div>
+                        </details>
+                        <details>
+                            <summary></summary>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-github">جيت هب&colon;</label>
+                                <input type="url" id="author-github" name="github" autocomplete="impp" placeholder="https://github.com/sabuein" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-twitter">تويتر&colon;</label>
+                                <input type="url" id="author-twitter" name="twitter" autocomplete="impp" placeholder="https://twitter.com/sabuein" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-facebook">فيسبوك&colon;</label>
+                                <input type="url" id="author-facebook" name="facebook" autocomplete="impp" placeholder="https://www.facebook.com/sabuein/" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-instagram">إنستغرام&colon;</label>
+                                <input type="url" id="author-instagram" name="instagram" autocomplete="impp" placeholder="https://www.instagram.com/sabuein/" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-youtube">يوتيوب&colon;</label>
+                                <input type="url" id="author-youtube" name="youtube" autocomplete="impp" placeholder="https://www.youtube.com/@sabuein/" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-website">الموقع الإلكتروني&colon;</label>
+                                <input type="url" id="author-website" name="url" autocomplete="url" placeholder="https://sabuein.github.io/" />
+                            </div>
+                        </details>
+                        <details>
+                            <summary></summary>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-bio">نبذة مختصرة&colon;</label>
+                                <textarea id="author-bio" name="bio" rows="8" placeholder="إنسان، وأب، وزوج، ومبدع إلكتروني، ومطوّر ويب&period;"></textarea>
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-avatar">صورة شخصية&colon;</label>
+                                <input type="file" id="author-avatar" name="photo" autocomplete="photo" accept="image/*;capture=camera" capture="user" /><!-- multiple -->
+                            </div>
+                            <div class="flexy" id="avatar-preview">
+                                <p>لم يتم اختيار أي صورة لرفعها&hellip;</p>
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <video id="video-preview"></video>
+                            </div>
+                        </details>
+                        <details>
+                            <summary></summary>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-created-at">تاريخ الإضافة&colon;</label>
+                                <input type="datetime-local" id="author-created-at" name="created" value="2021-11-13T09:11" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-edited-at">تاريخ التحديث&colon;</label>
+                                <input type="datetime-local" id="author-edited-at" name="edited" value="2023-05-28T14:32" />
+                            </div>
+                            <div class="flexy row start gap-x1">
+                                <label for="author-deleted-at">تاريخ الحذف&colon;</label>
+                                <input type="datetime-local" id="author-deleted-at" name="deleted" value="2025-12-31T00:55" />
+                            </div>
+                        </details>
+                        <details>
+                            <summary></summary>
+                            <div class="flexy row gap-x1">
+                                <input type="submit" id="create" value="إضافة" />
+                                <input type="submit" id="update" value="تحديث" />
+                                <input type="reset" id="reset" value="مسح" />
+                                <input type="submit" aria-label="close" formmethod="dialog" value="إغلاق" formnovalidate />
+                            </div>
+                        </details>
+                    </fieldset>
+                </form>
+            </dialog>
+            <button type="button" id="addAuthorMatixButton">أضف بشكل عشوائي</button>
+            <section id="displayAuthors" class="flexy row gap-x2">
+                <header>
+                    <h3>المؤلفين</h3>
+                </header>
+            </section>
+        </main>
+        <footer class="app-footer flexy row gap-x2">
+            <a href=".">الرئيسية</a>
+            <a href="login.html">الدخول</a>
+            <a href="register.html">الاشتراك والتسجيل</a>
+            <a href="authors.html">المؤلفين</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+        </footer>
+    </body>
 </html>

@@ -1,118 +1,125 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
-    <base href="http://localhost:5500/pwa/" target="_top" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-    <link rel="manifest" href="kutbi.webmanifest" />
-    <link rel="stylesheet" type="text/css" href="./assets/css/layout.css" />
-    <script type="importmap">
-        {
-            "imports": {
-                "apis": "./assets/js/modules/apis.mjs",
-                "auth": "./assets/js/modules/auth.mjs",
-                "data": "./assets/js/modules/data.mjs",
-                "helpers": "./assets/js/modules/helpers.mjs",
-                "interface": "./assets/js/modules/interface.mjs",
-                "monitor": "./assets/js/modules/monitor.mjs",
-                "objects": "./assets/js/modules/objects.mjs",
-                "requests": "./assets/js/modules/requests.mjs"
+    <head>
+        <base href="http://localhost:5500/pwa/" target="_top" />
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+        <meta name="description" content="A way to organise books" />
+        <meta name="keywords" content="HTML, CSS, JavaScript" />
+        <meta name="author" content="Salaheddin AbuEin" />
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+        <link rel="manifest" type="application/manifest+json" href="kutbi.webmanifest" crossorigin="use-credentials" />
+        <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
+        <script type="importmap">
+            {
+                "scopes": {
+                    "/pwa/": {
+                        "apis": "./assets/js/modules/apis.mjs",
+                        "auth": "./assets/js/modules/auth.mjs",
+                        "data": "./assets/js/modules/data.mjs",
+                        "helpers": "./assets/js/modules/helpers.mjs",
+                        "interface": "./assets/js/modules/interface.mjs",
+                        "monitor": "./assets/js/modules/monitor.mjs",
+                        "objects": "./assets/js/modules/objects.mjs",
+                        "requests": "./assets/js/modules/requests.mjs"
+                    }
+                }
             }
-        }
-    </script>
-    <script type="module" src="assets/js/app.js"></script>
-    <title>الاشتراك والتسجيل</title>
-</head>
-<body class="flexy">
-    <header class="app-header flexy gap-x1" role="banner">
-        <div class="skipnav">
-            <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
-        </div>
-        <a href="." class="flexy row gap-x2">
-            <figure>
-                <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
-            </figure>
-            <div>
-                <h1 role="heading" aria-level="1">كتبي</h1>
-                <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+        </script>
+        <!-- link rel="modulepreload" href="/pwa/assets/js/app.js" / -->
+        <script type="module" src="assets/js/app.mjs"></script>
+        <script nomodule defer type="text/javascript" src="fallback.js"></script>
+        <title>الاشتراك والتسجيل</title>
+    </head>
+    <body class="flexy">
+        <header class="app-header flexy gap-x1" role="banner">
+            <div class="skipnav">
+                <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
             </div>
-        </a>
-    </header>
-    <nav class="app-nav flexy">
-        <button type="button" id="menuToggle">&#x2630;</button>
-        <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
-        <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
-    </nav>
-    <noscript class="flexy">
-        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
-    </noscript>
-    <main class="app-main flexy align-start" id="main-content">
-        <section style="display: none;">
-            <h3>Create new account</h3>
-            <p>The account type you are creating is different depending on what you want to do.</p>
-            <h4>Subscriber account</h4>
-            <p>You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
-            <h4>User account</h4>
-            <p>You are signing up to be able to post jobs & events adverts. Once you have created an account you will be able to post adverts for free subject to meeting the website policy. Please note that a separate account with a different email address will be needed if you want to also be able to get job/event search emails.</p>
-        </section>
-        <form action="http://localhost:3557/accounts/signup" method="POST" id="registerForm">
-            <!-- Include the CSRF token as a hidden input field -->
-            <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
-            <fieldset class="flexy">
-                <legend>Your details</legend>
-                <label for="registerUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" minlength="4" maxlength="16" pattern="\w{4,16}" required /></label>
-                <label for="registerEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="registerEmail" autocomplete="email" size="32" minlength="8" maxlength="64" required /></label>
-                <label for="registerPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="registerPass" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
-                <label for="registerPassX">تأكيد كلمة السر<span title="Please, again, type your account password">&sext;</span><input type="password" name="passwordX" id="registerPassX" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
-            </fieldset>
-            <!--fieldset style="display: none;">
-                <legend>Your details</legend>
-                <label for="subEmail">Email address<span title="The email address is not made public. It will only be used if you need to be contacted about your account or for opted-in notifications.">&sext;</span></label>
-                <input type="email" name="email" id="subEmail" required />
-                <label for="subEmailAgain">Confirm e-mail address<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
-                <input type="email" name="confirmEmail" id="subEmailAgain" required />
-            </fieldset-->
-            <fieldset class="flexy" style="display: none;">
-                <legend>Email Preferences<span title="What type of alerts do you want to receive?">&sext;</span></legend>
-                <label for="authorsBox"><input type="checkbox" name="preferences" id="authorsBox" value="authors">Authors</label>
-                <label for="booksBox"><input type="checkbox" name="preferences" id="booksBox" value="books">Books</label>
-                <label for="publishersBox"><input type="checkbox" name="preferences" id="publishersBox" value="publishers">Publishers</label>
-                <label for="reviewsBox"><input type="checkbox" name="preferences" id="reviewsBox" value="reviews">Reviews</label>
-                <label for="allBox"><input type="checkbox" name="preferences" id="allBox" value="all">ALL</label>
-                <label for="alertsFrequency">
-                    <select name="frequency" id="alertsFrequency">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="never">&dash;Never&dash;</option>
-                    </select>Alerts Frequency<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
-                <label for="format"><input type="checkbox" name="format" id="format" value="text" />Receive emails in plain text format</label>
-            </fieldset>
-            <fieldset style="display: none;">
-                <legend>Captcha</legend>
-                <label for="solution">Maths question<input type="text" id="problem" readonly value="1 + 1 =" /><input type="number" name="solution" id="solution" required value="2" /><span title="Solve this simple math problem and enter the result. E.g. for 1+3, enter 4.">&sext;</span></label>
-            </fieldset>
-            <p style="display: none;">You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
-            <input type="submit" value="Create new account" />
-            <input type="reset" value="Reset">
-        </form>
-    </main>
-    <footer class="app-footer flexy row gap-x2">
-        <a href=".">الرئيسية</a>
-        <a href="login.html">الدخول</a>
-        <a href="register.html">الاشتراك والتسجيل</a>
-        <a href="authors.html">المؤلفين</a>
-        <a href="faq.html">الأسئلة الشائعة</a>
-        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
-    </footer> 
-</body>
+            <a href="." class="flexy row gap-x2">
+                <figure>
+                    <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+                </figure>
+                <div>
+                    <h1 role="heading" aria-level="1">كتبي</h1>
+                    <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+                </div>
+            </a>
+        </header>
+        <nav class="app-nav flexy">
+            <button type="button" id="menuToggle">&#x2630;</button>
+            <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+            <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
+        </nav>
+        <noscript class="flexy">
+            <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+        </noscript>
+        <main class="app-main flexy align-start" id="main-content">
+            <section style="display: none;">
+                <h3>Create new account</h3>
+                <p>The account type you are creating is different depending on what you want to do.</p>
+                <h4>Subscriber account</h4>
+                <p>You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
+                <h4>User account</h4>
+                <p>You are signing up to be able to post jobs & events adverts. Once you have created an account you will be able to post adverts for free subject to meeting the website policy. Please note that a separate account with a different email address will be needed if you want to also be able to get job/event search emails.</p>
+            </section>
+            <form action="http://localhost:3557/accounts/signup" method="POST" id="registerForm">
+                <!-- Include the CSRF token as a hidden input field -->
+                <!-- input type="hidden" name="_csrf" value="{{csrfToken}}" / -->
+                <fieldset class="flexy">
+                    <legend>Your details</legend>
+                    <label for="registerUser">اسم المستخدم<span title="Please type your account username">&sext;</span><input type="text" name="username" id="loginUser" autocomplete="username" minlength="4" maxlength="16" pattern="\w{4,16}" required /></label>
+                    <label for="registerEmail">البريد الإلكتروني<span title="Please type your account email address">&sext;</span><input type="email" name="email" id="registerEmail" autocomplete="email" size="32" minlength="8" maxlength="64" required /></label>
+                    <label for="registerPass">كلمة السر<span title="Please type your account password">&sext;</span><input type="password" name="password" id="registerPass" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
+                    <label for="registerPassX">تأكيد كلمة السر<span title="Please, again, type your account password">&sext;</span><input type="password" name="passwordX" id="registerPassX" autocomplete="new-password" size="32" minlength="8" maxlength="64" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, at least 8 characters, and at most 64 characters" required /></label>
+                </fieldset>
+                <!--fieldset style="display: none;">
+                    <legend>Your details</legend>
+                    <label for="subEmail">Email address<span title="The email address is not made public. It will only be used if you need to be contacted about your account or for opted-in notifications.">&sext;</span></label>
+                    <input type="email" name="email" id="subEmail" required />
+                    <label for="subEmailAgain">Confirm e-mail address<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
+                    <input type="email" name="confirmEmail" id="subEmailAgain" required />
+                </fieldset-->
+                <fieldset class="flexy" style="display: none;">
+                    <legend>Email Preferences<span title="What type of alerts do you want to receive?">&sext;</span></legend>
+                    <label for="authorsBox"><input type="checkbox" name="preferences" id="authorsBox" value="authors">Authors</label>
+                    <label for="booksBox"><input type="checkbox" name="preferences" id="booksBox" value="books">Books</label>
+                    <label for="publishersBox"><input type="checkbox" name="preferences" id="publishersBox" value="publishers">Publishers</label>
+                    <label for="reviewsBox"><input type="checkbox" name="preferences" id="reviewsBox" value="reviews">Reviews</label>
+                    <label for="allBox"><input type="checkbox" name="preferences" id="allBox" value="all">ALL</label>
+                    <label for="alertsFrequency">
+                        <select name="frequency" id="alertsFrequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="never">&dash;Never&dash;</option>
+                        </select>Alerts Frequency<span title="Please re-type your e-mail address to confirm it's accurate.">&sext;</span></label>
+                    <label for="format"><input type="checkbox" name="format" id="format" value="text" />Receive emails in plain text format</label>
+                </fieldset>
+                <fieldset style="display: none;">
+                    <legend>Captcha</legend>
+                    <label for="solution">Maths question<input type="text" id="problem" readonly value="1 + 1 =" /><input type="number" name="solution" id="solution" required value="2" /><span title="Solve this simple math problem and enter the result. E.g. for 1+3, enter 4.">&sext;</span></label>
+                </fieldset>
+                <p style="display: none;">You are signing up for an account to save searches for jobs & events adverts and, if selected, appropriate email alerts. Please note that a separate account with a different email address will be needed if you want to also be able to post jobs or events.</p>
+                <input type="submit" value="Create new account" />
+                <input type="reset" value="Reset">
+            </form>
+        </main>
+        <footer class="app-footer flexy row gap-x2">
+            <a href=".">الرئيسية</a>
+            <a href="login.html">الدخول</a>
+            <a href="register.html">الاشتراك والتسجيل</a>
+            <a href="authors.html">المؤلفين</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+        </footer> 
+    </body>
 </html>

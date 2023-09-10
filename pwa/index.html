@@ -1,71 +1,78 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
-    <base href="http://localhost:5500/pwa/" target="_top" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-    <link rel="manifest" href="kutbi.webmanifest" />
-    <!-- link rel="modulepreload" href="/pwa/assets/js/app.js" / -->
-    <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
-    <script type="importmap">
-        {
-            "imports": {
-                "apis": "./assets/js/modules/apis.mjs",
-                "auth": "./assets/js/modules/auth.mjs",
-                "data": "./assets/js/modules/data.mjs",
-                "helpers": "./assets/js/modules/helpers.mjs",
-                "interface": "./assets/js/modules/interface.mjs",
-                "monitor": "./assets/js/modules/monitor.mjs",
-                "objects": "./assets/js/modules/objects.mjs",
-                "requests": "./assets/js/modules/requests.mjs"
+    <head>
+        <base href="http://localhost:5500/pwa/" target="_top" />
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="black" />
+        <meta name="description" content="A way to organise books" />
+        <meta name="keywords" content="HTML, CSS, JavaScript" />
+        <meta name="author" content="Salaheddin AbuEin" />
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+        <link rel="manifest" type="application/manifest+json" href="kutbi.webmanifest" crossorigin="use-credentials" />
+        <link rel="stylesheet" type="text/css" href="assets/css/layout.css" />
+        <script type="importmap">
+            {
+                "scopes": {
+                    "/pwa/": {
+                        "apis": "./assets/js/modules/apis.mjs",
+                        "auth": "./assets/js/modules/auth.mjs",
+                        "data": "./assets/js/modules/data.mjs",
+                        "helpers": "./assets/js/modules/helpers.mjs",
+                        "interface": "./assets/js/modules/interface.mjs",
+                        "monitor": "./assets/js/modules/monitor.mjs",
+                        "objects": "./assets/js/modules/objects.mjs",
+                        "requests": "./assets/js/modules/requests.mjs"
+                    }
+                }
             }
-        }
-    </script>
-    <script type="module" src="assets/js/app.js"></script>
-    <title>الرئيسية</title>
-</head>
-<body class="flexy">
-    <header class="app-header flexy gap-x1" role="banner">
-        <div class="skipnav">
-            <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
-        </div>
-        <a href="." class="flexy row gap-x2">
-            <figure>
-                <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
-            </figure>
-            <div>
-                <h1 role="heading" aria-level="1">كتبي</h1>
-                <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+        </script>
+        <!-- link rel="modulepreload" href="/pwa/assets/js/app.js" / -->
+        <script type="module" src="assets/js/app.mjs"></script>
+        <script nomodule defer type="text/javascript" src="fallback.js"></script>
+        <title>الرئيسية</title>
+    </head>
+    <body class="flexy">
+        <header class="app-header flexy gap-x1" role="banner">
+            <div class="skipnav">
+                <a href="#main-content">انتقل إلى المحتوى الرئيسي&hellip;</a>&nbsp;<a href="#sitemap">انتقل إلى خارطة الموقع&hellip;</a>
             </div>
-        </a>
-    </header>
-    <nav class="app-nav flexy">
-        <button type="button" id="menuToggle">&#x2630;</button>
-        <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
-        <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
-    </nav>
-    <noscript class="flexy">
-        <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
-    </noscript>
-    <main class="app-main flexy align-start" id="main-content">
-        <h3>أهلاً وسهلاً في برنامج كتبي</h3>
-        <p>أهلاً وسهلاً بكم في الصفحة الرئيسية من مشروع كتبي. هذا المشروع الذي أحاول من خلاله بناء نظام يساعدني ولعله يساعد أحد آخر في الإبقاء على بيانات المكتبة الشخصية متوفرة وسهلة ومعروضة بشكل جميل.</p>
-    </main>
-    <footer class="app-footer flexy row gap-x2">
-        <a href=".">الرئيسية</a>
-        <a href="login.html">الدخول</a>
-        <a href="register.html">الاشتراك والتسجيل</a>
-        <a href="authors.html">المؤلفين</a>
-        <a href="faq.html">الأسئلة الشائعة</a>
-        <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
-    </footer> 
-</body>
+            <a href="." class="flexy row gap-x2">
+                <figure>
+                    <img src="./assets/images/svg/books.svg" alt="شعار كتبي" />
+                </figure>
+                <div>
+                    <h1 role="heading" aria-level="1">كتبي</h1>
+                    <h2 role="heading" aria-level="2">هل لدي هذا الكتاب&#x61f;</h2>
+                </div>
+            </a>
+        </header>
+        <nav class="app-nav flexy">
+            <button type="button" id="menuToggle">&#x2630;</button>
+            <button type="button" id="lightDark" role="switch" data-sun="&#9788;" data-moon="&#9789;">&#9789;</button>
+            <button type="button" id="resetStorage" title="Clear site data and reload">&olarr;</button>
+        </nav>
+        <noscript class="flexy">
+            <p style="padding: 2rem; flex: 0 0 500px;">This web application requires JavaScript</p>
+        </noscript>
+        <main class="app-main flexy align-start" id="main-content">
+            <h3>أهلاً وسهلاً في برنامج كتبي</h3>
+            <p>أهلاً وسهلاً بكم في الصفحة الرئيسية من مشروع كتبي. هذا المشروع الذي أحاول من خلاله بناء نظام يساعدني ولعله يساعد أحد آخر في الإبقاء على بيانات المكتبة الشخصية متوفرة وسهلة ومعروضة بشكل جميل.</p>
+        </main>
+        <footer class="app-footer flexy row gap-x2">
+            <a href=".">الرئيسية</a>
+            <a href="login.html">الدخول</a>
+            <a href="register.html">الاشتراك والتسجيل</a>
+            <a href="authors.html">المؤلفين</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="#main-content" id="go-top" title="الرجوع إلى الأعلى">الرجوع إلى الأعلى &UpArrow;</a>
+            <button type="button" id="subscribe">Subscribe</button>
+        </footer> 
+    </body>
 </html>
