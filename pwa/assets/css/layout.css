@@ -186,6 +186,15 @@ fieldset[name="field"] input[type="number"]+input[type="button"] {
     padding: .25rem;
 }
 
+select[multiple] {
+    height: 1.5em;
+    vertical-align: top;
+}
+
+select[multiple]:is(:focus, :active) {
+    height: auto;
+}
+
 label>span {
     font-size: small;
 }
