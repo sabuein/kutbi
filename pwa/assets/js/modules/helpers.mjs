@@ -188,6 +188,35 @@ const getCookie = (cookieName) => {
     }
 };
 
+const contentTypes = [
+    "text/plain",
+    "image/apng",
+    "image/bmp",
+    "image/gif",
+    "image/jpeg",
+    "image/pjpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/tiff",
+    "image/webp",
+    "image/x-icon",
+], validContentType = (type) => contentTypes.includes(type);
+
+const downloadObject = (content, filename, contentType) => {
+    const a = document.createElement("a");
+    try { // A File, Blob, or MediaSource object
+        const object = new window.Blob([content], { type: (validContentType(contentType) ? contentType : "text/plain") });
+        a.href = window.URL.createObjectURL(object);
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(a.href);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        a.remove();
+    }
+};
+
 export {
     id,
     qs,
@@ -195,5 +224,6 @@ export {
     urlToJSON,
     encode,
     decode,
-    getCookie
+    getCookie,
+    downloadObject
 };

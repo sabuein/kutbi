@@ -1,6 +1,6 @@
 "use strict";
 
-import { id, qs } from "helpers";
+import { id, qs, downloadObject } from "helpers";
 import { getAllAuthors, enterAuthorsMatrix } from "data";
 import { handleGetForm, handleFormsWithBody } from "requests";
 import {
@@ -50,11 +50,11 @@ window.addEventListener("load", async () => {
         serviceWorker.postMessage("@kutbi:~$ command#4!");
     }
 
-    window.onpush = (event) => {
+    window.addEventListener("push", (event) => {
         console.log(event.data);
         // From here we can write the data to IndexedDB, send it to any open
         // windows, display a notification, etc.
-    };
+    });
 
     loadFonts();
 });
@@ -63,12 +63,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const user = await loadAccount();
     try {
         if (user === "Anonymous") throw Error("@kutbi:~$ Hello, Anonymous. You need to sign in.");
-        if (!!user && user.account) console.log(`@kutbi:~$ Welcome back, ${user.account.username}.`);
+        if (!!user && !!user.account) console.log(`@kutbi:~$ Welcome back, ${user.account.username}.`);
     } catch (error) {
         console.error(error);
     } finally {
         if (!!user && user.loggen === "1") console.log(JSON.stringify(user, null, 2));
-        else if (user) console.log(`Browsing activity since last login: ${user.loggen}.`);
+        else if (!!user) console.log(`Browsing activity since last login: ${user.loggen}.`);
     }
 
     if (!window.localStorage.getItem("hello")) {
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else console.log(`@kutbi:~$ False: Same old session. Hello, ${window.sessionStorage.getItem("hello")}`);
 
     const resetStorage = id("resetStorage");
-    if (resetStorage) {
+    if (!!resetStorage) {
         try {
             resetStorage.addEventListener("click", (event) => {
                 // Some constraints
@@ -102,13 +102,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    const registerForm = id("registerForm"),
-        loginForm = id("loginForm");
+    const registerForm = id("registerForm"), loginForm = id("loginForm");
     if (!!registerForm) registerForm.addEventListener("submit", await handleFormsWithBody, false);
     if (!!loginForm) loginForm.addEventListener("submit", await handleFormsWithBody, false);
 
-    const updateMe = id("updateBtn");
-    const showHere = id("updateTxt");
+    const updateMe = id("updateBtn"), showHere = id("updateTxt");
     // if (updateMe) updateMe.addEventListener("click", updateButton(e, showHere), false);
 
     // http://localhost:3558/tokens/csrf
@@ -138,8 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!!progressBar) requestAnimationFrame(updateProgress);
 
     const myMenu = qs('ul[role="menu"]'), myButton = qs("button#menuToggle");
-
-    if (myMenu && myButton) {
+    if (!!myMenu && !!myButton) {
         myMenu.addEventListener("click", (event) => {
             if (!event) window.event.cancelBubble = true;
             else event.stopPropagation(); // also, check event.stopImmediatePropagation();
@@ -151,6 +148,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    const subscribeButton = qs("button#subscribe");
-    if (!!subscribeButton) setPushSubscription();
+    if (window.location.pathname.includes("dashboard.html")) {
+        const subscribeButton = qs("button#subscribe");
+        setPushSubscription();
+
+        id("downloadThisContent").addEventListener("click", (e) => {
+            downloadObject(id("content-area").value, "my-new-file.txt", "text/plain");
+        });
+    }
 });

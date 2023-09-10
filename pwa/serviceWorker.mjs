@@ -20,6 +20,7 @@ const cacheAssets = [
     `${scope}authors.html`,
     `${scope}change-password.html`,
     `${scope}cookies.html`,
+    `${scope}dashboard.html`,
     `${scope}faq.html`,
     `${scope}features.html`,
     `${scope}index.html`,
@@ -56,7 +57,7 @@ const cacheAssets = [
     `${scope}assets/images/svg/books.svg`
 ];
 
-self.addEventListener("install", (event) => {
+self.addEventListener("install", async (event) => {
     try {
         // Setting up caches, offline assets, populating an IndexedDB, etc.
         event.waitUntil(
@@ -65,6 +66,7 @@ self.addEventListener("install", (event) => {
                 .then(self.skipWaiting())
         );
     } catch (error) {
+        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
     }
 });
@@ -209,6 +211,7 @@ const cacheThenNetwork = async (request) => {
             } else return Response.error();
         }
     } catch (error) {
+        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
         // () => caches.match(`${scope}assets/images/error.jpg`);
     }
@@ -221,6 +224,7 @@ const cacheOnly = async (request) => {
         if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
         else return Response.error();
     } catch (error) {
+        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
         // () => caches.match(`${scope}assets/images/error.jpg`);
     }
