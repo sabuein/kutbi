@@ -176,6 +176,7 @@ const readCookies = async (request, response, next) => {
         
         if (!cookies || (typeof cookies !== "string")) {
             console.log(`${+ Date.now()}:${pad(i, 5)}:@kutbi:~/readCookies$ The request is missing the necessary cookies to access private endpoints.`);
+            // response.status(200).json([{}]);
             return next();
         }
 
