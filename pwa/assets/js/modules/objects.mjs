@@ -6,25 +6,23 @@ import { decode, encode } from "./helpers.mjs";
 const loadAccount = async () => {
     const current = {};
     try {
-        let retrieved = local("read", "account");
-
-        if (retrieved) {
+        const retrieved = local("read", "account");
+        if (!!retrieved) {
             current.loggen = JSON.parse(local("read", "loggen"));
             current.account = JSON.parse(retrieved);
+            if (!!current.loggen && !!current.account) {
+                local("update", "loggen", (++current.loggen).toString());
+                current.loggen = local("read", "loggen");
+                current.account = (new Account(JSON.parse(decode(current.account.account)))).toString();
+            } else { throw Error("@kutbi:~/accounts$ We could not retrieve any account from the browser. You need to log in."); }
+
+            const tokens = local("read", "tokens");
+            if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any tokens from the browser. You need to log in.");        
+            else current.tokens = JSON.parse(tokens);
+
+            console.log("@kutbi:~$ Your Kutbi account and login details have been retrieved successfully from the browser.");
+            return current;
         }
-
-        if (current.account) {
-            local("update", "loggen", (++current.loggen).toString());
-            current.loggen = local("read", "loggen");
-            current.account = (new Account(JSON.parse(decode(current.account.account)))).toString();
-        } else { throw Error("@kutbi:~/accounts$ We could not retrieve any account from the browser. You need to log in."); }
-        
-        const tokens = local("read", "tokens");
-        if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any tokens from the browser. You need to log in.");        
-        else current.tokens = JSON.parse(tokens);
-
-        console.log("@kutbi:~$ Your Kutbi account and login details have been retrieved successfully from the browser.");
-        return current;
     } catch (error) {
         console.error(error);
         return null;

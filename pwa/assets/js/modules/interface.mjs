@@ -2,6 +2,19 @@
 
 import { getAllAuthors } from "./data.mjs";
 
+const updateProgress = () => {
+    try {
+        const totalHeight = document.body.clientHeight;
+        const windowHeight = document.documentElement.clientHeight;
+        const position = window.scrollY;
+        const progress = position / (totalHeight - windowHeight) * 100;
+        progressBar.setAttribute("value", progress);
+        requestAnimationFrame(updateProgress);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const loadFonts = () => {
     try {
         class FontFaceObserver {
@@ -9,11 +22,15 @@ const loadFonts = () => {
             name;
 
             constructor(name) {
-                name = this.name;
+                this.name = name;
+            }
+
+            get name() {
+                return this.name;
             }
 
             load() {
-                console.log("Hi...");
+                console.log(`Loading ${this.name} font file...`);
             }
         };
 
@@ -23,7 +40,7 @@ const loadFonts = () => {
             pacificoObserver.load(),
         ]).then(() => {
             document.documentElement.className = "fonts-loaded";
-            console.log("Hooray! Font loaded.");
+            console.log(`Hooray! Font ${pacificoObserver.name} has been loaded.`);
         });
     } catch (error) {
         console.log(error);
@@ -197,4 +214,9 @@ const updateAuthorDisplay = async (output) => {
     : (e.target.value = "Start machine") && (paragraph.textContent = "The machine is stopped.");
 };*/
 
-export { updateImageDisplay, updateAuthorDisplay, loadFonts };
+export {
+    updateProgress,
+    updateImageDisplay,
+    updateAuthorDisplay,
+    loadFonts
+};
