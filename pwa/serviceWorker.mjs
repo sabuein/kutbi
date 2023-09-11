@@ -4,79 +4,67 @@
 
 // https://www.w3.org/TR/service-workers/
 
+const workerScope = "/pwa/";
 const cacheVersion = 1;
 const cacheName = `kutbi-${cacheVersion}`;
-const scope = "/pwa/";
-const patterns = {
-    scripts: "\.(js|mjs)$",
-    stylesheets: "\.css$",
-    images: "\.(jpg|jpeg|png|gif|bmp|svg|webp|ico)$",
-    fonts: "\.(woff|woff2|ttf|otf|eot)$",
-    json: "\.json$"
-};
-
 const cacheAssets = [
-    `${scope}`,
-    `${scope}authors.html`,
-    `${scope}change-password.html`,
-    `${scope}cookies.html`,
-    `${scope}dashboard.html`,
-    `${scope}faq.html`,
-    `${scope}features.html`,
-    `${scope}index.html`,
-    `${scope}kutbi.webmanifest`,
-    `${scope}login.html`,
-    `${scope}mobile.html`,
-    `${scope}purpose.html`,
-    `${scope}recover.html`,
-    `${scope}register.html`,
-    `${scope}serviceWorker.mjs`,
-    `${scope}sharedWorker.mjs`,
-    `${scope}sitemap.xml`,
-    `${scope}wishlist.html`,
-    `${scope}worker.mjs`,
-    `${scope}assets/css/layout.css`,
-    `${scope}assets/fonts/CircularXXWeb-Book.woff2`,
-    `${scope}assets/js/app.mjs`,
-    `${scope}assets/js/modules/apis.mjs`,
-    `${scope}assets/js/modules/auth.mjs`,
-    `${scope}assets/js/modules/data.mjs`,
-    `${scope}assets/js/modules/helpers.mjs`,
-    `${scope}assets/js/modules/interface.mjs`,
-    `${scope}assets/js/modules/monitor.mjs`,
-    `${scope}assets/js/modules/objects.mjs`,
-    `${scope}assets/js/modules/requests.mjs`,
-    `${scope}assets/images/add.png`,
-    `${scope}assets/images/apple-touch-icon.png`,
-    `${scope}assets/images/favicon-16x16.png`,
-    `${scope}assets/images/favicon-32x32.png`,
-    `${scope}assets/images/favicon.ico`,
-    `${scope}assets/images/screenshot1.png`,
-    `${scope}assets/images/screenshot2.jpg`,
-    `${scope}assets/images/android/android-launchericon-144-144.png`,
-    `${scope}assets/images/svg/books.svg`
+    `${workerScope}`,
+    `${workerScope}authors.html`,
+    `${workerScope}change-password.html`,
+    `${workerScope}cookies.html`,
+    `${workerScope}dashboard.html`,
+    `${workerScope}faq.html`,
+    `${workerScope}features.html`,
+    `${workerScope}index.html`,
+    `${workerScope}kutbi.webmanifest`,
+    `${workerScope}login.html`,
+    `${workerScope}mobile.html`,
+    `${workerScope}purpose.html`,
+    `${workerScope}recover.html`,
+    `${workerScope}register.html`,
+    `${workerScope}serviceWorker.mjs`,
+    `${workerScope}sharedWorker.mjs`,
+    `${workerScope}sitemap.xml`,
+    `${workerScope}wishlist.html`,
+    `${workerScope}worker.mjs`,
+    `${workerScope}assets/css/layout.css`,
+    `${workerScope}assets/fonts/CircularXXWeb-Book.woff2`,
+    `${workerScope}assets/js/app.mjs`,
+    `${workerScope}assets/js/modules/apis.mjs`,
+    `${workerScope}assets/js/modules/auth.mjs`,
+    `${workerScope}assets/js/modules/data.mjs`,
+    `${workerScope}assets/js/modules/helpers.mjs`,
+    `${workerScope}assets/js/modules/interface.mjs`,
+    `${workerScope}assets/js/modules/monitor.mjs`,
+    `${workerScope}assets/js/modules/objects.mjs`,
+    `${workerScope}assets/js/modules/requests.mjs`,
+    `${workerScope}assets/images/add.png`,
+    `${workerScope}assets/images/apple-touch-icon.png`,
+    `${workerScope}assets/images/favicon-16x16.png`,
+    `${workerScope}assets/images/favicon-32x32.png`,
+    `${workerScope}assets/images/favicon.ico`,
+    `${workerScope}assets/images/screenshot1.png`,
+    `${workerScope}assets/images/screenshot2.jpg`,
+    `${workerScope}assets/images/android/android-launchericon-144-144.png`,
+    `${workerScope}assets/images/svg/books.svg`
 ];
 
-self.addEventListener("install", async (event) => {
+self.addEventListener("install", (event) => {
     try {
         // Setting up caches, offline assets, populating an IndexedDB, etc.
-        event.waitUntil(
-            caches.open(cacheName)
-                .then(cache => cache.addAll(cacheAssets))
-                .then(self.skipWaiting())
-        );
+        event.waitUntil(addResourcesToCache());
+        self.skipWaiting();
     } catch (error) {
-        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
     }
-});
+}, false);
 
-self.addEventListener("activate", async (event) => {
+self.addEventListener("activate", (event) => {
     // Clean up resources used in previous versions of the service worker
-    await deleteOldCaches(cacheName);
+    deleteOldCaches(cacheName);
     // Clients loaded in the same scope do not need to be reloaded before their fetches will go through this service worker
     self.clients.claim();
-});
+}, false);
 
 self.addEventListener("message", (event) => {
     try {
@@ -95,7 +83,7 @@ self.addEventListener("message", (event) => {
     } catch (error) {
         console.error(error);
     }
-});
+}, false);
 
 self.addEventListener("sync", (event) => {
     try {
@@ -107,9 +95,7 @@ self.addEventListener("sync", (event) => {
         if (event.tag == "important-thing") {
             event.waitUntil(
                 doImportantThing().catch(error => {
-                    if (event.lastChance) {
-                        self.registration.showNotification("Important thing failed");
-                    }
+                    if (event.lastChance) self.registration.showNotification("Important thing failed!");
                     throw error;
                 })
             );
@@ -117,31 +103,46 @@ self.addEventListener("sync", (event) => {
     } catch (error) {
         console.error(error);
     }
-});
+}, false);
 
 self.addEventListener("fetch", (event) => {
-    try {
-        const url = new URL(event.request.url);
-        /*
-                if (patterns.scripts.test(url.pathname)) event.respondWith(cacheOnly(event.request));
-                else if (patterns.stylesheets.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
-                else if (patterns.images.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
-                else if (patterns.fonts.test(url.pathname)) event.respondWith(cacheOnly(event.request));
-                else if (patterns.json.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
-                else if (url.pathname.includes("secret")) event.respondWith(Response.error());
-                else event.respondWith(Response.json({ message: "All's good!" }));*/
-
-        // The string must be one of the audio, audioworklet, document, embed, font, frame, iframe, image, manifest, object, paintworklet, report, script, sharedworker, style, track, video, worker or xslt strings, or the empty string, which is the default value.
-        if (
-            event.request.destination === "script" ||
-            event.request.destination === "style"
-        ) {
-            event.respondWith(cacheThenNetwork(event.request));
-        } else event.respondWith(cacheThenNetwork(event.request));
+    try { 
+        // The string must be one of the audio, audioworklet, embed, frame, iframe,
+        // object, paintworklet, report, track, video, or xslt strings,
+        // or the empty string, which is the default value.
+        const url = new URL(event.request.url),
+            patterns = {
+                scripts: new RegExp("\\.(js|mjs)$"),
+                stylesheets: new RegExp("\\.css$"),
+                images: new RegExp("\\.(jpg|jpeg|png|gif|bmp|svg|webp|ico)$"),
+                fonts: new RegExp("\\.(woff|woff2|ttf|otf|eot)$"),
+                json: new RegExp("\\.json$")
+            },
+            networkTypes = [
+            "style",
+            "stylesheet",
+            "script",
+            "websocket"
+        ], cacheTypes = [
+            "font",
+            "document",
+            "manifest",
+            "image",
+            "png",
+            "jpeg",
+            "svg+xml",
+            "worker",
+            "sharedworker",
+        ];
+        if (networkTypes.includes(event.request.destination) ||
+            patterns.scripts.test(url.pathname) ||
+            patterns.fonts.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
+        else if (cacheTypes.includes(event.request.destination)) event.respondWith(cacheOnly(event.request));
+        else if (event.request.destination === "fetch" || event.request.destination === "") cacheOnly(event.request);
     } catch (error) {
         console.error(error);
     }
-});
+}, false);
 
 self.addEventListener("push", (event) => {
     // Returns a reference to a PushMessageData object
@@ -180,19 +181,48 @@ self.addEventListener("notificationclick", (event) => {
                 if (clients.openWindow) return clients.openWindow("/");
             }),
     );
-});
+}, false);
 
 self.addEventListener("error", (event) => {
     // The error event has three fields: message, filename, and lineno.
     event.preventDefault();
     console.error(event.message);
-});
+}, false);
 
-const doInit = () => {
+const doImportantThing = async () => {
+    throw Error("Nothing is important!");
+};
+
+const addResourceToCache = async (request) => {
+    try {
+        const fetchedResponse = await fetch(request);
+        if (!!fetchedResponse && !!fetchedResponse.ok) {
+            const responseClone = fetchedResponse.clone();
+            const cache = await caches.open(cacheName);
+            await cache.put(request, responseClone);
+            return fetchedResponse;
+        } else return Response.error();
+    } catch (error) {
+        if (error.name === "QuotaExceededError") deleteOldCaches(cacheName);
+        console.error(error);
+    }
+}
+
+const addResourcesToCache = async () => {
+    try {
+        const cache = await caches.open(cacheName);
+        await cache.addAll(cacheAssets);
+    } catch (error) {
+        if (error.name === "QuotaExceededError") deleteOldCaches(cacheName);
+        console.error(error);
+    }
+};
+
+const doInit = async () => {
     console.log("doInit();");
 };
 
-const doShutdown = () => {
+const doShutdown = async () => {
     console.log("doShutdown();");
 };
 
@@ -201,17 +231,9 @@ const cacheThenNetwork = async (request) => {
     try {
         const cachedResponse = await caches.match(request, { cacheName: cacheName });
         if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
-        else {
-            const fetchedResponse = await fetch(request);
-            if (!!fetchedResponse) {
-                const responseClone = fetchedResponse.clone();
-                const cache = await caches.open(cacheName);
-                cache.put(request, responseClone);
-                return await cacheOnly(request);
-            } else return Response.error();
-        }
+        else await addResourceToCache(request);
+        return await cacheOnly(request); 
     } catch (error) {
-        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
         // () => caches.match(`${scope}assets/images/error.jpg`);
     }
@@ -224,7 +246,6 @@ const cacheOnly = async (request) => {
         if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
         else return Response.error();
     } catch (error) {
-        if (error.name === "QuotaExceededError") await deleteOldCaches(cacheName);
         console.error(error);
         // () => caches.match(`${scope}assets/images/error.jpg`);
     }

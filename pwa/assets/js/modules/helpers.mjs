@@ -190,6 +190,7 @@ const getCookie = (cookieName) => {
 
 const contentTypes = [
     "text/plain",
+    "text/javascript",
     "image/apng",
     "image/bmp",
     "image/gif",
