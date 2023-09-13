@@ -2,7 +2,7 @@
 
 import { id, qs, downloadObject } from "helpers";
 import { getAllAuthors, enterAuthorsMatrix } from "data";
-import { handleGetForm, handleFormsWithBody } from "requests";
+import { handleGetForm, handleFormsWithBody, fetchJSON } from "requests";
 import {
     updateImageDisplay,
     updateAuthorDisplay,
@@ -155,5 +155,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         id("downloadThisContent").addEventListener("click", (e) => {
             downloadObject(id("content-area").value, "my-new-file.txt", "text/plain");
         });
+
+        const data = await fetchJSON("/pwa/assets/data/books.json", { method: "get" });
+        console.log(JSON.stringify(data, null, 2));
     }
 });

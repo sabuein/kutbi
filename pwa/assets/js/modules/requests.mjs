@@ -4,6 +4,15 @@ import { local, session } from "./apis.mjs";
 import { handleInput, validateInput } from "./data.mjs";
 import { urlWithQuery, urlToJSON, encode, decode, getCookie } from "./helpers.mjs";
 
+/*
+// Add the following as the third parameter of addEventListener()
+const controller = new AbortController();
+const signal = controller.signal;
+controller.abort();
+
+// Or use the static method { signal: AbortSignal.timeout(5000) }
+*/
+
 const formElementsAreValid = async (elements) => {
     // Checks if the signin/singup form elements are valid and ready to be used in the HTTP request
     try {
@@ -28,6 +37,41 @@ const formElementsAreValid = async (elements) => {
         return true;
     } catch (error) {
         console.error(error);
+    }
+};
+
+const fetchJSON = async (url, options = null) => {
+    const request = new Request(url),
+        controller = new AbortController(),
+        signal = controller.signal,
+        cachedResponse = await caches.match(request, { cacheName: "kutbi-1" });
+    if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse.json();
+    try {
+        const xHeaders = new Headers();
+        xHeaders.set("Accept", "application/json; charset=UTF-8");
+        xHeaders.set("Content-Type", "application/json; charset=UTF-8");
+        // opHeaders.set("Access-Control-Allow-Headers", "");
+        // opHeaders.set("Authorization", `Bearer ${ tokens ? tokens.access : "HI" }`);
+        xHeaders.set("X-Requested-With", "X");
+        xHeaders.set("X-Access-Token", "X");
+        xHeaders.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
+        xHeaders.set("Cookie", document.cookie); // Include cookies
+        const xOptions = {
+            method: "get",
+            headers: xHeaders,
+            mode: "cors",
+            cache: "default",
+            // signal: signal
+            // credentials: "include"
+        };
+        const response = await fetch(url, options || xOptions);
+        if (!!response && !!response.ok) return await response.json();
+    } catch (error) {
+        if (error instanceof SyntaxError) console.log("There was a SyntaxError: ", error);
+        else console.error(error);
+    } finally {
+        // Cancel the fetch request in 3 seconds
+        // setTimeout(() => controller.abort(), 5000);
     }
 };
 
@@ -170,4 +214,4 @@ const deletePost = (url, id) => {
     });
 };
 
-export { handleGetForm, handleFormsWithBody };
+export { handleGetForm, handleFormsWithBody, fetchJSON };

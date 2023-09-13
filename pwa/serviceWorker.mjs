@@ -4,6 +4,9 @@
 
 // https://www.w3.org/TR/service-workers/
 
+// static import
+import { justSayingHi } from "./assets/js/modules/helpers.mjs";
+
 const workerScope = "/pwa/";
 const cacheVersion = 1;
 const cacheName = `kutbi-${cacheVersion}`;
@@ -46,7 +49,8 @@ const cacheAssets = [
     `${workerScope}assets/images/screenshot1.png`,
     `${workerScope}assets/images/screenshot2.jpg`,
     `${workerScope}assets/images/android/android-launchericon-144-144.png`,
-    `${workerScope}assets/images/svg/books.svg`
+    `${workerScope}assets/images/svg/books.svg`,
+    `${workerScope}assets/data/books.json`
 ];
 
 self.addEventListener("install", (event) => {
@@ -64,6 +68,7 @@ self.addEventListener("activate", (event) => {
     deleteOldCaches(cacheName);
     // Clients loaded in the same scope do not need to be reloaded before their fetches will go through this service worker
     self.clients.claim();
+    console.log(`@ServiceWorker:~$ ${justSayingHi()} Scope: ${workerScope}. Cache: ${cacheName}`);
 }, false);
 
 self.addEventListener("message", (event) => {
@@ -131,6 +136,7 @@ self.addEventListener("fetch", (event) => {
             "png",
             "jpeg",
             "svg+xml",
+            "x-icon",
             "worker",
             "sharedworker",
         ];

@@ -218,6 +218,10 @@ const downloadObject = (content, filename, contentType) => {
     }
 };
 
+const justSayingHi = () => {
+    return "As-salamu alaykum, world!"
+};
+
 export {
     id,
     qs,
@@ -226,5 +230,6 @@ export {
     encode,
     decode,
     getCookie,
-    downloadObject
+    downloadObject,
+    justSayingHi
 };

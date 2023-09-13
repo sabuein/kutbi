@@ -2,6 +2,55 @@
 
 import { getAllAuthors } from "./data.mjs";
 
+const eventOptions = {
+    capture: false, // events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree
+    once: false, // the listener should be invoked at most once after being added
+    passive: false, // will never call preventDefault()
+    signal: null // An AbortSignal object { signal: controller.signal } or use the static method { signal: AbortSignal.timeout(5000) }
+};
+
+const useCapture = true; // events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree
+
+// Forms
+
+const detectCapsLockKey = (input, paragraph) => {
+    // Detects when the user presses the CapsLock key on the keyboard while in the specified input and displays the paragraph element
+    try {
+        input.addEventListener("keyup", (event) => {
+            // If true, CapsLock is on
+            if (event.getModifierState("CapsLock")) paragraph.style.display = "block";
+            else paragraph.style.display = "none"; // paragraph.firstChild.nodeValue = "WARNING! Caps lock is ON."
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const detectEnterKey = (input, button) => {
+    // Detects if the user presses the "Enter" key on the keyboard
+    try {
+        input.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                button.click();
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const togglePasswordVisibility = (input) => {
+    try {
+        if (input.type === "password") input.type = "text";
+        else input.type = "password";
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 const updateProgress = () => {
     try {
         const totalHeight = document.body.clientHeight;
