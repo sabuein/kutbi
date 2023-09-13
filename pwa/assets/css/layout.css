@@ -9,7 +9,197 @@
 :root {
     --color-black: #000000;
     --color-white: #ffffff;
+    --color-palette-green: #04aa6d;
+    --color-palette-blue: #2196f3;
+    --color-palette-another-blue: #3498db;
+    --color-palette-red: #f44336;
+    --color-palette-light-grey: #f3f3f3;
+    --color-palette-dark-grey: #808080;
+    --color-palette-danger: #cc3300;
+    --color-palette-warning: #ff9800;
+    --color-palette-focus: #ffcc00;
+    --color-palette-success: #339900;
+    --color-palette-confirm: #99cc33;
+    --color-palette-info: #2196f3;
+    --color-palette-other: #e7e7e7;
+    --color-palette-dark-palette-one: #222831;
+    --color-palette-dark-palette-two: #4e535a;
+    --color-palette-dark-palette-three: #7a7e83;
+    --color-palette-dark-palette-four: #a7a9ad;
+    --color-palette-dark-palette-five: #d3d4d6;
     --web-fonts: Arial, Helvetica, sans-serif;
+}
+
+.arrow.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.arrow.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}
+
+.arrow.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.loader {
+    border: 1em solid var(--color-palette-light-grey);
+    border-top: 1em solid var(--color-palette-another-blue);
+    border-radius: 50%;
+    width: 7em;
+    height: 7em;
+    animation: spin 2s linear infinite;
+}
+
+.prevent-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
+}
+
+::-moz-selection {
+    /* Code for Firefox */
+    color: var(--color-white);
+    background-color: var(--color-black);
+}
+
+::selection {
+    color: var(--color-white);
+    background-color: var(--color-black);
+}
+
+#snackbar {
+    visibility: hidden;
+    /* Hidden by default. Visible on click */
+    min-width: 250px;
+    /* Set a default minimum width */
+    margin-left: -125px;
+    /* Divide value of min-width by 2 */
+    background-color: #333;
+    /* Black background color */
+    color: #fff;
+    /* White text color */
+    text-align: center;
+    /* Centered text */
+    border-radius: 2px;
+    /* Rounded borders */
+    padding: 16px;
+    /* Padding */
+    position: fixed;
+    /* Sit on top of the screen */
+    z-index: 1;
+    /* Add a z-index if needed */
+    left: 50%;
+    /* Center the snackbar */
+    bottom: 30px;
+    /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+    visibility: visible;
+    /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: var(--color-black);
+    opacity: 1;
+    /* Firefox */
+}
+
+:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: var(--color-black);
+}
+
+::-ms-input-placeholder {
+    /* Microsoft Edge */
+    color: var(--color-black);
 }
 
 :root.fonts-loaded {
@@ -20,6 +210,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+html,
+body {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -199,6 +394,10 @@ label>span {
     font-size: small;
 }
 
+input.invalid {
+    background-color: #cc3300;
+}
+
 input:not([type="checkbox"], [type="radio"]) {
     appearance: none;
 }
@@ -337,8 +536,25 @@ a:focus {
     text-decoration: none;
 }
 
-@media screen and (max-width: 780px) {
+@media only screen and (max-width: 600px) {
+    /* Extra small devices (phones, 600px and down) */
+}
+
+@media only screen and (min-width: 600px) {
+    /* Small devices (portrait tablets and large phones, 600px and up) */
+}
+
+@media only screen and (min-width: 768px) {
+    /* Medium devices (landscape tablets, 768px and up) */
     main#main-content {
         width: 90%;
     }
+}
+
+@media only screen and (min-width: 992px) {
+    /* Large devices (laptops/desktops, 992px and up) */
+}
+
+@media only screen and (min-width: 1200px) {
+    /* Extra large devices (large laptops and desktops, 1200px and up) */
 }
