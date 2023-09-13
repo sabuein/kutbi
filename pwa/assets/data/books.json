@@ -1,0 +1,12 @@
+{
+    "books": [
+        {
+            "title": "عنوان الكتاب 1",
+            "author": "اسم الكاتب 1",
+            "cover_image": "https://example.com/cover1.jpg",
+            "publication_date": "تاريخ النشر 1",
+            "genre": "نوع الكتاب 1",
+            "description": "وصف الكتاب 1"
+        }
+    ]
+}
