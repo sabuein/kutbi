@@ -7,7 +7,7 @@
 
 self.addEventListener("connect", (event) => {
     const port = event.ports[0];
-    
+
     port.addEventListener("message", (event) => {
         /*
         port.postMessage("@sharedWorker:~$ A message received from main script...");

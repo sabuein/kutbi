@@ -111,7 +111,7 @@ self.addEventListener("sync", (event) => {
 }, false);
 
 self.addEventListener("fetch", (event) => {
-    try { 
+    try {
         // The string must be one of the audio, audioworklet, embed, frame, iframe,
         // object, paintworklet, report, track, video, or xslt strings,
         // or the empty string, which is the default value.
@@ -124,22 +124,22 @@ self.addEventListener("fetch", (event) => {
                 json: new RegExp("\\.json$")
             },
             networkTypes = [
-            "style",
-            "stylesheet",
-            "script",
-            "websocket"
-        ], cacheTypes = [
-            "font",
-            "document",
-            "manifest",
-            "image",
-            "png",
-            "jpeg",
-            "svg+xml",
-            "x-icon",
-            "worker",
-            "sharedworker",
-        ];
+                "style",
+                "stylesheet",
+                "script",
+                "websocket"
+            ], cacheTypes = [
+                "font",
+                "document",
+                "manifest",
+                "image",
+                "png",
+                "jpeg",
+                "svg+xml",
+                "x-icon",
+                "worker",
+                "sharedworker",
+            ];
         if (networkTypes.includes(event.request.destination) ||
             patterns.scripts.test(url.pathname) ||
             patterns.fonts.test(url.pathname)) event.respondWith(cacheThenNetwork(event.request));
@@ -238,7 +238,7 @@ const cacheThenNetwork = async (request) => {
         const cachedResponse = await caches.match(request, { cacheName: cacheName });
         if (!!cachedResponse && !!cachedResponse.ok) return cachedResponse;
         else await addResourceToCache(request);
-        return await cacheOnly(request); 
+        return await cacheOnly(request);
     } catch (error) {
         console.error(error);
         // () => caches.match(`${scope}assets/images/error.jpg`);

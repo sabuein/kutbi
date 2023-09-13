@@ -16,11 +16,11 @@ const getAllAuthors = async () => {
             cache: "default",
             credentials: "include"
         };
-        
+
         const response = await fetch(url, init);
         // if (!raw.ok) throw Error(`Failed to fetch with ${init.method.toUpperCase()} from ${url}`);
         const raw = await response.json();
-        if (raw.status === 400 || raw.status === 401 || raw.status === 403 ) {
+        if (raw.status === 400 || raw.status === 401 || raw.status === 403) {
             alert(JSON.stringify(raw, null, 2));
             console.log(JSON.stringify(raw, null, 2));
             window.document.cookie = "";
@@ -37,12 +37,12 @@ const getAllAuthors = async () => {
 const enterAuthorsMatrix = async () => {
     try {
         const url = "http://localhost:3557/authors/matrix";
-        
+
         const headers = new Headers();
         headers.set("Accept", "application/json; charset=UTF-8");
         headers.set("Content-Type", "application/json; charset=UTF-8");
         headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
-        
+
         const init = {
             method: "POST",
             headers: headers,
@@ -64,22 +64,22 @@ const enterAuthorsMatrix = async () => {
 const checkEmailType = (input) => {
     console.log(input.checkValidity);
     (input.validity.typeMismatch)
-    ? input.setCustomValidity("I am expecting an email address!")
-    : input.setCustomValidity("");
+        ? input.setCustomValidity("I am expecting an email address!")
+        : input.setCustomValidity("");
 };
 
 const checkEmailValidity = (input) => {
     console.log(input.checkValidity);
     (input.validity.valid)
-    ? input.setCustomValidity("")
-    : input.setCustomValidity("Invalid email address!");
+        ? input.setCustomValidity("")
+        : input.setCustomValidity("Invalid email address!");
 };
 
 const checkPasswordEquality = (input) => {
     console.log(input.checkValidity);
     (input.validity.typeMismatch)
-    ? input.setCustomValidity("Retyped password does not match the original password!")
-    : input.setCustomValidity("");
+        ? input.setCustomValidity("Retyped password does not match the original password!")
+        : input.setCustomValidity("");
 };
 
 const handleInput = (input) => {
@@ -120,7 +120,7 @@ const validateInput = async (input) => {
                 if (input.name === "username") { // HTML minlength="4" maxlength="16"
                     if (4 > len) throw RangeError(`The username can't be less than 4 characters. Current input: ${len} characters.`);
                     if (len > 16) throw RangeError(`The username can't be more than 16 characters. Current input: ${len} characters.`);
-                    return (4 <  len && len < 16);
+                    return (4 < len && len < 16);
                 }
                 return true;
             case "url":
@@ -159,7 +159,7 @@ const validateInput = async (input) => {
         }
 
         // Maybe other stuff?
-        
+
     } catch (error) {
         console.error(error);
         throw Error(`Something went wrong, please fix validateInput();`);

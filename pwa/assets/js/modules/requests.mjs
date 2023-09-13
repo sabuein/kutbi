@@ -78,7 +78,7 @@ const fetchJSON = async (url, options = null) => {
 const handleFormsWithBody = async (event) => {
 
     if (!(!!event.target && event.target instanceof HTMLFormElement)) throw Error("Please check the form type");
-    
+
     const log = ({
         form: {
             action: event.target.action,
@@ -115,7 +115,7 @@ const handleFormsWithBody = async (event) => {
         log.headers.set("Accept", "application/json; charset=UTF-8");
         log.headers.set("Content-Type", "application/json; charset=UTF-8");
         log.headers.set("Access-Control-Allow-Headers", "");
-        log.headers.set("Authorization", `Bearer ${ tokens ? tokens.access : "HI" }`);
+        log.headers.set("Authorization", `Bearer ${tokens ? tokens.access : "HI"}`);
         log.headers.set("X-Requested-With", "X");
         log.headers.set("X-Access-Token", "X");
         log.headers.set("User-Agent", "Kutbi Client (https://www.kutbi.com)");
@@ -131,7 +131,7 @@ const handleFormsWithBody = async (event) => {
         log.encoded = payload;
 
         // In another words, in 'mode' '-no-'cors' you can only set application/x-www-form-urlencoded, multipart/form-data, or text/plain to the Content-Type.
-        
+
         const raw = await fetch(event.target.action, {
             method: event.target.method,
             body: payload,
@@ -140,10 +140,10 @@ const handleFormsWithBody = async (event) => {
             cache: "default",
             credentials: "include"
         });
-        
+
         const responsePayload = await raw.json();
 
-        if (raw.status === 400 || raw.status === 401 || raw.status === 403 ) {
+        if (raw.status === 400 || raw.status === 401 || raw.status === 403) {
             log.error = responsePayload;
             alert(JSON.stringify(responsePayload, null, 2));
             console.log(JSON.stringify(responsePayload, null, 2));
@@ -151,7 +151,7 @@ const handleFormsWithBody = async (event) => {
         } else {
             log.success = responsePayload;
         }
-        
+
         const cookies = window.document?.cookie;
         if (!!cookies) {
             console.log(cookies);
@@ -168,7 +168,7 @@ const handleFormsWithBody = async (event) => {
     } finally {
         // console.dir(log);
         if (!!log.success) console.log(JSON.stringify(log.success, null, 2));
-        
+
     }
 };
 
@@ -194,7 +194,7 @@ const genericRequest = async (url, token) => {
     requestHeaders.set("User-Agent", "Kutbi Web Desktop (https://www.kutbi.com)");
     requestHeaders.set("Content-Type", "application/json; charset=utf-8");
     requestHeaders.set("Authorization", `Bearer ${token}`);
-    
+
     const raw = await fetch(url, {
         headers: requestHeaders,
         credentials: "same-origin",

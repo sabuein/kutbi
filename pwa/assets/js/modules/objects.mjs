@@ -17,7 +17,7 @@ const loadAccount = async () => {
             } else { throw Error("@kutbi:~/accounts$ We could not retrieve any account from the browser. You need to log in."); }
 
             const tokens = local("read", "tokens");
-            if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any tokens from the browser. You need to log in.");        
+            if (!tokens) throw Error("@kutbi:~/accounts$ We could not retrieve any tokens from the browser. You need to log in.");
             else current.tokens = JSON.parse(tokens);
 
             console.log("@kutbi:~$ Your Kutbi account and login details have been retrieved successfully from the browser.");
@@ -135,7 +135,7 @@ class Account {
     get loggen() {
         return this.loggen;
     }
-    
+
     set loggen(value) {
         this.loggen = value;
     }
@@ -291,7 +291,7 @@ class Account {
     set personalUrl(value) {
         this.personalUrl = value;
     }
-    
+
     get createdAt() {
         return this.createdAt;
     }

@@ -142,7 +142,7 @@ const getVideoStream = (mode) => {
                 // Set canvas dimensions to match the video feed
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
-                
+
                 switch (mode) {
                     case "barcode":
                         // Start scanning for a QR code
@@ -152,13 +152,13 @@ const getVideoStream = (mode) => {
                         // Start scanning for a QR code
                         scanQRCode(canvasElement, canvasContext);
                         // Start capturing frames
-                captureFrame(videoElement, canvasElement, canvasContext);
+                        captureFrame(videoElement, canvasElement, canvasContext);
                         break;
                     default:
                         break;
                 }
 
-                
+
             })
             .catch(function (error) {
                 console.error("Error accessing camera:", error);
@@ -173,7 +173,7 @@ const getCookie = (cookieName) => {
         const name = cookieName + "=";
         const decodedCookies = decodeURIComponent(window.document.cookie);
         const cookies = decodedCookies.split(";");
-        for(let i = 0; i < cookies.length; i++) {
+        for (let i = 0; i < cookies.length; i++) {
             let cookie = cookies[i];
             while (cookie.charAt(0) === " ") {
                 cookie = cookie.substring(1);

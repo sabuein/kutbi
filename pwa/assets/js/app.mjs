@@ -41,7 +41,7 @@ window.addEventListener("load", async () => {
     const worker = await registerWorker(thisApp.worker),
         serviceWorker = await registerServiceWorker(thisApp.serviceWorker),
         sharedWorker = await registerSharedWorker(thisApp.sharedWorker);
-    
+
     if (!!serviceWorker) {
         console.log("@kutbi:~$ A service worker: a client side proxy written in JavaScript, at your service, my lord!");
         window.navigator.serviceWorker.controller.postMessage("@kutbi:~$ command#1!");
